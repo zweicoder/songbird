@@ -5,14 +5,15 @@ const {
   getAllUserTracks,
   getRecentlyAddedTracks,
   getPopularTracks,
+  getTopTracks,
+  TIME_RANGE_OPTS,
 } = require('./trackService.js');
 const { createPlaylist, syncPlaylistSongs } = require('./playlistService.js');
 const { refreshAccessToken } = require('./oauth2Service.js');
 
 async function main() {
   const userId = 'heinekenchong';
-  const refreshToken =
-    'AQDae5GRoMQ3W9OHQPCpv7z5Bkm9n2a5FP7tm_xeV8zARr91_ajX-oBhZX_FjzVrQ4wE61nZzWluGD35pn9VKdn6t7otrE7WMpeb_O8-gJrv1CdtYHyFixfCuVvIxi-s8Y0';
+  const refreshToken = process.env.REFRESH_TOKEN;
 
   const refreshResponse = await refreshAccessToken(refreshToken);
   if (refreshResponse.err) {
@@ -20,7 +21,16 @@ async function main() {
   }
 
   const accessToken = refreshResponse.result;
+  console.log('Access Token for dev use: ', accessToken);
   const userOpts = { userId, accessToken };
+
+  // Get some tracks
+  const getTopTrackResponse = await getTopTracks(userOpts, TIME_RANGE_OPTS.SHORT_TERM);
+  if (getTopTrackResponse.err) return;
+  const topTracks = getTopTrackResponse.result;
+  // const tracks = await getAllUserTracks(userOpts);
+  // const popularTracks = getPopularTracks(tracks, 50);
+  // console.log(getRecentlyAddedTracks(tracks, 25));
 
   // Create playlist with songs
   const playlistOpts = {
@@ -35,16 +45,12 @@ async function main() {
   // Sync playlist songs periodically
   const createdPlaylistId = createPlaylistResponse.id;
 
-  // Get some tracks
-  // TODO let user preview the tracks probably
-  const tracks = await getAllUserTracks(userOpts);
-  const popularTracks = getPopularTracks(tracks, 50);
-  // console.log(getRecentlyAddedTracks(tracks, 25));
 
   const syncResponse = await syncPlaylistSongs(
     userOpts,
     createdPlaylistId,
-    popularTracks
+    // popularTracks
+    topTracks
   );
   if (syncResponse.err) {
     return;

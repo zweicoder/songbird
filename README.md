@@ -10,11 +10,6 @@
 - [ ] Periodic syncing, e.g. once a week
 
 
-## Other funky features
-_ [ ] (Maybe) Find songs that are low popularity and show them / purge them
-- [ ] Collaborative playlists that sync a few user's playlists to one
-
-
 ## TODO
 - Clean up server code (get access token of user)
 - Manage playlists
