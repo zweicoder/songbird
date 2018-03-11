@@ -40,7 +40,8 @@ function pluckFromTracks({ id, name, popularity, artists }) {
   return { id, name, popularity, artists };
 }
 
-async function getUserTracks(accessToken, { offset = 0, limit = 50 }) {
+async function getUserTracks(userOpts, { offset = 0, limit = 50 }) {
+  const { accessToken } = userOpts;
   const queryParams = qs.stringify({
     limit,
     offset,
