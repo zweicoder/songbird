@@ -1,6 +1,6 @@
 const axios = require('axios');
 const qs = require('query-string');
-const { getBasicAuthHeader } = require('./oauthUtils.js');
+const { getBasicAuthHeader } = require('../lib/oauthUtils.js');
 
 const SPOTIFY_ENDPOINT_REFRESH_TOKEN = 'https://accounts.spotify.com/api/token';
 

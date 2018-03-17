@@ -1,9 +1,9 @@
 const axios = require('axios');
-const { getOAuthHeader } = require('./oauthUtils.js');
+const { getOAuthHeader } = require('../lib/oauthUtils.js');
 const R = require('ramda');
 
 const SPOTIFY_PLAYLIST_PUT_LIMIT = 100;
-// Create
+
 async function createPlaylist(userOpts, playlistOpts) {
   const { userId, accessToken } = userOpts;
   const { name, description } = playlistOpts;
@@ -30,7 +30,6 @@ async function createPlaylist(userOpts, playlistOpts) {
   return {};
 }
 
-// Delete or user PUT?
 // Replace with PUT limit = 100 tracks / actually calculate diff (get all IDs, remove diff(left), add diff(right))
 async function syncPlaylistSongs(
   userOpts,
