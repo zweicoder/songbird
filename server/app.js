@@ -1,5 +1,6 @@
-require('dotenv').config()
+require('dotenv').config();
 const express = require('express');
+const morgan = require('morgan');
 const request = require('request');
 const querystring = require('querystring');
 const cookieParser = require('cookie-parser');
@@ -8,9 +9,11 @@ const { getBasicAuthHeader, getOAuthHeader } = require('./lib/oauthUtils.js');
 
 const redirect_uri = 'http://localhost:8888/callback'; // Your redirect uri
 const COOKIE_STATE_KEY = 'spotify_auth_state';
+const URL_FRONTEND = 'http://localhost:3000';
 const app = express();
 
-app.use(express.static(__dirname + '/public')).use(cookieParser());
+app.use(cookieParser());
+app.use(morgan('tiny'));
 
 app.get('/login', function(req, res) {
   const state = uuidv4();
@@ -69,9 +72,12 @@ app.get('/callback', function(req, res) {
         console.log('Refresh Token: ', refreshToken);
         // TODO store in DB or something, link to user ID. Must check spotify to get user ID?
         // TODO let user keep userId and refreshToken for future requests
+        res.redirect(`${URL_FRONTEND}/#` + querystring.stringify({
+          result: 'success'
+        }));
       } else {
         res.redirect(
-          '/#' +
+          `${URL_FRONTEND}/#` +
             querystring.stringify({
               error: 'invalid_token',
             })
