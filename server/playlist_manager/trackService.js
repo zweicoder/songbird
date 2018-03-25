@@ -44,6 +44,7 @@ async function getTopTracks(
     const items = res.data.items;
     return { result: items };
   } catch (err) {
+    console.error('error while getting top tracks')
     console.error(err.response.data.error);
     return { err: err.response.data.error };
   }

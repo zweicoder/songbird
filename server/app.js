@@ -14,6 +14,10 @@ const {
 const {
   COOKIE_SONGBIRD_REFRESH_TOKEN,
   COOKIE_SONGBIRD_ACCESS_TOKEN,
+  PLAYLIST_TYPE_TOP_SHORT_TERM,
+  PLAYLIST_TYPE_TOP_MID_TERM,
+  PLAYLIST_TYPE_TOP_LONG_TERM,
+  PLAYLIST_TYPE_POPULAR,
 } = require('./constants.js');
 
 const REDIRECT_URI = 'http://localhost:8888/callback';
@@ -103,35 +107,59 @@ app.get('/callback', function(req, res) {
   }
 });
 
+const playlistTypeMapping = {
+  [PLAYLIST_TYPE_TOP_LONG_TERM]: TIME_RANGE_OPTS.LONG_TERM,
+  [PLAYLIST_TYPE_TOP_MID_TERM]: TIME_RANGE_OPTS.MEDIUM_TERM,
+  [PLAYLIST_TYPE_TOP_SHORT_TERM]: TIME_RANGE_OPTS.SHORT_TERM,
+};
+async function getPreviewPlaylist(userOpts, playlistType) {
+  switch (playlistType) {
+    case PLAYLIST_TYPE_TOP_SHORT_TERM:
+    case PLAYLIST_TYPE_TOP_MID_TERM:
+    case PLAYLIST_TYPE_TOP_LONG_TERM:
+      const timeRange = playlistTypeMapping[playlistType];
+      let { result, err } = await getTopTracks(
+        userOpts,
+        timeRange,
+        (limit = 25)
+      );
+      if (err) {
+        return { err };
+      }
+      const pluckedTracks = result.map(track => ({
+        name: track.name,
+        album: track.album.name,
+        artists: track.artists.map(artist => artist.name),
+      }));
+      return { result: pluckedTracks };
+    default:
+      return { err: 'No matching playlistType' };
+  }
+}
+
 // TODO more fun endpoints for playlist management
 app.get('/playlist', async (req, res) => {
-  console.log(req.query);
-  const accessToken = req.query && req.query['accessToken'];
-  if (!accessToken) {
-    return res.status(400).json({ error: 'No token given' });
+  const { accessToken, playlistType } = req.query;
+  if (![accessToken, playlistType].every(e => !!e)) {
+    return res
+      .status(400)
+      .json({ error: 'Bad request - missing query params!' });
   }
-  // TODO get userId
+  // TODO get userId, manage refreshtoken and store with the userId after logging in
   const userOpts = {
     userId: 'heinekenchong',
     accessToken,
   };
-  const getTopTrackRes = await getTopTracks(
+  let { result: tracks, err } = await getPreviewPlaylist(
     userOpts,
-    TIME_RANGE_OPTS.SHORT_TERM,
-    limit=30
+    playlistType
   );
-  if (getTopTrackRes.err) {
-    console.error('Error while requesting for tracks: ', getTopTrackRes.err);
-    return res.json({ error: getTopTrackRes.err });
+  if (err) {
+    console.error('Error while getting preview playlist: ', err);
+    return res.status(500).json({ err });
   }
-  const topTracks = getTopTrackRes.result;
-  const pluckedTracks = topTracks.map(track => ({
-    name: track.name,
-    album: track.album.name,
-    artists: track.artists.map(artist => artist.name),
-  }));
 
-  return res.json({ tracks: pluckedTracks });
+  return res.json({ tracks });
 });
 
 console.log('Listening on 8888');

@@ -6,20 +6,28 @@ import axios from 'axios';
 import {
   COOKIE_SONGBIRD_REFRESH_TOKEN,
   COOKIE_SONGBIRD_ACCESS_TOKEN,
+  PLAYLIST_TYPE_TOP_SHORT_TERM,
+  PLAYLIST_TYPE_TOP_MID_TERM,
+  PLAYLIST_TYPE_TOP_LONG_TERM,
+  PLAYLIST_TYPE_POPULAR,
 } from '../constants.js';
 
 const dropdownItems = [
   {
     title: 'Top Tracks (Short Term)',
+    key: PLAYLIST_TYPE_TOP_SHORT_TERM,
   },
   {
     title: 'Top Tracks (Mid Term)',
+    key: PLAYLIST_TYPE_TOP_MID_TERM,
   },
   {
     title: 'Top Tracks (Long Term)',
+    key: PLAYLIST_TYPE_TOP_LONG_TERM,
   },
   {
     title: 'Popular Tracks',
+    key: PLAYLIST_TYPE_POPULAR,
   },
 ];
 
@@ -35,15 +43,19 @@ class Home extends Component {
   }
 
   onDropdownSelect = eventKey => {
+    const selectedOption = dropdownItems[eventKey];
     this.setState({
-      selectedOption: dropdownItems[eventKey],
+      selectedOption,
       // TODO loading lul
       loading: true,
     });
     const accessToken = localStorage.getItem(COOKIE_SONGBIRD_ACCESS_TOKEN);
     const refreshToken = localStorage.getItem(COOKIE_SONGBIRD_REFRESH_TOKEN);
-    // TODO pass in playlist option
-    const queryParams = qs.stringify({ refreshToken, accessToken });
+    const queryParams = qs.stringify({
+      refreshToken,
+      accessToken,
+      playlistType: selectedOption.key,
+    });
     axios.get(`http://localhost:8888/playlist?${queryParams}`).then(res => {
       if (res.status !== 200) {
         console.error(res);
@@ -51,6 +63,7 @@ class Home extends Component {
       }
 
       const { tracks } = res.data;
+      console.log(res.data)
       this.setState({ tracks, loading: false });
     });
   };

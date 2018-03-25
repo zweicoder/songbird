@@ -3,8 +3,12 @@ import React from 'react';
 import './index.css';
 
 const SongPreview = ({ tracks }) => {
+  if (!tracks || tracks.length === 0){
+    return null
+  }
   return (
-    tracks && tracks.length > 0 && (
+    tracks &&
+    tracks.length > 0 && (
       <Table bordered hover responsive>
         <thead>
           <tr>
