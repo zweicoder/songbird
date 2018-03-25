@@ -4,20 +4,21 @@ import React, { Component } from 'react';
 import {
   BrowserRouter as Router,
   Route,
-  Link,
-  Redirect,
   Switch,
 } from 'react-router-dom';
 import qs from 'query-string';
-import Cookies from 'cookies-js';
 
 import PrivateRoute from './components/PrivateRoute.js';
 import Home from './containers/Home.js';
 import Login from './containers/Login.js';
+import Logout from './containers/Logout.js';
 
 import logo from './logo.svg';
 import './App.css';
-import { COOKIE_SONGBIRD_REFRESH_TOKEN } from './constants.js';
+import {
+  COOKIE_SONGBIRD_REFRESH_TOKEN,
+  COOKIE_SONGBIRD_ACCESS_TOKEN,
+} from './constants.js';
 
 class App extends Component {
   /**
@@ -27,13 +28,17 @@ class App extends Component {
      4. Button to save playlist
      5. Button to subscribe??
   */
+  componentWillMount() {
+    console.log(qs.parse(window.location.search));
+  }
   render() {
-    const { token } = qs.parse(window.location.search);
-    if (token) {
-      console.log('Got token: ', token);
-      // Redirect to exact path "/" if response from oauth. TODO check token valid?
-      Cookies.set(COOKIE_SONGBIRD_REFRESH_TOKEN, token, { expires: Infinity });
+    const { accessToken, refreshToken } = qs.parse(window.location.search);
+    if (refreshToken) {
+      console.log('Successfully logged in ');
+      window.localStorage.setItem(COOKIE_SONGBIRD_ACCESS_TOKEN, accessToken);
+      window.localStorage.setItem(COOKIE_SONGBIRD_REFRESH_TOKEN, refreshToken);
     }
+    // TODO render errors?
     return (
       <Router>
         <div className="App">
@@ -41,10 +46,13 @@ class App extends Component {
             <img src={logo} className="App-logo" alt="logo" />
             <h1 className="App-title">Welcome to Songbird</h1>
           </header>
-          <Switch>
-            <Route path="/login" component={Login} />
-            <PrivateRoute path="/" component={Home} />
-          </Switch>
+          <div className="container">
+            <Switch>
+              <Route path="/logout" component={Logout} />
+              <Route path="/login" component={Login} />
+              <PrivateRoute path="/" component={Home} />
+            </Switch>
+          </div>
         </div>
       </Router>
     );

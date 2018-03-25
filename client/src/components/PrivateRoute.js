@@ -1,12 +1,10 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { Route, Redirect } from 'react-router-dom';
 
-import Cookies from 'cookies-js';
 import { COOKIE_SONGBIRD_REFRESH_TOKEN } from '../constants.js';
 
 const PrivateRoute = ({ component: Component, ...rest }) => {
-  const token = Cookies.get(COOKIE_SONGBIRD_REFRESH_TOKEN);
-  console.log('token: ', token);
+  const token = window.localStorage.getItem(COOKIE_SONGBIRD_REFRESH_TOKEN);
   return (
     <Route
       {...rest}

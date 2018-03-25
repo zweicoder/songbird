@@ -2,33 +2,42 @@ require('dotenv').config();
 const express = require('express');
 const morgan = require('morgan');
 const request = require('request');
-const querystring = require('querystring');
+const qs = require('query-string');
 const cookieParser = require('cookie-parser');
 const uuidv4 = require('uuid/v4');
+const cors = require('cors');
 const { getBasicAuthHeader, getOAuthHeader } = require('./lib/oauthUtils.js');
+const {
+  getTopTracks,
+  TIME_RANGE_OPTS,
+} = require('./playlist_manager/trackService.js');
+const {
+  COOKIE_SONGBIRD_REFRESH_TOKEN,
+  COOKIE_SONGBIRD_ACCESS_TOKEN,
+} = require('./constants.js');
 
-const redirect_uri = 'http://localhost:8888/callback'; // Your redirect uri
+const REDIRECT_URI = 'http://localhost:8888/callback';
 const COOKIE_STATE_KEY = 'spotify_auth_state';
 const URL_FRONTEND = 'http://localhost:3000';
 const app = express();
 
 app.use(cookieParser());
 app.use(morgan('tiny'));
+app.use(cors());
 
 app.get('/login', function(req, res) {
   const state = uuidv4();
   res.cookie(COOKIE_STATE_KEY, state);
 
-  // your application requests authorization
   const scope =
     'user-read-private user-read-email playlist-read-private user-library-read playlist-modify-public playlist-modify-private user-top-read';
   res.redirect(
     'https://accounts.spotify.com/authorize?' +
-      querystring.stringify({
+      qs.stringify({
         response_type: 'code',
         client_id: process.env.CLIENT_ID,
         scope,
-        redirect_uri,
+        redirect_uri: REDIRECT_URI,
         state,
       })
   );
@@ -44,7 +53,7 @@ app.get('/callback', function(req, res) {
   if (state === null || state !== storedState) {
     res.redirect(
       '/#' +
-        querystring.stringify({
+        qs.stringify({
           error: 'state_mismatch',
         })
     );
@@ -55,7 +64,7 @@ app.get('/callback', function(req, res) {
       url: 'https://accounts.spotify.com/api/token',
       form: {
         code,
-        redirect_uri,
+        redirect_uri: REDIRECT_URI,
         grant_type: 'authorization_code',
       },
       headers: getBasicAuthHeader(),
@@ -67,18 +76,25 @@ app.get('/callback', function(req, res) {
         const accessToken = body.access_token,
           refreshToken = body.refresh_token;
 
+        console.log('===============================');
         console.log('Successfully obtained tokens: ');
         console.log('Access Token: ', accessToken);
         console.log('Refresh Token: ', refreshToken);
+        console.log('===============================');
         // TODO store in DB or something, link to user ID. Must check spotify to get user ID?
-        // TODO let user keep userId and refreshToken for future requests
-        res.redirect(`${URL_FRONTEND}/#` + querystring.stringify({
-          result: 'success'
-        }));
-      } else {
         res.redirect(
-          `${URL_FRONTEND}/#` +
-            querystring.stringify({
+          `${URL_FRONTEND}/?` +
+            qs.stringify({
+              result: 'success',
+              accessToken,
+              refreshToken,
+            })
+        );
+      } else {
+        console.log('Error getting oauth tokens: ', error);
+        res.redirect(
+          `${URL_FRONTEND}/?` +
+            qs.stringify({
               error: 'invalid_token',
             })
         );
@@ -88,5 +104,35 @@ app.get('/callback', function(req, res) {
 });
 
 // TODO more fun endpoints for playlist management
+app.get('/playlist', async (req, res) => {
+  console.log(req.query);
+  const accessToken = req.query && req.query['accessToken'];
+  if (!accessToken) {
+    return res.status(400).json({ error: 'No token given' });
+  }
+  // TODO get userId
+  const userOpts = {
+    userId: 'heinekenchong',
+    accessToken,
+  };
+  const getTopTrackRes = await getTopTracks(
+    userOpts,
+    TIME_RANGE_OPTS.SHORT_TERM,
+    limit=30
+  );
+  if (getTopTrackRes.err) {
+    console.error('Error while requesting for tracks: ', getTopTrackRes.err);
+    return res.json({ error: getTopTrackRes.err });
+  }
+  const topTracks = getTopTrackRes.result;
+  const pluckedTracks = topTracks.map(track => ({
+    name: track.name,
+    album: track.album.name,
+    artists: track.artists.map(artist => artist.name),
+  }));
+
+  return res.json({ tracks: pluckedTracks });
+});
+
 console.log('Listening on 8888');
 app.listen(8888);
