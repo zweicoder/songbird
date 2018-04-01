@@ -3,14 +3,16 @@ import { DropdownButton, MenuItem } from 'react-bootstrap';
 import SongPreview from '../components/SongPreview';
 import qs from 'query-string';
 import axios from 'axios';
+
+import { getTokens } from '../services/authService.js';
 import {
-  COOKIE_SONGBIRD_REFRESH_TOKEN,
-  COOKIE_SONGBIRD_ACCESS_TOKEN,
   PLAYLIST_TYPE_TOP_SHORT_TERM,
   PLAYLIST_TYPE_TOP_MID_TERM,
   PLAYLIST_TYPE_TOP_LONG_TERM,
   PLAYLIST_TYPE_POPULAR,
-} from '../constants.js';
+} from '../constants.global.js';
+import CONSTANTS from '../constants.js';
+const { URL_BACKEND_PLAYLIST} = CONSTANTS;
 
 const dropdownItems = [
   {
@@ -49,21 +51,20 @@ class Home extends Component {
       // TODO loading lul
       loading: true,
     });
-    const accessToken = localStorage.getItem(COOKIE_SONGBIRD_ACCESS_TOKEN);
-    const refreshToken = localStorage.getItem(COOKIE_SONGBIRD_REFRESH_TOKEN);
+    const { accessToken, refreshToken } = getTokens();
     const queryParams = qs.stringify({
       refreshToken,
       accessToken,
       playlistType: selectedOption.key,
     });
-    axios.get(`http://localhost:8888/playlist?${queryParams}`).then(res => {
+    axios.get(`${URL_BACKEND_PLAYLIST}?${queryParams}`).then(res => {
       if (res.status !== 200) {
         console.error(res);
         return;
       }
 
       const { tracks } = res.data;
-      console.log(res.data)
+      console.log(res.data);
       this.setState({ tracks, loading: false });
     });
   };

@@ -5,34 +5,17 @@ import {
   BrowserRouter as Router,
   Route,
   Switch,
-  Redirect,
 } from 'react-router-dom';
-import qs from 'query-string';
 
 import PrivateRoute from './components/PrivateRoute.js';
+import ParamHandler from './components/ParamHandler.js';
 import Home from './containers/Home.js';
 import Login from './containers/Login.js';
 import Logout from './containers/Logout.js';
 
 import logo from './logo.svg';
 import './App.css';
-import {
-  COOKIE_SONGBIRD_REFRESH_TOKEN,
-  COOKIE_SONGBIRD_ACCESS_TOKEN,
-} from './constants.js';
 
-const ParamHandler = () => {
-  console.log(qs.parse(window.location.search));
-  const { accessToken, refreshToken } = qs.parse(window.location.search);
-  if (refreshToken) {
-    console.log('Successfully logged in ');
-    window.localStorage.setItem(COOKIE_SONGBIRD_ACCESS_TOKEN, accessToken);
-    window.localStorage.setItem(COOKIE_SONGBIRD_REFRESH_TOKEN, refreshToken);
-    return <Redirect to={{ pathname: '/' }} />;
-  }
-
-  return null;
-};
 class App extends Component {
   /**
      1. Check OAUTH token (just give refresh token now)
@@ -47,7 +30,7 @@ class App extends Component {
       <Router>
         <div className="App">
           <header className="App-header">
-            <img src={logo} className="App-logo" alt="logo" />
+            <a href="/logout"><img src={logo} className="App-logo" alt="logo" /> </a>
             <h1 className="App-title">Welcome to Songbird</h1>
           </header>
           <div className="container">
