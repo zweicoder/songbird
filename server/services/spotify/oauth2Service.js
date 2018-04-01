@@ -21,7 +21,7 @@ async function refreshAccessToken(refreshToken) {
   } catch (err) {
     console.error(err);
     console.error(`Failed to refresh access token: ${err.response.statusText}`);
-    return { err };
+    throw err;
   }
 }
 async function exchangeAuthorizationCode(code) {
@@ -50,7 +50,7 @@ async function exchangeAuthorizationCode(code) {
     console.error(err.config);
     console.error(err.response.status);
     console.error(err.response.data);
-    return { err };
+    throw err;
   }
 }
 

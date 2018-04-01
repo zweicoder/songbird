@@ -1,7 +1,7 @@
 const R = require('ramda');
 const axios = require('axios');
 const qs = require('query-string');
-const { getOAuthHeader } = require('../lib/oauthUtils.js');
+const { getOAuthHeader } = require('../../lib/oauthUtils.js');
 
 const SPOTIFY_ENDPOINT_TRACKS = 'https://api.spotify.com/v1/me/tracks';
 const SPOTIFY_ENDPOINT_TOP = 'https://api.spotify.com/v1/me/top/tracks';
@@ -44,7 +44,7 @@ async function getTopTracks(
     const items = res.data.items;
     return { result: items };
   } catch (err) {
-    console.error('error while getting top tracks')
+    console.error('error while getting top tracks');
     console.error(err.response.data.error);
     return { err: err.response.data.error };
   }

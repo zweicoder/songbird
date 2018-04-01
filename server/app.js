@@ -17,7 +17,9 @@ app.use(cors());
 
 app.use(loginRouter, playlistRouter);
 
-
+app.use((err, req, res, next) => {
+  res.status(500).send('Oops! Looks like something broke :(');
+});
 
 console.log('Listening on 8888');
 app.listen(8888);

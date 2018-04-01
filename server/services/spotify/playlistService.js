@@ -25,7 +25,7 @@ async function createPlaylist(userOpts, playlistOpts) {
   } catch (err) {
     console.error('Error while creating playlist for user: ');
     console.error(err.response.data.error);
-    return { err };
+    throw err;
   }
   return {};
 }
@@ -60,7 +60,7 @@ async function syncPlaylistSongs(
   } catch (err) {
     console.error('Error while syncing playlist for user: ');
     console.error(err.response.data.error);
-    return { err };
+    throw err;
   }
 }
 

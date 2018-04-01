@@ -4,7 +4,6 @@ import React from 'react';
 import { Redirect } from 'react-router';
 
 const ParamHandler = () => {
-  console.log(qs.parse(window.location.search));
   const { accessToken, refreshToken, error } = qs.parse(window.location.search);
   if (error) {
     console.error(error);

@@ -5,7 +5,6 @@ import { Button } from 'react-bootstrap';
 import { isAuthenticated } from '../services/authService.js';
 import CONSTANTS from '../constants.js';
 const { URL_BACKEND_LOGIN } = CONSTANTS;
-console.log(CONSTANTS)
 
 class Login extends Component {
   render() {

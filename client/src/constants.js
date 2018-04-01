@@ -8,4 +8,4 @@ const constants =  {
   KEY_SONGBIRD_ACCESS_TOKEN: 'KEY_SONGBIRD_ACCESS_TOKEN',
 };
 
-export default constants;
+module.exports = constants;
