@@ -2,7 +2,7 @@
 import {
   KEY_SONGBIRD_REFRESH_TOKEN,
   KEY_SONGBIRD_ACCESS_TOKEN,
-} from '../constants.global.js';
+} from '../constants.js';
 
 export function logout() {
   window.localStorage.removeItem(KEY_SONGBIRD_ACCESS_TOKEN);

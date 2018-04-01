@@ -12,13 +12,13 @@ const {
   OAUTH_CLIENT_ID,
   URL_FRONTEND,
   URL_SPOTIFY_AUTHORIZATION_CODE,
-  KEY_STATE_KEY,
+  KEY_OAUTH2_STATE,
 } = require('../constants.js');
 
 const router = express.Router();
 router.get('/login', function(req, res) {
   const state = uuidv4();
-  res.cookie(KEY_STATE_KEY, state);
+  res.cookie(KEY_OAUTH2_STATE, state);
 
   const queryParams = qs.stringify({
     response_type: 'code',
@@ -35,7 +35,7 @@ router.get('/callback', async function(req, res) {
   // after checking the state parameter
   const code = req.query.code || null;
   const state = req.query.state || null;
-  const storedState = req.cookies ? req.cookies[KEY_STATE_KEY] : null;
+  const storedState = req.cookies ? req.cookies[KEY_OAUTH2_STATE] : null;
 
   if (state === null || state !== storedState) {
     res.redirect(
@@ -47,7 +47,7 @@ router.get('/callback', async function(req, res) {
     redirectWithError('state_mismatch');
     return;
   }
-  res.clearCookie(KEY_STATE_KEY);
+  res.clearCookie(KEY_OAUTH2_STATE);
 
   // Got an authorization code, exchange it for the user's access and refresh token
   let resp = await exchangeAuthorizationCode(code);
