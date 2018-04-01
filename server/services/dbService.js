@@ -33,7 +33,7 @@ async function putUser(userId, token) {
   const client = await pool.connect();
   try {
     const res = await client.query(
-      'INSERT INTO users (user_id, token) VALUES ($1, $2) ON CONFLICT (user_id) DO UPDATE SET (token) = ($2)',
+      'INSERT INTO users (user_id, token) VALUES ($1, $2) ON CONFLICT (user_id) DO UPDATE SET (token) = (EXCLUDED.token)',
       [userId, token]
     );
     return { result: res.rows[0] };
