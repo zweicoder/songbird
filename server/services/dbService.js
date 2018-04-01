@@ -1,8 +1,7 @@
 const { Pool } = require('pg');
 
 const pool = new Pool({
-  host: 'localhost',
-  user: 'postgres',
+  connectionString: process.env.DB_CONNECTION_STRING,
   max: 10,
   idleTimeoutMillis: 10000,
   connectionTimeoutMillis: 5000,
@@ -34,12 +33,11 @@ async function putUser(userId, token) {
   const client = await pool.connect();
   try {
     const res = await client.query(
-      'INSERT INTO users (user_id, token) VALUES ($1, $2) ON CONFLICT DO NOTHING',
+      'INSERT INTO users (user_id, token) VALUES ($1, $2) ON CONFLICT (user_id) DO UPDATE SET (token) = ($2)',
       [userId, token]
     );
     return { result: res.rows[0] };
   } catch (err) {
-    // TODO better handle for ID violations
     return { err };
   } finally {
     client.release();

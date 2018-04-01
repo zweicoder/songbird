@@ -4,7 +4,8 @@ const axios = require('axios');
 const uuidv4 = require('uuid/v4');
 
 const { exchangeAuthorizationCode } = require('../services/oauth2Service.js');
-const {getOAuthHeader} = require('../lib/oauthUtils.js');
+const { getOAuthHeader } = require('../lib/oauthUtils.js');
+const { putUser } = require('../services/dbService.js');
 const {
   COOKIE_SONGBIRD_REFRESH_TOKEN,
   COOKIE_SONGBIRD_ACCESS_TOKEN,
@@ -48,6 +49,7 @@ router.get('/callback', async function(req, res) {
           error: 'state_mismatch',
         })
     );
+    redirectWithError('state_mismatch');
     return;
   }
   res.clearCookie(COOKIE_STATE_KEY);
@@ -62,20 +64,22 @@ router.get('/callback', async function(req, res) {
   }
 
   const { accessToken, refreshToken } = resp.result;
-  console.log('===============================');
-  console.log('Successfully obtained tokens: ');
-  console.log('Access Token: ', accessToken);
-  console.log('Refresh Token: ', refreshToken);
-  console.log('===============================');
-  // TODO store in DB or something, link to user ID. Must check spotify to get user ID?
 
   resp = await getUserProfile(accessToken);
   if (resp.err) {
-    const urlParams = qs.stringify({error: 'Internal Server Error'});
-    res.redirect(`${URL_FRONTEND}/?${urlParams}`);
+    const error = 'internal_server_error';
+    redirectWithError(res, error);
     return;
   }
-  console.log(resp);
+  const { id: userId } = resp.result;
+  resp = await putUser(userId, refreshToken);
+  if (resp.err) {
+    console.error('Error inserting user to database: ', resp.err);
+    const error = 'internal_server_error';
+    redirectWithError(error);
+    return;
+  }
+
   res.redirect(
     `${URL_FRONTEND}/?` +
       qs.stringify({
@@ -86,6 +90,11 @@ router.get('/callback', async function(req, res) {
   );
   return;
 });
+
+function redirectWithError(res, error = 'internal_server_error') {
+  const urlParams = qs.stringify({ error });
+  res.redirect(`${URL_FRONTEND}/?${urlParams}`);
+}
 
 async function getUserProfile(accessToken) {
   const opts = {
