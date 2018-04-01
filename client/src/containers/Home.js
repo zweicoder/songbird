@@ -64,7 +64,6 @@ class Home extends Component {
       }
 
       const { tracks } = res.data;
-      console.log(res.data);
       this.setState({ tracks, loading: false });
     });
   };

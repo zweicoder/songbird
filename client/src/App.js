@@ -17,15 +17,7 @@ import logo from './logo.svg';
 import './App.css';
 
 class App extends Component {
-  /**
-     1. Check OAUTH token (just give refresh token now)
-     2. If token present, user is logged in, get name and say hi
-     3. Button to generate playlist / preview songs??
-     4. Button to save playlist
-     5. Button to subscribe??
-  */
   render() {
-    // TODO render errors?
     return (
       <Router>
         <div className="App">

@@ -9,7 +9,7 @@ module.exports = {
   URL_SPOTIFY_CURRENT_USER: 'https://api.spotify.com/v1/me',
   URL_SPOTIFY_AUTHORIZATION_CODE: 'https://accounts.spotify.com/authorize',
 
-  COOKIE_STATE_KEY: 'spotify_auth_state',
+  KEY_STATE_KEY: 'spotify_auth_state',
   OAUTH_CLIENT_ID: process.env.CLIENT_ID,
   OAUTH_CLIENT_SECRET: process.env.CLIENT_SECRET,
 };
