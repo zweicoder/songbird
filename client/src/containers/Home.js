@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { DropdownButton, MenuItem } from 'react-bootstrap';
+import { DropdownButton, Button, MenuItem } from 'react-bootstrap';
 import SongPreview from '../components/SongPreview';
 import qs from 'query-string';
 import axios from 'axios';
@@ -12,7 +12,7 @@ import {
   PLAYLIST_TYPE_POPULAR,
 } from '../constants.global.js';
 import CONSTANTS from '../constants.js';
-const { URL_BACKEND_PLAYLIST} = CONSTANTS;
+const { URL_BACKEND_PLAYLIST } = CONSTANTS;
 
 const dropdownItems = [
   {
@@ -32,6 +32,17 @@ const dropdownItems = [
     key: PLAYLIST_TYPE_POPULAR,
   },
 ];
+
+function addPlaylist(selectedOption) {
+  // TODO get token and post with selectedOption
+}
+const AddPlaylistButton = ({ onClick }) => {
+  return (
+    <Button bsStyle="primary" bsSize="large" onClick={onClick}>
+      +
+    </Button>
+  );
+};
 
 class Home extends Component {
   constructor(props) {
@@ -68,7 +79,13 @@ class Home extends Component {
     });
   };
 
-  componentDidMount() {}
+  onAddPlaylist = () => {
+    const selectedOption = this.state.selectedOption;
+    console.log('Adding playlist option: ', selectedOption);
+    // TODO get token and post with selection
+    return;
+  };
+
   render() {
     const { selectedOption, tracks } = this.state;
     const title = selectedOption && selectedOption.title;
@@ -92,7 +109,10 @@ class Home extends Component {
             ))}
           </DropdownButton>
         </div>
-        <SongPreview tracks={tracks} />
+        {this.state.tracks.length > 0 && (
+           <AddPlaylistButton onClick={this.onAddPlaylist} />
+           <SongPreview tracks={tracks} />
+        )}
       </div>
     );
   }
