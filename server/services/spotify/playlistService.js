@@ -1,11 +1,63 @@
 const axios = require('axios');
 const R = require('ramda');
 
+const { getTopTracks, TIME_RANGE_OPTS } = require('./trackService.js');
 const { getOAuthHeader } = require('../../lib/oauthUtils.js');
+const {
+  PLAYLIST_TYPE_TOP_SHORT_TERM,
+  PLAYLIST_TYPE_TOP_MID_TERM,
+  PLAYLIST_TYPE_TOP_LONG_TERM,
+  PLAYLIST_TYPE_POPULAR,
+} = require('../../constants.global.js');
 
 const SPOTIFY_PLAYLIST_PUT_LIMIT = 100;
 
-async function createPlaylist(userOpts, playlistOpts) {
+const playlistToTimeRange = {
+  [PLAYLIST_TYPE_TOP_LONG_TERM]: TIME_RANGE_OPTS.LONG_TERM,
+  [PLAYLIST_TYPE_TOP_MID_TERM]: TIME_RANGE_OPTS.MEDIUM_TERM,
+  [PLAYLIST_TYPE_TOP_SHORT_TERM]: TIME_RANGE_OPTS.SHORT_TERM,
+};
+
+/**
+ * Gets the tracks for a given playlist type and user
+ * @param {userId, accessToken} userOpts
+ * @param enum playlistType - The playlist type shared between frontend and backend
+ * @param int numTracks
+ * @returns {err, result}
+ */
+async function getPlaylistTracks(userOpts, playlistType, numTracks = 25) {
+  switch (playlistType) {
+    case PLAYLIST_TYPE_TOP_SHORT_TERM:
+    case PLAYLIST_TYPE_TOP_MID_TERM:
+    case PLAYLIST_TYPE_TOP_LONG_TERM:
+      const timeRange = playlistToTimeRange[playlistType];
+      const { result, err } = await getTopTracks(
+        userOpts,
+        timeRange,
+        numTracks
+      );
+      if (err) {
+        return { err };
+      }
+      const pluckedTracks = result.map(track => ({
+        name: track.name,
+        album: track.album.name,
+        artists: track.artists.map(artist => artist.name),
+      }));
+      return { result: pluckedTracks };
+    // TODO other playlist types
+    default:
+      throw new Exception('No matching playlist types');
+  }
+}
+
+/**
+ * Creates an empty playlist for a user
+ * @param {userId, accessToken} userOpts
+ * @param {name, description} playlistOpts
+ * @returns {err, result}
+ */
+async function createEmptyPlaylist(userOpts, playlistOpts) {
   const { userId, accessToken } = userOpts;
   const { name, description } = playlistOpts;
   if (![name, description].every(e => !!e)) {
@@ -22,7 +74,7 @@ async function createPlaylist(userOpts, playlistOpts) {
       opts
     );
     const { id } = res.data;
-    return { id };
+    return { result: id };
   } catch (err) {
     console.error('Error while creating playlist for user: ');
     console.error(err.response.data.error);
@@ -32,7 +84,7 @@ async function createPlaylist(userOpts, playlistOpts) {
 }
 
 // Replace with PUT limit = 100 tracks / actually calculate diff (get all IDs, remove diff(left), add diff(right))
-async function syncPlaylistSongs(
+async function putPlaylistSongs(
   userOpts,
   playlistId,
   tracks,
@@ -49,7 +101,7 @@ async function syncPlaylistSongs(
   };
   if (!requestBody.uris.every(e => !!e)) {
     console.error('Bad track uris: ', requestBody.uris);
-    return {err: 'Bad track uris: ' + requestBody.uris};
+    return { err: 'Bad track uris: ' + requestBody.uris };
   }
   try {
     const res = await axios.put(
@@ -66,6 +118,7 @@ async function syncPlaylistSongs(
 }
 
 module.exports = {
-  createPlaylist,
-  syncPlaylistSongs,
+  createEmptyPlaylist,
+  putPlaylistSongs,
+  getPlaylistTracks,
 };

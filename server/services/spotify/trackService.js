@@ -15,41 +15,6 @@ const TIME_RANGE_OPTS = {
 const popularitySelector = trackObj => trackObj.popularity;
 const addedTimeSelector = trackObj => trackObj.added_at;
 
-// Get Top tracks of user based on given time range
-async function getTopTracks(
-  userOpts,
-  timeRange,
-  limit = 50,
-  offset = 0
-) {
-  const { accessToken } = userOpts;
-  const queryParams = qs.stringify({
-    time_range: timeRange,
-    limit,
-    offset,
-  });
-  const options = {
-    headers: Object.assign(
-      {},
-      { 'Content-Type': 'application/json' },
-      getOAuthHeader(accessToken)
-    ),
-  };
-
-  try {
-    const res = await axios.get(
-      `${SPOTIFY_ENDPOINT_TOP}?${queryParams}`,
-      options
-    );
-    const items = res.data.items;
-    return { result: items };
-  } catch (err) {
-    console.error('error while getting top tracks');
-    console.error(err.response.data.error);
-    return { err: err.response.data.error };
-  }
-}
-
 // Get Most Popular tracks from the trackObjs.
 function getPopularTracks(trackObjs, limit = 50) {
   const sortByPopularityDesc = R.sortBy(R.pipe(popularitySelector, R.negate));
@@ -60,8 +25,10 @@ function getPopularTracks(trackObjs, limit = 50) {
 // Get Most Recently Added tracks
 function getRecentlyAddedTracks(trackObjs, limit = 50) {
   if (trackObjs.any(e => !e.created_at)) {
-    console.error('Track with no created_at field found. Make sure track is from a saved track object');
-    return {err: 'Bad input to function'};
+    console.error(
+      'Track with no created_at field found. Make sure track is from a saved track object'
+    );
+    return { err: 'Bad input to function' };
   }
   const sortByAddedTimeDesc = R.sortBy(
     R.pipe(addedTimeSelector, Date.parse, R.negate)
@@ -74,8 +41,10 @@ function getRecentlyAddedTracks(trackObjs, limit = 50) {
 function getTracksByTimeWindow(trackObjs, timeDeltaInMillis) {
   // TODO maybe not Date.now but a set time (e.g. sunday 12am)
   if (trackObjs.any(e => !e.created_at)) {
-    console.error('Track with no created_at field found. Make sure track is from a saved track object');
-    return {err: 'Bad input to function'};
+    console.error(
+      'Track with no created_at field found. Make sure track is from a saved track object'
+    );
+    return { err: 'Bad input to function' };
   }
   const cutOffDatetime = Date.now() - timeDeltaInMillis;
   const isAddedBeforeCutOff = R.pipe(
@@ -108,8 +77,10 @@ async function getUserTracks(userOpts, { offset = 0, limit = 50 }) {
     };
   } catch (err) {
     console.error('Error while requesting for user tracks: ');
-    console.error(err.response.data.error);
-    return { err };
+    console.error(err.config);
+    console.error(err.response.status);
+    console.error(err.response.data);
+    throw err;
   }
 }
 
@@ -122,16 +93,50 @@ async function getAllUserTracks(accessToken, maxLimit = 250) {
   // Default maxLimit limits per user to request up to 5 times
   for (let i = 0; i < maxLimit; i += limit) {
     const res = await getUserTracks(accessToken, { offset: i, limit });
-    const {err, items } = res;
-    if (res.err) return {err: res.err};
+    const { err, items } = res;
+    if (res.err) return { err: res.err };
     savedTrackObjs.push(...res.items);
     if (!res.next) {
       break;
     }
   }
 
-  const tracks = savedTrackObjs.map(({added_at, track}) => Object.assign({}, track, {added_at}));
+  const tracks = savedTrackObjs.map(({ added_at, track }) =>
+    Object.assign({}, track, { added_at })
+  );
   return { result: tracks };
+}
+
+// Get Top tracks of user based on given time range
+async function getTopTracks(userOpts, timeRange, limit = 50, offset = 0) {
+  const { accessToken } = userOpts;
+  const queryParams = qs.stringify({
+    time_range: timeRange,
+    limit,
+    offset,
+  });
+  const options = {
+    headers: Object.assign(
+      {},
+      { 'Content-Type': 'application/json' },
+      getOAuthHeader(accessToken)
+    ),
+  };
+
+  try {
+    const res = await axios.get(
+      `${SPOTIFY_ENDPOINT_TOP}?${queryParams}`,
+      options
+    );
+    const items = res.data.items;
+    return { result: items };
+  } catch (err) {
+    console.error('Error while getting top tracks');
+    console.error(err.config);
+    console.error(err.response.status);
+    console.error(err.response.data);
+    throw err;
+  }
 }
 
 module.exports = {

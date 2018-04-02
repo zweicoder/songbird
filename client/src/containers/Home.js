@@ -33,9 +33,6 @@ const dropdownItems = [
   },
 ];
 
-function addPlaylist(selectedOption) {
-  // TODO get token and post with selectedOption
-}
 const AddPlaylistButton = ({ onClick }) => {
   return (
     <Button bsStyle="primary" bsSize="large" onClick={onClick}>
@@ -110,8 +107,10 @@ class Home extends Component {
           </DropdownButton>
         </div>
         {this.state.tracks.length > 0 && (
-           <AddPlaylistButton onClick={this.onAddPlaylist} />
-           <SongPreview tracks={tracks} />
+          <div>
+            <AddPlaylistButton onClick={this.onAddPlaylist} />
+            <SongPreview tracks={tracks} />
+          </div>
         )}
       </div>
     );
