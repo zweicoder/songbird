@@ -1,11 +1,12 @@
 const axios = require('axios');
 const qs = require('query-string');
-const { getBasicAuthHeader } = require('../lib/oauthUtils.js');
+
+const { getBasicAuthHeader } = require('../../lib/oauthUtils.js');
 const {
   URL_FRONTEND,
   URL_SPOTIFY_REFRESH_TOKEN,
   OAUTH_REDIRECT_URI,
-} = require('../constants.js');
+} = require('../../constants.js');
 
 async function refreshAccessToken(refreshToken) {
   try {

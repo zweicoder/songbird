@@ -1,6 +1,7 @@
 const axios = require('axios');
-const { getOAuthHeader } = require('../lib/oauthUtils.js');
 const R = require('ramda');
+
+const { getOAuthHeader } = require('../../lib/oauthUtils.js');
 
 const SPOTIFY_PLAYLIST_PUT_LIMIT = 100;
 

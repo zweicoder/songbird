@@ -1,9 +1,9 @@
 const axios = require('axios');
 
-const { getOAuthHeader } = require('../lib/oauthUtils.js');
-const { URL_SPOTIFY_CURRENT_USER } = require('../constants.js');
+const { getOAuthHeader } = require('../../lib/oauthUtils.js');
+const { URL_SPOTIFY_CURRENT_USER } = require('../../constants.js');
 
-export async function getUserProfile(accessToken) {
+async function getUserProfile(accessToken) {
   const opts = {
     headers: getOAuthHeader(accessToken),
   };
@@ -18,3 +18,7 @@ export async function getUserProfile(accessToken) {
     return { err };
   }
 }
+
+module.exports = {
+  getUserProfile,
+};
