@@ -4,7 +4,7 @@ import './index.css';
 
 const SongPreview = ({ tracks }) => {
   if (!tracks || tracks.length === 0){
-    return null
+    return null;
   }
   return (
     tracks &&

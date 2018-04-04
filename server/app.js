@@ -5,12 +5,14 @@ const qs = require('query-string');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const axios = require('axios');
+const bodyParser = require('body-parser');
 
 const loginRouter = require('./routes/login.js');
 const playlistRouter = require('./routes/playlist.js');
 
 const app = express();
 
+app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(morgan('tiny'));
 app.use(cors());

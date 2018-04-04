@@ -1,4 +1,5 @@
 const express = require('express');
+const jsonParser = require('body-parser').json();
 
 const {
   getPlaylistTracks,
@@ -30,27 +31,40 @@ router.get('/playlist', async (req, res) => {
     userId,
     accessToken,
   };
-  const { result: tracks } = await getPlaylistTracks(userOpts, playlistType);
+  const { result } = await getPlaylistTracks(userOpts, playlistType);
 
+  // Pluck tracks for response
+  const tracks = result.map(track => ({
+    name: track.name,
+    album: track.album.name,
+    artists: track.artists.map(artist => artist.name),
+  }));
   return res.json({ tracks });
 });
 
-router.post('/playlist', async (req, res) => {
+router.post('/playlist', jsonParser, async (req, res) => {
+  if (!req.body) {
+    console.error('No body for POST /playlist');
+    res.sendStatus(400);
+    return;
+  }
   const { playlistType, refreshToken } = req.body;
 
   const { result: accessToken } = await refreshAccessToken(refreshToken);
-  const { result: userId } = await getUserProfile(accessToken);
+  const { result: userProfile } = await getUserProfile(accessToken);
+  const userId = userProfile.id;
+  console.log(`Generating playlist for: `, userId);
   const userOpts = {
     userId,
     accessToken,
   };
   // TODO default names and description depending on playlist type
   const playlistOpts = {
-    name: 'Songbird Playlist',
+    name: `${playlistType} by Songbird`,
     description: 'blabla',
   };
   const [{ result: tracks }, { result: playlistId }] = await Promise.all([
-    getPlaylistTracks(userOpts),
+    getPlaylistTracks(userOpts, playlistType),
     createEmptyPlaylist(userOpts, playlistOpts),
   ]);
 

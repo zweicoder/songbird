@@ -2,7 +2,7 @@ const {OAUTH_CLIENT_ID, OAUTH_CLIENT_SECRET} = require('../constants.js');
 
 function getOAuthHeader(accessToken) {
   if (!accessToken) {
-    throw Exception('No access token given!');
+    throw new Error('No access token given!');
   }
   return { Authorization: 'Bearer ' + accessToken };
 }

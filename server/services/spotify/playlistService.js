@@ -39,15 +39,10 @@ async function getPlaylistTracks(userOpts, playlistType, numTracks = 25) {
       if (err) {
         return { err };
       }
-      const pluckedTracks = result.map(track => ({
-        name: track.name,
-        album: track.album.name,
-        artists: track.artists.map(artist => artist.name),
-      }));
-      return { result: pluckedTracks };
+      return { result };
     // TODO other playlist types
     default:
-      throw new Exception('No matching playlist types');
+      throw new Error('No matching playlist types for: ', playlistType);
   }
 }
 
@@ -77,7 +72,9 @@ async function createEmptyPlaylist(userOpts, playlistOpts) {
     return { result: id };
   } catch (err) {
     console.error('Error while creating playlist for user: ');
-    console.error(err.response.data.error);
+    console.error(err.config);
+    console.error(err.response.status);
+    console.error(err.response.data);
     throw err;
   }
   return {};
@@ -112,7 +109,9 @@ async function putPlaylistSongs(
     return {};
   } catch (err) {
     console.error('Error while syncing playlist for user: ');
-    console.error(err.response.data.error);
+    console.error(err.config);
+    console.error(err.response.status);
+    console.error(err.response.data);
     throw err;
   }
 }

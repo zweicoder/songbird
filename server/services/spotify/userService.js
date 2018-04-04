@@ -8,7 +8,7 @@ async function getUserProfile(accessToken) {
     headers: getOAuthHeader(accessToken),
   };
   try {
-    let resp = await axios.get(URL_SPOTIFY_CURRENT_USER, opts);
+    const resp = await axios.get(URL_SPOTIFY_CURRENT_USER, opts);
     return { result: resp.data };
   } catch (err) {
     console.error('Error trying to get user profile');

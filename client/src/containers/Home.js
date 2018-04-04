@@ -46,24 +46,23 @@ class Home extends Component {
     super(props);
     const { refreshToken } = this.props;
     this.state = {
-      selectedOption: null,
+      selectedPlaylist: null,
       tracks: [],
       refreshToken,
     };
   }
 
   onDropdownSelect = eventKey => {
-    const selectedOption = dropdownItems[eventKey];
+    const selectedPlaylist = dropdownItems[eventKey];
     this.setState({
-      selectedOption,
+      selectedPlaylist,
       // TODO loading lul
       loading: true,
     });
-    const { accessToken, refreshToken } = getTokens();
+    const { refreshToken } = getTokens();
     const queryParams = qs.stringify({
       refreshToken,
-      accessToken,
-      playlistType: selectedOption.key,
+      playlistType: selectedPlaylist.key,
     });
     axios.get(`${URL_BACKEND_PLAYLIST}?${queryParams}`).then(res => {
       if (res.status !== 200) {
@@ -76,16 +75,20 @@ class Home extends Component {
     });
   };
 
-  onAddPlaylist = () => {
-    const selectedOption = this.state.selectedOption;
-    console.log('Adding playlist option: ', selectedOption);
-    // TODO get token and post with selection
+  onAddPlaylist = async () => {
+    const selectedPlaylist = this.state.selectedPlaylist;
+    console.log('Adding playlist option: ', selectedPlaylist);
+    const { refreshToken } = getTokens();
+    axios.post(URL_BACKEND_PLAYLIST, {
+      refreshToken,
+      playlistType: selectedPlaylist.key,
+    });
     return;
   };
 
   render() {
-    const { selectedOption, tracks } = this.state;
-    const title = selectedOption && selectedOption.title;
+    const { selectedPlaylist, tracks } = this.state;
+    const title = selectedPlaylist && selectedPlaylist.title;
     return (
       <div>
         <h2>some playlist here</h2>
