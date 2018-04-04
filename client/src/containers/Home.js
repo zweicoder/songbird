@@ -5,33 +5,10 @@ import qs from 'query-string';
 import axios from 'axios';
 
 import { getTokens } from '../services/authService.js';
-import {
-  PLAYLIST_TYPE_TOP_SHORT_TERM,
-  PLAYLIST_TYPE_TOP_MID_TERM,
-  PLAYLIST_TYPE_TOP_LONG_TERM,
-  PLAYLIST_TYPE_POPULAR,
-} from '../constants.global.js';
-import CONSTANTS from '../constants.js';
-const { URL_BACKEND_PLAYLIST } = CONSTANTS;
+import { PLAYLIST_METADATA } from '../constants.global.js';
+import { URL_BACKEND_PLAYLIST } from '../constants.js';
 
-const dropdownItems = [
-  {
-    title: 'Top Tracks (Short Term)',
-    key: PLAYLIST_TYPE_TOP_SHORT_TERM,
-  },
-  {
-    title: 'Top Tracks (Mid Term)',
-    key: PLAYLIST_TYPE_TOP_MID_TERM,
-  },
-  {
-    title: 'Top Tracks (Long Term)',
-    key: PLAYLIST_TYPE_TOP_LONG_TERM,
-  },
-  {
-    title: 'Popular Tracks',
-    key: PLAYLIST_TYPE_POPULAR,
-  },
-];
+const playlistTypeKeys = Object.keys(PLAYLIST_METADATA);
 
 const AddPlaylistButton = ({ onClick }) => {
   return (
@@ -53,16 +30,17 @@ class Home extends Component {
   }
 
   onDropdownSelect = eventKey => {
-    const selectedPlaylist = dropdownItems[eventKey];
     this.setState({
-      selectedPlaylist,
+      selectedPlaylist: eventKey,
       // TODO loading lul
       loading: true,
+      // Empty tracks
+      tracks: []
     });
     const { refreshToken } = getTokens();
     const queryParams = qs.stringify({
       refreshToken,
-      playlistType: selectedPlaylist.key,
+      playlistType: eventKey,
     });
     axios.get(`${URL_BACKEND_PLAYLIST}?${queryParams}`).then(res => {
       if (res.status !== 200) {
@@ -81,14 +59,14 @@ class Home extends Component {
     const { refreshToken } = getTokens();
     axios.post(URL_BACKEND_PLAYLIST, {
       refreshToken,
-      playlistType: selectedPlaylist.key,
+      playlistType: selectedPlaylist,
     });
     return;
   };
 
   render() {
     const { selectedPlaylist, tracks } = this.state;
-    const title = selectedPlaylist && selectedPlaylist.title;
+    const title = selectedPlaylist && PLAYLIST_METADATA[selectedPlaylist].title;
     return (
       <div>
         <h2>some playlist here</h2>
@@ -98,13 +76,13 @@ class Home extends Component {
             bsStyle="default"
             title={title || 'Choose playlist type'}
           >
-            {dropdownItems.map((e, idx) => (
+            {playlistTypeKeys.map((key, idx) => (
               <MenuItem
-                key={idx}
-                eventKey={idx}
+                key={key}
+                eventKey={key}
                 onSelect={this.onDropdownSelect}
               >
-                {e.title}
+                {PLAYLIST_METADATA[key].title}
               </MenuItem>
             ))}
           </DropdownButton>
