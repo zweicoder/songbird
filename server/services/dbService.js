@@ -1,5 +1,5 @@
 const { Pool } = require('pg');
-const {PLAYLIST_TYPE_DB_MAP} = require('../constants.js');
+const { PLAYLIST_TYPE_DB_MAP } = require('../constants.js');
 
 const pool = new Pool({
   connectionString: process.env.DB_CONNECTION_STRING,
@@ -46,18 +46,19 @@ async function putUser(userId, token) {
   }
 }
 
-async function addPlaylistSubscription(token, spotifyUri, playlistType) {
+async function addPlaylistSubscription(token, spotifyPlaylistId, playlistType) {
   const { result: user } = await getUser(token);
   const dbPlaylistType = PLAYLIST_TYPE_DB_MAP[playlistType];
   if (!user) {
     return { err: 'Could not find user with token: ', token };
   }
-  console.log('Inserting subscription for user: ',user);
+  console.log('Inserting subscription for user: ', user);
   const client = await pool.connect();
   try {
+    // TODO Playlist deleted on user side?? Periodic syncing need to check if deleted? <- check this
     const res = await client.query(
-      'INSERT INTO subscriptions (user_id, spotify_uri, playlist_type) VALUES ($1, $2, $3) on CONFLICT DO NOTHING',
-      [user.id,spotifyUri, dbPlaylistType]
+      'INSERT INTO subscriptions (user_id, spotify_playlist_id, playlist_type) VALUES ($1, $2, $3)',
+      [user.id, spotifyPlaylistId, dbPlaylistType]
     );
     return {};
   } catch (err) {
