@@ -1,4 +1,5 @@
 const { Pool } = require('pg');
+const {PLAYLIST_TYPE_DB_MAP} = require('../constants.js');
 
 const pool = new Pool({
   connectionString: process.env.DB_CONNECTION_STRING,
@@ -20,7 +21,6 @@ async function getUser(token) {
     const res = await client.query('SELECT * FROM users WHERE token = $1', [
       token,
     ]);
-    console.log(res.rows[0]);
     return { result: res.rows[0] };
   } catch (err) {
     console.error('Unable to getUser: ', err);
@@ -46,8 +46,9 @@ async function putUser(userId, token) {
   }
 }
 
-async function addPlaylistSubscription(token, playlistType) {
+async function addPlaylistSubscription(token, spotifyUri, playlistType) {
   const { result: user } = await getUser(token);
+  const dbPlaylistType = PLAYLIST_TYPE_DB_MAP[playlistType];
   if (!user) {
     return { err: 'Could not find user with token: ', token };
   }
@@ -55,8 +56,8 @@ async function addPlaylistSubscription(token, playlistType) {
   const client = await pool.connect();
   try {
     const res = await client.query(
-      'INSERT INTO subscriptions (user_id, playlist_type) VALUES ($1, $2)',
-      [user['spotify_username'], playlistType]
+      'INSERT INTO subscriptions (user_id, spotify_uri, playlist_type) VALUES ($1, $2, $3) on CONFLICT DO NOTHING',
+      [user.id,spotifyUri, dbPlaylistType]
     );
     return {};
   } catch (err) {

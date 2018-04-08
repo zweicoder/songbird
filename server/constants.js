@@ -1,4 +1,15 @@
+const R = require('ramda');
 require('dotenv').config();
+
+const PLAYLIST_TYPE_DB_MAP = {
+  PLAYLIST_TYPE_TOP_SHORT_TERM: 0,
+  PLAYLIST_TYPE_TOP_MID_TERM: 1,
+  PLAYLIST_TYPE_TOP_LONG_TERM: 2,
+  PLAYLIST_TYPE_POPULAR: 3,
+};
+
+const PLAYLIST_TYPE_DB_REVERSE_MAP = R.invert(PLAYLIST_TYPE_DB_MAP);
+
 module.exports = {
   OAUTH_REDIRECT_URI: 'http://localhost:8888/callback',
   OAUTH_SCOPES:
@@ -12,4 +23,7 @@ module.exports = {
   URL_SPOTIFY_AUTHORIZATION_CODE: 'https://accounts.spotify.com/authorize',
 
   KEY_OAUTH2_STATE: 'spotify_auth_state',
+
+  PLAYLIST_TYPE_DB_MAP,
+  PLAYLIST_TYPE_DB_REVERSE_MAP,
 };
