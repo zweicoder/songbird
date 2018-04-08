@@ -46,13 +46,8 @@ async function putUser(userId, token) {
   }
 }
 
-async function addPlaylistSubscription(token, spotifyPlaylistId, playlistType) {
-  const { result: user } = await getUser(token);
+async function addPlaylistSubscription(userId, spotifyPlaylistId, playlistType) {
   const dbPlaylistType = PLAYLIST_TYPE_DB_MAP[playlistType];
-  if (!user) {
-    return { err: 'Could not find user with token: ', token };
-  }
-  console.log('Inserting subscription for user: ', user);
   const client = await pool.connect();
   try {
     // TODO Playlist deleted on user side?? Periodic syncing need to check if deleted? <- check this
