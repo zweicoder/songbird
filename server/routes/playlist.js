@@ -9,6 +9,7 @@ const {
 } = require('../services/spotify/playlistService.js');
 const { getUserProfile } = require('../services/spotify/userService.js');
 const { refreshAccessToken } = require('../services/spotify/oauth2Service.js');
+const { addPlaylistSubscription } = require('../services/dbService.js');
 const {
   PLAYLIST_TYPE_TOP_SHORT_TERM,
   PLAYLIST_TYPE_TOP_MID_TERM,
@@ -70,6 +71,21 @@ router.post('/playlist', jsonParser, async (req, res) => {
   ]);
 
   await putPlaylistSongs(userOpts, playlistId, tracks);
+  res.sendStatus(200);
+});
+
+router.post('/playlist/subscribe', jsonParser, async (req, res) => {
+  const { playlistType, refreshToken } = req.body;
+  if (![playlistType, refreshToken].every(e => e)) {
+    res.sendStatus(400);
+    return;
+  }
+  const { err } = await addPlaylistSubscription(refreshToken, playlistType);
+  if (err) {
+    console.error(err);
+    res.sendStatus(400);
+    return;
+  }
   res.sendStatus(200);
 });
 

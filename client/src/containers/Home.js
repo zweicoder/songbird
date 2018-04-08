@@ -6,7 +6,10 @@ import axios from 'axios';
 
 import { getTokens } from '../services/authService.js';
 import { PLAYLIST_METADATA } from '../constants.global.js';
-import { URL_BACKEND_PLAYLIST } from '../constants.js';
+import {
+  URL_BACKEND_PLAYLIST,
+  URL_BACKEND_PLAYLIST_SUBSCRIBE,
+} from '../constants.js';
 
 const playlistTypeKeys = Object.keys(PLAYLIST_METADATA);
 
@@ -73,6 +76,12 @@ class Home extends Component {
   };
 
   onSubscribe = async () => {
+    const selectedPlaylist = this.state.selectedPlaylist;
+    const { refreshToken } = getTokens();
+    axios.post(URL_BACKEND_PLAYLIST_SUBSCRIBE, {
+      refreshToken,
+      playlistType: selectedPlaylist,
+    });
     return;
   };
 
