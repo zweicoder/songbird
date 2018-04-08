@@ -76,21 +76,21 @@ async function _getUserTracks(userOpts, { offset = 0, limit = 50 }) {
 }
 
 // Gets all user tracks. Tracks returned here are 'saved track objects' with a `created_at` field
-async function getAllUserTracks(accessToken, maxLimit = 250) {
+async function getAllUserTracks(userOpts, maxLimit = 250) {
   // Request by the maximum number of tracks per request
   const limit = 50;
-  const savedTrackObjs = [];
+  const allTracks = [];
 
   // Default maxLimit limits per user to request up to 5 times
   for (let i = 0; i < maxLimit; i += limit) {
-    const { result } = await _getUserTracks(accessToken, { offset: i, limit });
+    const { result } = await _getUserTracks(userOpts, { offset: i, limit });
     const { next, tracks } = result;
-    tracks.push(...tracks);
+    allTracks.push(...tracks);
     if (!next) {
       break;
     }
   }
-  return { result: tracks };
+  return { result: allTracks };
 }
 
 // Get Top tracks of user based on given time range

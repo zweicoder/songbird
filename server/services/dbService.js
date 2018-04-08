@@ -15,12 +15,24 @@ pool.on('error', (err, client) => {
   process.exit(-1);
 });
 
-async function getUser(token) {
+async function getUserByToken(token) {
   const client = await pool.connect();
   try {
     const res = await client.query('SELECT * FROM users WHERE token = $1', [
       token,
     ]);
+    return { result: res.rows[0] };
+  } catch (err) {
+    console.error('Unable to getUser: ', err);
+    throw new Error(err);
+  } finally {
+    client.release();
+  }
+}
+async function getUserById(id) {
+  const client = await pool.connect();
+  try {
+    const res = await client.query('SELECT * FROM users WHERE id = $1', [id]);
     return { result: res.rows[0] };
   } catch (err) {
     console.error('Unable to getUser: ', err);
@@ -46,7 +58,11 @@ async function putUser(userId, token) {
   }
 }
 
-async function addPlaylistSubscription(userId, spotifyPlaylistId, playlistType) {
+async function addPlaylistSubscription(
+  userId,
+  spotifyPlaylistId,
+  playlistType
+) {
   const dbPlaylistType = PLAYLIST_TYPE_DB_MAP[playlistType];
   const client = await pool.connect();
   try {
@@ -57,6 +73,39 @@ async function addPlaylistSubscription(userId, spotifyPlaylistId, playlistType) 
     );
     return {};
   } catch (err) {
+    console.error('Unable to addPlaylistSubscription: ', err);
+    throw new Error(err);
+  } finally {
+    client.release();
+  }
+}
+
+// Get active subscriptions, joined on user_id for token
+async function getActiveSubscriptions() {
+  const client = await pool.connect();
+  try {
+    const res = await client.query(
+      'SELECT * FROM subscriptions INNER JOIN users ON users.id = subscriptions.user_id'
+    );
+    return { result: res.rows };
+  } catch (err) {
+    console.error('Unable to getActiveSubscriptions: ', err);
+    throw new Error(err);
+  } finally {
+    client.release();
+  }
+}
+
+async function getSubscription(userId, playlistType) {
+  const client = await pool.connect();
+  try {
+    const res = await client.query(
+      'SELECT ** FROM subscriptions WHERE user_id = $1 AND playlist_type = $2',
+      [userId, playlistType]
+    );
+    return { result: res.rows[0] };
+  } catch (err) {
+    console.error('Unable to getActiveSubscriptions: ', err);
     throw new Error(err);
   } finally {
     client.release();
@@ -64,7 +113,9 @@ async function addPlaylistSubscription(userId, spotifyPlaylistId, playlistType) 
 }
 
 module.exports = {
-  getUser,
+  getUserByToken,
   putUser,
   addPlaylistSubscription,
+  getActiveSubscriptions,
+  getSubscription,
 };

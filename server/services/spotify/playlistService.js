@@ -114,8 +114,76 @@ async function putPlaylistSongs(
   }
 }
 
+// Retrieves playlist with given spotify playlist ID. Not really used
+async function getPlaylist(userOpts, playlistId) {
+  const { userId, accessToken } = userOpts;
+  const opts = {
+    headers: getOAuthHeader(accessToken),
+  };
+  try {
+    const res = await axios.get(
+      `https://api.spotify.com/v1/users/${userId}/playlists/${playlistId}`,
+      opts
+    );
+    console.log(res.data);
+    return res.data;
+  } catch (err) {
+    console.error('Error while syncing playlist for user: ');
+    console.error(err.config);
+    console.error(err.response.status);
+    console.error(err.response.data);
+    throw err;
+  }
+}
+
+// Retrieves a list of user's playlists. Gets a paged object
+// Currently uses the current user method, instead of calling with server's accessToken
+async function _getUserPlaylists(userOpts, { offset = 0, limit = 50 }) {
+  const { accessToken } = userOpts;
+  const opts = {
+    headers: getOAuthHeader(accessToken),
+  };
+  try {
+    const res = await axios.get(
+      'https://api.spotify.com/v1/me/playlists',
+      opts
+    );
+    const { next, items: playlists } = res.data;
+    return { result: { next, playlists } };
+  } catch (err) {
+    console.error('Error while syncing playlist for user: ');
+    console.error(err.config);
+    console.error(err.response.status);
+    console.error(err.response.data);
+    throw err;
+  }
+}
+
+async function getAllUserPlaylists(userOpts, maxLimit = 250) {
+  const limit = 50;
+  const allPlaylists = [];
+
+  // Default maxLimit limits per user to request up to 5 times
+  for (let i = 0; i < maxLimit; i += limit) {
+    const { result } = await _getUserPlaylists(userOpts, { offset: i, limit });
+    const { next, playlists } = result;
+    allPlaylists.push(...playlists);
+    if (!next) {
+      break;
+    }
+  }
+  return { result: allPlaylists };
+}
+
+async function userHasPlaylist(userOpts, playlistId) {
+  const { result: playlists } = await getAllUserPlaylists(userOpts);
+  const playlistIds = playlists.map(e => e.id);
+  return playlistIds && playlistIds.includes(playlistId);
+}
 module.exports = {
   createEmptyPlaylist,
   putPlaylistSongs,
   getPlaylistTracks,
+  getPlaylist,
+  getAllUserPlaylists,
 };

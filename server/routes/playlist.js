@@ -6,12 +6,14 @@ const {
   getPlaylistTracks,
   createEmptyPlaylist,
   putPlaylistSongs,
+  userHasPlaylist,
 } = require('../services/spotify/playlistService.js');
 const { getUserProfile } = require('../services/spotify/userService.js');
 const { refreshAccessToken } = require('../services/spotify/oauth2Service.js');
 const {
   addPlaylistSubscription,
-  getUser: getDbUser,
+  getUserByToken: getDbUserByToken,
+  getSubscription,
 } = require('../services/dbService.js');
 const { PLAYLIST_METADATA } = require('../constants.global.js');
 
@@ -92,11 +94,19 @@ router.post('/playlist/subscribe', jsonParser, async (req, res) => {
       'LL'
     )}`,
   };
-  const { result: dbUser } = await getDbUser(refreshToken);
+  const { result: dbUser } = await getDbUserByToken(refreshToken);
   if (!dbUser) {
     console.warn(`Could not find user with token: `, refreshToken);
     res.sendStatus(400);
     return;
+  }
+  // Check if there is an existing subscription that is still valid (playlist not deleted)
+  const {result: subscription} = await getSubscription(dbUser.id, playlistType);
+  if (subscription && userHasPlaylist(subscription.spotify_playlist_id)) {
+    // Should be a mistake e.g. spamming button -  ignore request
+    res.sendStatus(400);
+    return;
+
   }
   console.log('Inserting subscription for user: ', dbUser.spotify_username);
   const { result: playlistId } = createPlaylist(
@@ -104,6 +114,7 @@ router.post('/playlist/subscribe', jsonParser, async (req, res) => {
     playlistType,
     playlistOpts
   );
+  console.log(playlistId);
   await addPlaylistSubscription(dbUser.id, playlistId, playlistType);
   res.sendStatus(200);
   // TODO better handle uncaught errors that already created playlists

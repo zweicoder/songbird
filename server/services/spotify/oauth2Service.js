@@ -18,7 +18,7 @@ async function refreshAccessToken(refreshToken) {
       refresh_token: refreshToken,
     });
     const res = await axios.post(URL_SPOTIFY_REFRESH_TOKEN, queryParams, opts);
-    return { err: null, result: res.data.access_token };
+    return { result: res.data.access_token };
   } catch (err) {
     console.error(err);
     console.error(`Failed to refresh access token: ${err.response.statusText}`);
