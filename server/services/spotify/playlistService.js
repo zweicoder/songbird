@@ -1,12 +1,17 @@
 const axios = require('axios');
 const R = require('ramda');
 
-const { getTopTracks, TIME_RANGE_OPTS } = require('./trackService.js');
+const {
+  getTopTracks,
+  getRecentlyAddedTracks,
+  TIME_RANGE_OPTS,
+} = require('./trackService.js');
 const { getOAuthHeader } = require('../../lib/oauthUtils.js');
 const {
   PLAYLIST_TYPE_TOP_SHORT_TERM,
   PLAYLIST_TYPE_TOP_MID_TERM,
   PLAYLIST_TYPE_TOP_LONG_TERM,
+  PLAYLIST_TYPE_RECENT,
   PLAYLIST_TYPE_POPULAR,
 } = require('../../constants.global.js');
 
@@ -31,18 +36,11 @@ async function getPlaylistTracks(userOpts, playlistType, numTracks = 25) {
     case PLAYLIST_TYPE_TOP_MID_TERM:
     case PLAYLIST_TYPE_TOP_LONG_TERM:
       const timeRange = playlistToTimeRange[playlistType];
-      const { result, err } = await getTopTracks(
-        userOpts,
-        timeRange,
-        numTracks
-      );
-      if (err) {
-        return { err };
-      }
-      return { result };
-    // TODO other playlist types
+      return await getTopTracks(userOpts, timeRange, { limit: numTracks });
+    case PLAYLIST_TYPE_RECENT:
+      return await getRecentlyAddedTracks(userOpts, { limit: numTracks });
     default:
-      throw new Error('No matching playlist types for: ', playlistType);
+      throw new Error(`No matching playlist types for: ${playlistType}`);
   }
 }
 

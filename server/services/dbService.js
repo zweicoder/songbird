@@ -53,7 +53,7 @@ async function addPlaylistSubscription(userId, spotifyPlaylistId, playlistType) 
     // TODO Playlist deleted on user side?? Periodic syncing need to check if deleted? <- check this
     const res = await client.query(
       'INSERT INTO subscriptions (user_id, spotify_playlist_id, playlist_type) VALUES ($1, $2, $3)',
-      [user.id, spotifyPlaylistId, dbPlaylistType]
+      [userId, spotifyPlaylistId, dbPlaylistType]
     );
     return {};
   } catch (err) {
