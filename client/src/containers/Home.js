@@ -23,7 +23,7 @@ const AddPlaylistButton = ({ onClick }) => {
 
 const SubscribeButton = ({ onClick }) => {
   return (
-    <Button bsStyle="primary" bsSize="large" onCllick={onClick}>
+    <Button bsStyle="primary" bsSize="large" onClick={onClick}>
       Subscribe
     </Button>
   );
