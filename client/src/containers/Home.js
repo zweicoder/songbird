@@ -18,6 +18,14 @@ const AddPlaylistButton = ({ onClick }) => {
   );
 };
 
+const SubscribeButton = ({ onClick }) => {
+  return (
+    <Button bsStyle="primary" bsSize="large" onCllick={onClick}>
+      Subscribe
+    </Button>
+  );
+};
+
 class Home extends Component {
   constructor(props) {
     super(props);
@@ -35,7 +43,7 @@ class Home extends Component {
       // TODO loading lul
       loading: true,
       // Empty tracks
-      tracks: []
+      tracks: [],
     });
     const { refreshToken } = getTokens();
     const queryParams = qs.stringify({
@@ -61,6 +69,10 @@ class Home extends Component {
       refreshToken,
       playlistType: selectedPlaylist,
     });
+    return;
+  };
+
+  onSubscribe = async () => {
     return;
   };
 
@@ -90,6 +102,7 @@ class Home extends Component {
         {this.state.tracks.length > 0 && (
           <div>
             <AddPlaylistButton onClick={this.onAddPlaylist} />
+            <SubscribeButton onClick={this.onSubscribe} />
             <SongPreview tracks={tracks} />
           </div>
         )}
