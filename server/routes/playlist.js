@@ -100,14 +100,21 @@ router.post('/playlist/subscribe', jsonParser, async (req, res) => {
     res.sendStatus(400);
     return;
   }
+
+  const [{ result: subscription }, { result: accessToken }] = Promise.all([
+    await getSubscription(dbUser.id, playlistType),
+    await refreshAccessToken(refreshToken),
+  ]);
   // Check if there is an existing subscription that is still valid (playlist not deleted)
-  const {result: subscription} = await getSubscription(dbUser.id, playlistType);
-  if (subscription && userHasPlaylist(subscription.spotify_playlist_id)) {
+  if (
+    subscription &&
+    userHasPlaylist(accessToken, subscription.spotify_playlist_id)
+  ) {
     // Should be a mistake e.g. spamming button -  ignore request
     res.sendStatus(400);
     return;
-
   }
+
   console.log('Inserting subscription for user: ', dbUser.spotify_username);
   const { result: playlistId } = createPlaylist(
     refreshToken,

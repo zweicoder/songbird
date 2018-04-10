@@ -115,8 +115,7 @@ async function putPlaylistSongs(
 }
 
 // Retrieves playlist with given spotify playlist ID. Not really used
-async function getPlaylist(userOpts, playlistId) {
-  const { userId, accessToken } = userOpts;
+async function getPlaylist(userId, accessToken, playlistId) {
   const opts = {
     headers: getOAuthHeader(accessToken),
   };
@@ -138,8 +137,7 @@ async function getPlaylist(userOpts, playlistId) {
 
 // Retrieves a list of user's playlists. Gets a paged object
 // Currently uses the current user method, instead of calling with server's accessToken
-async function _getUserPlaylists(userOpts, { offset = 0, limit = 50 }) {
-  const { accessToken } = userOpts;
+async function _getUserPlaylists(accessToken, { offset = 0, limit = 50 }) {
   const opts = {
     headers: getOAuthHeader(accessToken),
   };
@@ -159,7 +157,7 @@ async function _getUserPlaylists(userOpts, { offset = 0, limit = 50 }) {
   }
 }
 
-async function getAllUserPlaylists(userOpts, maxLimit = 250) {
+async function getAllUserPlaylists(accessToken, maxLimit = 250) {
   const limit = 50;
   const allPlaylists = [];
 
@@ -175,11 +173,12 @@ async function getAllUserPlaylists(userOpts, maxLimit = 250) {
   return { result: allPlaylists };
 }
 
-async function userHasPlaylist(userOpts, playlistId) {
-  const { result: playlists } = await getAllUserPlaylists(userOpts);
+async function userHasPlaylist(accessToken, playlistId) {
+  const { result: playlists } = await getAllUserPlaylists(accessToken);
   const playlistIds = playlists.map(e => e.id);
   return playlistIds && playlistIds.includes(playlistId);
 }
+
 module.exports = {
   createEmptyPlaylist,
   putPlaylistSongs,
