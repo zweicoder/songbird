@@ -186,4 +186,5 @@ module.exports = {
   getPlaylistTracks,
   getPlaylist,
   getAllUserPlaylists,
+  userHasPlaylist,
 };
