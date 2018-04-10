@@ -19,6 +19,10 @@ app.use(cors());
 
 app.use(loginRouter, playlistRouter);
 
+process.on('unhandledRejection', function(reason, p) {
+  console.log("Unhandled Rejection:", reason.stack);
+});
+
 app.use((err, req, res, next) => {
   res.status(500).send('Oops! Looks like something broke :(');
 });
