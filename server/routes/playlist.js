@@ -16,6 +16,7 @@ const {
   getSubscription,
 } = require('../services/dbService.js');
 const { PLAYLIST_METADATA } = require('../constants.global.js');
+const { wrapRoute } = require('../lib/utils.js');
 
 const router = express.Router();
 
