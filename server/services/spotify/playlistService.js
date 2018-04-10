@@ -163,7 +163,7 @@ async function getAllUserPlaylists(accessToken, maxLimit = 250) {
 
   // Default maxLimit limits per user to request up to 5 times
   for (let i = 0; i < maxLimit; i += limit) {
-    const { result } = await _getUserPlaylists(userOpts, { offset: i, limit });
+    const { result } = await _getUserPlaylists(accessToken, { offset: i, limit });
     const { next, playlists } = result;
     allPlaylists.push(...playlists);
     if (!next) {
