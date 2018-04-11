@@ -16,7 +16,7 @@ const { refreshAccessToken } = require('../services/spotify/oauth2Service.js');
 const { getActiveSubscriptions } = require('../services/dbService.js');
 
 async function main() {
-  const subscriptions = await getActiveSubscriptions();
+  const { result: subscriptions } = await getActiveSubscriptions();
   // TODO window it ?
   for (let subscription of subscriptions) {
     const {
@@ -28,13 +28,14 @@ async function main() {
     const { result: accessToken } = await refreshAccessToken(refreshToken);
 
     if (!userHasPlaylist(accessToken, spotifyPlaylistId)) {
-      // TODO remove subscription
+      console.log('Deleting stale subscription: ', subscription.id);
       await deleteSubscription(subscription.id);
       return;
     }
     const { result: tracks } = await getPlaylistTracks(accessToken, playlistType);
 
     await putPlaylistSongs(spotifyUserId, accessToken, spotifyPlaylistId, tracks);
+    console.log('Successfully synced subscription: ', subscription.id);
   }
 }
 
