@@ -10,6 +10,7 @@ const {
   getPlaylistTracks,
   putPlaylistSongs,
   userHasPlaylist,
+  deleteSubscription,
 } = require('../services/spotify/playlistService.js');
 const { refreshAccessToken } = require('../services/spotify/oauth2Service.js');
 const { getActiveSubscriptions } = require('../services/dbService.js');
@@ -23,7 +24,7 @@ async function main() {
       spotify_playlist_id: spotifyPlaylistId,
       spotify_username: spotifyUserId,
       token: refreshToken,
-    } = subscriptions;
+    } = subscription;
     const { result: accessToken } = await refreshAccessToken(refreshToken);
 
     const userOpts = {
@@ -33,6 +34,7 @@ async function main() {
 
     if (!userHasPlaylist(userOpts, spotifyPlaylistId)) {
       // TODO remove subscription
+      await deleteSubscription(subscription.id);
       return;
     }
     const { result: tracks } = await getPlaylistTracks(userOpts, playlistType);

@@ -66,7 +66,6 @@ async function addPlaylistSubscription(
   const dbPlaylistType = PLAYLIST_TYPE_DB_MAP[playlistType];
   const client = await pool.connect();
   try {
-    // TODO Playlist deleted on user side?? Periodic syncing need to check if deleted? <- check this
     const res = await client.query(
       'INSERT INTO subscriptions (user_id, spotify_playlist_id, playlist_type) VALUES ($1, $2, $3)',
       [userId, spotifyPlaylistId, dbPlaylistType]
@@ -85,7 +84,7 @@ async function getActiveSubscriptions() {
   const client = await pool.connect();
   try {
     const res = await client.query(
-      'SELECT * FROM subscriptions INNER JOIN users ON users.id = subscriptions.user_id'
+      'SELECT * FROM subscriptions INNER JOIN users ON users.id = subscriptions.user_id WHERE deleted_at IS NULL'
     );
     return { result: res.rows };
   } catch (err) {
@@ -101,12 +100,28 @@ async function getSubscription(userId, playlistType) {
   const client = await pool.connect();
   try {
     const res = await client.query(
-      'SELECT * FROM subscriptions WHERE user_id = $1 AND playlist_type = $2',
+      'SELECT * FROM subscriptions user_id = $1 AND playlist_type = $2',
       [userId, dbPlaylistType]
     );
     return { result: res.rows[0] };
   } catch (err) {
     console.error(`Unable to getSubscription for ${userId}, ${playlistType}: `, err);
+    throw new Error(err);
+  } finally {
+    client.release();
+  }
+}
+
+async function deletedSubscription(subscriptionId) {
+  const client = await pool.connect();
+  try {
+    const res = await client.query(
+      'UPDATE subscriptions SET deleted_at = NOW() WHERE id = $1',
+      [subscriptionId]
+    );
+    return {};
+  } catch (err) {
+    console.error(`Unable to soft delete subscription ${subscriptionId}: `, err);
     throw new Error(err);
   } finally {
     client.release();
@@ -119,4 +134,5 @@ module.exports = {
   addPlaylistSubscription,
   getActiveSubscriptions,
   getSubscription,
+  deletedSubscription,
 };
