@@ -14,6 +14,7 @@ const {
   PLAYLIST_TYPE_RECENT,
   PLAYLIST_TYPE_POPULAR,
 } = require('../../constants.global.js');
+const { PLAYLIST_TYPE_DB_REVERSE_MAP } = require('../../constants.js');
 
 const SPOTIFY_PLAYLIST_PUT_LIMIT = 100;
 
@@ -25,22 +26,27 @@ const playlistToTimeRange = {
 
 /**
  * Gets the tracks for a given playlist type and user
- * @param {userId, accessToken} userOpts
+ * @param string accessToken
  * @param enum playlistType - The playlist type shared between frontend and backend
  * @param int numTracks
  * @returns {err, result}
  */
-async function getPlaylistTracks(userOpts, playlistType, numTracks = 25) {
+async function getPlaylistTracks(accessToken, _playlistType, numTracks = 25) {
+  const playlistType =
+    typeof _playlistType === 'number'
+      ? PLAYLIST_TYPE_DB_REVERSE_MAP[_playlistType]
+      : _playlistType;
+
   switch (playlistType) {
     case PLAYLIST_TYPE_TOP_SHORT_TERM:
     case PLAYLIST_TYPE_TOP_MID_TERM:
     case PLAYLIST_TYPE_TOP_LONG_TERM:
       const timeRange = playlistToTimeRange[playlistType];
-      return await getTopTracks(userOpts, timeRange, { limit: numTracks });
+      return await getTopTracks(accessToken, timeRange, { limit: numTracks });
     case PLAYLIST_TYPE_RECENT:
-      return await getRecentlyAddedTracks(userOpts, { limit: numTracks });
+      return await getRecentlyAddedTracks(accessToken, { limit: numTracks });
     default:
-      throw new Error(`No matching playlist types for: ${playlistType}`);
+      throw new Error(`No matching playlist types for: ${_playlistType}`);
   }
 }
 
@@ -50,8 +56,7 @@ async function getPlaylistTracks(userOpts, playlistType, numTracks = 25) {
  * @param {name, description} playlistOpts
  * @returns {err, result}
  */
-async function createEmptyPlaylist(userOpts, playlistOpts) {
-  const { userId, accessToken } = userOpts;
+async function createEmptyPlaylist(userId, accessToken, playlistOpts) {
   const { name, description } = playlistOpts;
   if (![name, description].every(e => !!e)) {
     return { err: 'Playlist metadata required!' };
@@ -80,12 +85,12 @@ async function createEmptyPlaylist(userOpts, playlistOpts) {
 
 // Replace with PUT limit = 100 tracks / actually calculate diff (get all IDs, remove diff(left), add diff(right))
 async function putPlaylistSongs(
-  userOpts,
+  userId,
+  accessToken,
   playlistId,
   tracks,
   limit = SPOTIFY_PLAYLIST_PUT_LIMIT
 ) {
-  const { userId, accessToken } = userOpts;
   const opts = {
     headers: getOAuthHeader(accessToken),
   };
@@ -163,7 +168,10 @@ async function getAllUserPlaylists(accessToken, maxLimit = 250) {
 
   // Default maxLimit limits per user to request up to 5 times
   for (let i = 0; i < maxLimit; i += limit) {
-    const { result } = await _getUserPlaylists(accessToken, { offset: i, limit });
+    const { result } = await _getUserPlaylists(accessToken, {
+      offset: i,
+      limit,
+    });
     const { next, playlists } = result;
     allPlaylists.push(...playlists);
     if (!next) {

@@ -41,8 +41,7 @@ function _getTracksByTimeWindow(trackObjs, timeDeltaInMillis) {
 }
 
 // Helper method to get user tracks, returns the uri for getting next set of tracks on top of requested tracks
-async function _getUserTracks(userOpts, { offset = 0, limit = 50 }) {
-  const { accessToken } = userOpts;
+async function _getUserTracks(accessToken, { offset = 0, limit = 50 }) {
   const queryParams = qs.stringify({
     limit,
     offset,
@@ -94,8 +93,7 @@ async function getAllUserTracks(userOpts, maxLimit = 250) {
 }
 
 // Get Top tracks of user based on given time range
-async function getTopTracks(userOpts, timeRange, { limit = 50, offset = 0 }) {
-  const { accessToken } = userOpts;
+async function getTopTracks(accessToken, timeRange, { limit = 50, offset = 0 }) {
   const queryParams = qs.stringify({
     time_range: timeRange,
     limit,
@@ -126,8 +124,8 @@ async function getTopTracks(userOpts, timeRange, { limit = 50, offset = 0 }) {
 }
 
 // Get Most Recently Added tracks
-async function getRecentlyAddedTracks(userOpts, { limit = 50 }) {
-  const { result } = await _getUserTracks(userOpts, { limit });
+async function getRecentlyAddedTracks(accessToken, { limit = 50 }) {
+  const { result } = await _getUserTracks(accessToken, { limit });
   return { result: result.tracks };
 }
 

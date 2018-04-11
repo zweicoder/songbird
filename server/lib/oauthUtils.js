@@ -1,8 +1,8 @@
 const {OAUTH_CLIENT_ID, OAUTH_CLIENT_SECRET} = require('../constants.js');
 
 function getOAuthHeader(accessToken) {
-  if (!accessToken) {
-    throw new Error('No access token given!');
+  if (!accessToken || !(typeof accessToken === "string")) {
+    throw new Error(`Bad accessToken given: ${accessToken}`);
   }
   return { Authorization: 'Bearer ' + accessToken };
 }

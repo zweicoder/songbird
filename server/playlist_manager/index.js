@@ -27,19 +27,14 @@ async function main() {
     } = subscription;
     const { result: accessToken } = await refreshAccessToken(refreshToken);
 
-    const userOpts = {
-      userId: spotifyUserId,
-      accessToken,
-    };
-
-    if (!userHasPlaylist(userOpts, spotifyPlaylistId)) {
+    if (!userHasPlaylist(accessToken, spotifyPlaylistId)) {
       // TODO remove subscription
       await deleteSubscription(subscription.id);
       return;
     }
-    const { result: tracks } = await getPlaylistTracks(userOpts, playlistType);
+    const { result: tracks } = await getPlaylistTracks(accessToken, playlistType);
 
-    await putPlaylistSongs(userOpts, spotifyPlaylistId, tracks);
+    await putPlaylistSongs(spotifyUserId, accessToken, spotifyPlaylistId, tracks);
   }
 }
 
