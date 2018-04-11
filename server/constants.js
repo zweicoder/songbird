@@ -9,7 +9,7 @@ const PLAYLIST_TYPE_DB_MAP = {
   PLAYLIST_TYPE_RECENT: 4,
 };
 
-const PLAYLIST_TYPE_DB_REVERSE_MAP = R.invert(PLAYLIST_TYPE_DB_MAP);
+const PLAYLIST_TYPE_DB_REVERSE_MAP = R.invertObj(PLAYLIST_TYPE_DB_MAP);
 
 module.exports = {
   OAUTH_REDIRECT_URI: 'http://localhost:8888/callback',
