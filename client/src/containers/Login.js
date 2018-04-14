@@ -17,9 +17,6 @@ class Login extends Component {
         <Button bsStyle="primary" bsSize="large" href={URL_BACKEND_LOGIN}>
           Login with Spotify
         </Button>
-        <div>
-          <a href="/?token=12345">Pretend OAuth</a>
-        </div>
       </div>
     );
   }
