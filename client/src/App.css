@@ -10,6 +10,16 @@
   font-size: large;
 }
 .App {
-  background-color: #111;
+  background-color: #282828;
+  color: white;
   height: 100vh;
+  display: flex;
+  flex-direction:column;
+}
+
+.container {
+  flex: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }

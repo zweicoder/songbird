@@ -1,0 +1,51 @@
+.login {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: fit-content;
+  margin: 0 auto 100px;
+}
+
+.login h1 {
+  color: #07d159;
+  font-size: 40px;
+  font-weight: 700;
+  margin-bottom: 30px;
+}
+
+.login img {
+  padding: 30px 0;
+}
+
+ul {
+  text-align: left;
+}
+
+li {
+  background: url('./checkmark.png') no-repeat 0 0;
+  list-style-type: none;
+  font-size: 1.25em;
+  font-weight:400;
+  padding: 0 0 1em 3em;
+}
+
+.btn-landing {
+  color: black;
+  font-size: 15px;
+  font-weight: 600!important;
+  border: none;
+  width: 80%;
+  height: 56px;
+  border-radius: 500px!important;
+  text-transform: uppercase!important;
+  letter-spacing: 2.5px!important;
+
+  display:inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.icon {
+  margin: 0 10px;
+  font-size: 30px;
+}

@@ -10,7 +10,7 @@ import {
 import PrivateRoute from './components/PrivateRoute.js';
 import ParamHandler from './components/ParamHandler.js';
 import Home from './containers/Home.js';
-import Login from './containers/Login.js';
+import Login from './containers/Login/';
 import Logout from './containers/Logout.js';
 import Header from './components/Header';
 
