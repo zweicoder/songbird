@@ -1,15 +1,16 @@
 import React, { Component } from 'react';
 import { DropdownButton, Button, MenuItem } from 'react-bootstrap';
-import SongPreview from '../components/SongPreview';
+import SongPreview from '../../components/SongPreview';
 import qs from 'query-string';
 import axios from 'axios';
 
-import { getTokens } from '../services/authService.js';
-import { PLAYLIST_METADATA } from '../constants.global.js';
+import { getTokens } from '../../services/authService.js';
+import { PLAYLIST_METADATA } from '../../constants.global.js';
 import {
   URL_BACKEND_PLAYLIST,
   URL_BACKEND_PLAYLIST_SUBSCRIBE,
-} from '../constants.js';
+} from '../../constants.js';
+import './index.css'
 
 const playlistTypeKeys = Object.keys(PLAYLIST_METADATA);
 
@@ -89,8 +90,9 @@ class Home extends Component {
     const { selectedPlaylist, tracks } = this.state;
     const title = selectedPlaylist && PLAYLIST_METADATA[selectedPlaylist].title;
     return (
-      <div>
-        <h2>some playlist here</h2>
+      <div className="home">
+        <h2>Choose a Playlist type</h2>
+        <h5>Add it to your Spotify library or subscribe and we'll update the playlist weekly</h5>
         <div>
           <DropdownButton
             id="playlist-type-dropdown"
