@@ -8,9 +8,9 @@
 
 .App {
   text-align: center;
-  background: linear-gradient(to bottom, #404040, black);
+  background: linear-gradient(to bottom, #434343, black);
   color: white;
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   flex-direction:column;
 }
