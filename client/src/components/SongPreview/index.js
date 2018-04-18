@@ -9,7 +9,7 @@ const SongPreview = ({ tracks }) => {
   return (
     tracks &&
     tracks.length > 0 && (
-      <Table bordered hover responsive>
+      <Table bsClass="table table-responsive song-preview" >
         <thead>
           <tr>
             <th>#</th>

@@ -17,7 +17,7 @@ const playlistTypeKeys = Object.keys(PLAYLIST_METADATA);
 const AddPlaylistButton = ({ onClick }) => {
   return (
     <Button bsStyle="primary" bsSize="large" onClick={onClick}>
-      +
+      Save to Spotify
     </Button>
   );
 };
@@ -25,7 +25,7 @@ const AddPlaylistButton = ({ onClick }) => {
 const SubscribeButton = ({ onClick }) => {
   return (
     <Button bsStyle="primary" bsSize="large" onClick={onClick}>
-      Subscribe
+      Save & Subscribe
     </Button>
   );
 };
@@ -91,8 +91,6 @@ class Home extends Component {
     const title = selectedPlaylist && PLAYLIST_METADATA[selectedPlaylist].title;
     return (
       <div className="home">
-        <h2>Choose a Playlist type</h2>
-        <h5>Add it to your Spotify library or subscribe and we'll update the playlist weekly</h5>
         <div>
           <DropdownButton
             id="playlist-type-dropdown"

@@ -1,3 +1,15 @@
-th {
-  text-align: center;
+.song-preview > thead > tr > th {
+  color: gray;
+  font-weight: 300;
+  border-bottom-width: 1px;
+  text-transform:uppercase;
+  letter-spacing: 2px;
+}
+
+.song-preview {
+  text-align: left;
+  font-size: 13px;
+}
+.song-preview td {
+  letter-spacing: 1px;
 }
