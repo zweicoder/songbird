@@ -2,6 +2,7 @@
   color: gray;
   font-weight: 300;
   border-bottom-width: 1px;
+  border-bottom-color: #aaa !important;
   text-transform:uppercase;
   letter-spacing: 2px;
 }
@@ -12,4 +13,6 @@
 }
 .song-preview td {
   letter-spacing: 0.5px;
+  border-top-color: #555 !important;
+  padding: 11px 8px;
 }

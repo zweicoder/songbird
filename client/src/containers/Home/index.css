@@ -1,3 +1,7 @@
 .home {
   margin: 30px auto;
 }
+
+#playlist-type-dropdown {
+  margin-bottom: 20px;
+}

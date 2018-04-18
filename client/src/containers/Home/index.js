@@ -16,7 +16,7 @@ const playlistTypeKeys = Object.keys(PLAYLIST_METADATA);
 
 const AddPlaylistButton = ({ onClick }) => {
   return (
-    <Button bsStyle="primary" bsSize="large" onClick={onClick}>
+    <Button bsClass="btn" id="add-button" onClick={onClick}>
       Save to Spotify
     </Button>
   );
@@ -24,7 +24,7 @@ const AddPlaylistButton = ({ onClick }) => {
 
 const SubscribeButton = ({ onClick }) => {
   return (
-    <Button bsStyle="primary" bsSize="large" onClick={onClick}>
+    <Button bsClass="btn" id="subscribe-button" onClick={onClick}>
       Save & Subscribe
     </Button>
   );
