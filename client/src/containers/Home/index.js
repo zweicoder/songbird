@@ -16,7 +16,7 @@ const playlistTypeKeys = Object.keys(PLAYLIST_METADATA);
 
 const AddPlaylistButton = ({ onClick }) => {
   return (
-    <Button bsClass="btn" id="add-button" onClick={onClick}>
+    <Button bsClass="btn action-button" id="add-button" onClick={onClick}>
       Save to Spotify
     </Button>
   );
@@ -24,8 +24,8 @@ const AddPlaylistButton = ({ onClick }) => {
 
 const SubscribeButton = ({ onClick }) => {
   return (
-    <Button bsClass="btn" id="subscribe-button" onClick={onClick}>
-      Save & Subscribe
+    <Button bsClass="btn action-button" id="subscribe-button" onClick={onClick}>
+      Subscribe
     </Button>
   );
 };
@@ -95,6 +95,7 @@ class Home extends Component {
           <DropdownButton
             id="playlist-type-dropdown"
             bsStyle="default"
+            bsSize="large"
             title={title || 'Choose playlist type'}
           >
             {playlistTypeKeys.map((key, idx) => (
@@ -109,7 +110,7 @@ class Home extends Component {
           </DropdownButton>
         </div>
         {this.state.tracks.length > 0 && (
-          <div>
+          <div className="preview-content">
             <AddPlaylistButton onClick={this.onAddPlaylist} />
             <SubscribeButton onClick={this.onSubscribe} />
             <SongPreview tracks={tracks} />
