@@ -1,6 +1,7 @@
 import React from 'react';
 import logo from './logo.svg'
 import './index.css';
+import Button from '../Button.js'
 
 const Header = () => {
   return (
@@ -10,7 +11,7 @@ const Header = () => {
         <h2 className="title">Songbird</h2>
       </div>
       <div className="pull-right vertical-center">
-        <h4>Logout</h4>
+        <Button class="btn action-button" href="/logout">Logout</Button>
       </div>
     </header>
   );

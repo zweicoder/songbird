@@ -44,6 +44,9 @@
   justify-content: center;
   align-items: center;
 }
+.btn-landing:focus{
+  outline: unset;
+}
 
 .icon {
   margin: 0 10px;
