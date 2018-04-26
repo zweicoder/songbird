@@ -1,5 +1,5 @@
 import React from 'react';
-import logo from './logo.svg'
+import logo from './songbird-clean-logo.png'
 import './index.css';
 import Button from '../Button.js'
 
