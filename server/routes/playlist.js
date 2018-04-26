@@ -92,6 +92,7 @@ router.post(
   wrapRoute(async (req, res) => {
     const { playlistType, refreshToken } = req.body;
     if (![playlistType, refreshToken].every(e => e)) {
+      console.warn('Missing param in request body!');
       res.sendStatus(400);
       return;
     }
@@ -117,14 +118,20 @@ router.post(
       await refreshAccessToken(refreshToken),
     ]);
     // Check if there is an existing subscription that is still valid (playlist not deleted)
-    if (
-      subscription &&
-      userHasPlaylist(accessToken, subscription.spotify_playlist_id)
-    ) {
-      // Should be a mistake e.g. spamming button -  ignore request
-      console.log('Found existing playlist with id: ', subscription.spotify_playlist_id);
-      res.sendStatus(400);
-      return;
+    if (subscription) {
+      const { result: hasPlayList } = await userHasPlaylist(
+        accessToken,
+        subscription.spotify_playlist_id
+      );
+      if (hasPlayList) {
+        // Should be a mistake e.g. spamming button -  ignore request
+        console.log(
+          'Found existing playlist with id: ',
+          subscription.spotify_playlist_id
+        );
+        res.sendStatus(400);
+        return;
+      }
     }
 
     console.log('Inserting subscription for user: ', dbUser.spotify_username);
