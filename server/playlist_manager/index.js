@@ -10,33 +10,46 @@ const {
   getPlaylistTracks,
   putPlaylistSongs,
   userHasPlaylist,
-  deleteSubscription,
 } = require('../services/spotify/playlistService.js');
 const { refreshAccessToken } = require('../services/spotify/oauth2Service.js');
-const { getActiveSubscriptions } = require('../services/dbService.js');
+const {
+  getActiveSubscriptions,
+  deleteSubscription,
+} = require('../services/dbService.js');
+
+async function syncSubscription(accessToken, subscription) {
+  const {
+    playlist_type: playlistType,
+    spotify_playlist_id: spotifyPlaylistId,
+    spotify_username: spotifyUserId,
+    token: refreshToken,
+  } = subscription;
+  const { result: playlistExists } = await userHasPlaylist(
+    accessToken,
+    spotifyPlaylistId
+  );
+  if (!playlistExists) {
+    console.log('Deleting stale subscription: ', subscription.id);
+    await deleteSubscription(subscription.id);
+    return;
+  }
+  const { result: tracks } = await getPlaylistTracks(accessToken, playlistType);
+
+  await putPlaylistSongs(spotifyUserId, accessToken, spotifyPlaylistId, tracks);
+  console.log('Successfully synced subscription: ', subscription.id);
+}
 
 async function main() {
   const { result: subscriptions } = await getActiveSubscriptions();
   // TODO window it ?
   for (let subscription of subscriptions) {
-    const {
-      playlist_type: playlistType,
-      spotify_playlist_id: spotifyPlaylistId,
-      spotify_username: spotifyUserId,
-      token: refreshToken,
-    } = subscription;
+    const { token: refreshToken } = subscription;
     const { result: accessToken } = await refreshAccessToken(refreshToken);
-
-    if (!userHasPlaylist(accessToken, spotifyPlaylistId)) {
-      console.log('Deleting stale subscription: ', subscription.id);
-      await deleteSubscription(subscription.id);
-      return;
-    }
-    const { result: tracks } = await getPlaylistTracks(accessToken, playlistType);
-
-    await putPlaylistSongs(spotifyUserId, accessToken, spotifyPlaylistId, tracks);
-    console.log('Successfully synced subscription: ', subscription.id);
+    // TODO this is super slow, need to balance rates vs speed
+    await syncSubscription(accessToken, subscription);
   }
+  console.log('Completed sync at :', new Date().toLocaleString());
+  process.exit(0);
 }
 
 main();

@@ -84,7 +84,7 @@ async function getActiveSubscriptions() {
   const client = await pool.connect();
   try {
     const res = await client.query(
-      'SELECT * FROM subscriptions INNER JOIN users ON users.id = subscriptions.user_id WHERE deleted_at IS NULL'
+      'SELECT s.*, spotify_username, token FROM subscriptions s INNER JOIN users u ON u.id = s.user_id WHERE s.deleted_at IS NULL'
     );
     return { result: res.rows };
   } catch (err) {
@@ -112,7 +112,7 @@ async function getSubscription(userId, playlistType) {
   }
 }
 
-async function deletedSubscription(subscriptionId) {
+async function deleteSubscription(subscriptionId) {
   const client = await pool.connect();
   try {
     const res = await client.query(
@@ -134,5 +134,5 @@ module.exports = {
   addPlaylistSubscription,
   getActiveSubscriptions,
   getSubscription,
-  deletedSubscription,
+  deleteSubscription,
 };

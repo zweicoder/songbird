@@ -184,7 +184,7 @@ async function getAllUserPlaylists(accessToken, maxLimit = 250) {
 async function userHasPlaylist(accessToken, playlistId) {
   const { result: playlists } = await getAllUserPlaylists(accessToken);
   const playlistIds = playlists.map(e => e.id);
-  return playlistIds && playlistIds.includes(playlistId);
+  return { result: playlistIds && playlistIds.includes(playlistId) };
 }
 
 module.exports = {
