@@ -1,5 +1,5 @@
 import { login } from '../services/authService.js';
-import qs from 'query-string';
+import qs from 'querystring';
 import React from 'react';
 import { Redirect } from 'react-router';
 

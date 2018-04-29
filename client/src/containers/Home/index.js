@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { DropdownButton, Button, MenuItem } from 'react-bootstrap';
 import SongPreview from '../../components/SongPreview';
-import qs from 'query-string';
+import qs from 'querystring';
 import axios from 'axios';
 
 import { getTokens } from '../../services/authService.js';
