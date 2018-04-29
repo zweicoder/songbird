@@ -19,7 +19,7 @@ import './App.css';
 class App extends Component {
   render() {
     return (
-      <Router>
+      <Router basename="/songbird">
         <div className="App">
           <Header/>
           <div className="container">
