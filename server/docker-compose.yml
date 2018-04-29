@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  api:
+    image: node:carbon
+    ports:
+      - "8888:8888"
+    env_file:
+      - /etc/songbird/secrets.env
+
+  postgres:
+    image: postgres:9.6
+    expose:
+      - "5432"

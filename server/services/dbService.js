@@ -1,8 +1,8 @@
 const { Pool } = require('pg');
-const { PLAYLIST_TYPE_DB_MAP } = require('../constants.js');
+const { PLAYLIST_TYPE_DB_MAP, DB_CONNECTION_STRING } = require('../constants.js');
 
 const pool = new Pool({
-  connectionString: process.env.DB_CONNECTION_STRING,
+  connectionString: DB_CONNECTION_STRING,
   max: 10,
   idleTimeoutMillis: 10000,
   connectionTimeoutMillis: 5000,

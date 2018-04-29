@@ -27,4 +27,5 @@ module.exports = {
 
   PLAYLIST_TYPE_DB_MAP,
   PLAYLIST_TYPE_DB_REVERSE_MAP,
+  DB_CONNECTION_STRING: process.env.DB_CONNECTION_STRING || 'postgres://postgres:postgres@localhost/songbird'
 };
