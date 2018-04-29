@@ -5,10 +5,11 @@ songbird:
     paths:
       - node_modules
   script:
+    - cd client/
     - yarn
     - yarn build
   artifacts:
     paths:
-      - public
+      - build/
   only:
     - master
