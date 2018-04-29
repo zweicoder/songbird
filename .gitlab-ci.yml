@@ -13,8 +13,8 @@ build songbird:
     - yarn
     - yarn build
   artifacts:
-    - paths:
-        - client/build/
+    paths:
+      - client/build/
 
 pages:
   stage: deploy
