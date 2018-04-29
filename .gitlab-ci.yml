@@ -5,16 +5,19 @@ stages:
 
 build:
   stage: build
+  cache:
+    paths:
+      - client/node_modules
   script:
     - cd client/
     - yarn
     - yarn build
+  artifacts:
+    - paths:
+        - client/build/
 
 pages:
   stage: deploy
-  cache:
-    paths:
-      - client/node_modules
   script:
     # Pages job only accepts a public/ folder at the root directory
     - mv client/build/ ../public/
