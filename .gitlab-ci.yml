@@ -20,7 +20,7 @@ pages:
   stage: deploy
   script:
     # Pages job only accepts a public/ folder at the root directory
-    - mv client/build/ ../public/
+    - mv client/build/ public/
   artifacts:
     paths:
       - public/
