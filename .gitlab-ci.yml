@@ -3,7 +3,7 @@ image: node:carbon
 pages:
   cache:
     paths:
-      - node_modules
+      - client/node_modules
   script:
     - cd client/
     - yarn
