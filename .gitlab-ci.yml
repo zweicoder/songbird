@@ -3,7 +3,7 @@ stages:
   - build
   - deploy
 
-build:
+build songbird:
   stage: build
   cache:
     paths:
