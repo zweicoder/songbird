@@ -1,1 +1,36 @@
-../constants.js
+
+// TODO args for each playlist type
+const PLAYLIST_TYPE_TOP_SHORT_TERM = 'PLAYLIST_TYPE_TOP_SHORT_TERM';
+const PLAYLIST_TYPE_TOP_MID_TERM = 'PLAYLIST_TYPE_TOP_MID_TERM';
+const PLAYLIST_TYPE_TOP_LONG_TERM = 'PLAYLIST_TYPE_TOP_LONG_TERM';
+const PLAYLIST_TYPE_POPULAR = 'PLAYLIST_TYPE_POPULAR';
+// TODO last added combo recently added
+const PLAYLIST_TYPE_RECENT = 'PLAYLIST_TYPE_RECENT';
+
+const PLAYLIST_METADATA = {
+  PLAYLIST_TYPE_TOP_SHORT_TERM: {
+    title: 'Top Tracks (Short Term)',
+  },
+  PLAYLIST_TYPE_TOP_MID_TERM: {
+    title: 'Top Tracks (Mid Term)',
+  },
+  PLAYLIST_TYPE_TOP_LONG_TERM: {
+    title: 'Top Tracks (Long Term)',
+  },
+  PLAYLIST_TYPE_POPULAR: {
+    title: 'Popular Tracks',
+  },
+  PLAYLIST_TYPE_RECENT: {
+    title: 'Recently Added Tracks'
+  }
+};
+
+// Keep create-react-app for now - This file has to be fully ES5
+module.exports = {
+  PLAYLIST_TYPE_TOP_SHORT_TERM: PLAYLIST_TYPE_TOP_SHORT_TERM,
+  PLAYLIST_TYPE_TOP_MID_TERM: PLAYLIST_TYPE_TOP_MID_TERM,
+  PLAYLIST_TYPE_TOP_LONG_TERM: PLAYLIST_TYPE_TOP_LONG_TERM,
+  PLAYLIST_TYPE_POPULAR:PLAYLIST_TYPE_POPULAR,
+  PLAYLIST_TYPE_RECENT:  PLAYLIST_TYPE_RECENT,
+  PLAYLIST_METADATA: PLAYLIST_METADATA,
+};
