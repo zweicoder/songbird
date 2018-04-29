@@ -7,6 +7,8 @@ services:
       - "8888:8888"
     env_file:
       - /etc/songbird/secrets.env
+    entrypoint:
+      - yarn && yarn start
 
   postgres:
     image: postgres:9.6
