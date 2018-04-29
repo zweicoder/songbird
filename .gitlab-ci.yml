@@ -9,14 +9,15 @@ build:
     - cd client/
     - yarn
     - yarn build
-    # Pages job only accepts a public/ folder at the root directory
-    - mv build/ ../public/
 
 pages:
   stage: deploy
   cache:
     paths:
       - client/node_modules
+  script:
+    # Pages job only accepts a public/ folder at the root directory
+    - mv client/build/ ../public/
   artifacts:
     paths:
       - public/
