@@ -1,6 +1,6 @@
 image: node:carbon
 
-songbird:
+pages:
   cache:
     paths:
       - node_modules
@@ -10,6 +10,6 @@ songbird:
     - yarn build
   artifacts:
     paths:
-      - build/
+      - client/build/
   only:
     - master
