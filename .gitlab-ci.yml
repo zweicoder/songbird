@@ -1,15 +1,24 @@
 image: node:carbon
+stages:
+  - build
+  - deploy
 
-pages:
-  cache:
-    paths:
-      - client/node_modules
+build:
+  stage: build
   script:
     - cd client/
     - yarn
     - yarn build
+    # Pages job only accepts a public/ folder at the root directory
+    - mv build/ ../public/
+
+pages:
+  stage: deploy
+  cache:
+    paths:
+      - client/node_modules
   artifacts:
     paths:
-      - client/build/
+      - public/
   only:
     - master
