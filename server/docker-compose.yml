@@ -6,19 +6,23 @@ services:
     ports:
       - "8888:8888"
     env_file:
+      - ./env/dev.env
       - /etc/songbird/secrets.env
 
   postgres:
     image: postgres:9.6
     expose:
       - "5432"
+    # so we can run psql stuff on 5433
+    ports:
+      - "5433:5432"
+
   manager:
-    image: node:carbon
+    build: .
     env_file:
+      - ./env/dev.env
       - /etc/songbird/secrets.env
-    working_dir:
-      - ./playlist_manager/
     entrypoint:
       - node
     command:
-      - index.js
+      - ./playlist_manager/index.js
