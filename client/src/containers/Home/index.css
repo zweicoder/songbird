@@ -4,6 +4,7 @@
 
 #playlist-type-dropdown {
   border: none;
+  width: 280px;
 }
 
 .dropdown-menu {
@@ -18,4 +19,10 @@
 
 .preview-content {
   margin-top: 20px;
+}
+
+.home .spinner {
+  margin-top: 30px;
+  height: 50px;
+  width: 50px;
 }

@@ -24,6 +24,7 @@ process.on('unhandledRejection', function(reason, p) {
 });
 
 app.use((err, req, res, next) => {
+  console.log("Unhandled Rejection:", err);
   res.status(500).send('Oops! Looks like something broke :(');
 });
 

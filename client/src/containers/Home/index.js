@@ -3,6 +3,7 @@ import { DropdownButton, Button, MenuItem } from 'react-bootstrap';
 import SongPreview from '../../components/SongPreview';
 import qs from 'querystring';
 import axios from 'axios';
+import FaIcon from '@fortawesome/react-fontawesome';
 
 import { getTokens } from '../../services/authService.js';
 import { PLAYLIST_METADATA } from '../../constants.global.js';
@@ -10,7 +11,7 @@ import {
   URL_BACKEND_PLAYLIST,
   URL_BACKEND_PLAYLIST_SUBSCRIBE,
 } from '../../constants.js';
-import './index.css'
+import './index.css';
 
 const playlistTypeKeys = Object.keys(PLAYLIST_METADATA);
 
@@ -87,7 +88,7 @@ class Home extends Component {
   };
 
   render() {
-    const { selectedPlaylist, tracks } = this.state;
+    const { selectedPlaylist, tracks, loading } = this.state;
     const title = selectedPlaylist && PLAYLIST_METADATA[selectedPlaylist].title;
     return (
       <div className="home">
@@ -109,6 +110,9 @@ class Home extends Component {
             ))}
           </DropdownButton>
         </div>
+        {loading && (
+          <FaIcon icon="spinner" className="spinner" size="6x" spin />
+        )}
         {this.state.tracks.length > 0 && (
           <div className="preview-content">
             <AddPlaylistButton onClick={this.onAddPlaylist} />
