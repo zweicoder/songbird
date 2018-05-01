@@ -12,3 +12,13 @@ services:
     image: postgres:9.6
     expose:
       - "5432"
+  manager:
+    image: node:carbon
+    env_file:
+      - /etc/songbird/secrets.env
+    working_dir:
+      - ./playlist_manager/
+    entrypoint:
+      - node
+    command:
+      - index.js
