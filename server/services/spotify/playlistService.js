@@ -4,6 +4,7 @@ const R = require('ramda');
 const {
   getTopTracks,
   getRecentlyAddedTracks,
+  getPopularTracks,
   TIME_RANGE_OPTS,
 } = require('./trackService.js');
 const { getOAuthHeader } = require('../../lib/oauthUtils.js');
@@ -32,6 +33,7 @@ const playlistToTimeRange = {
  * @returns {err, result}
  */
 async function getPlaylistTracks(accessToken, _playlistType, numTracks = 25) {
+  console.log('Get playlist tracks for: ', _playlistType);
   const playlistType =
     typeof _playlistType === 'number'
       ? PLAYLIST_TYPE_DB_REVERSE_MAP[_playlistType]
@@ -45,6 +47,8 @@ async function getPlaylistTracks(accessToken, _playlistType, numTracks = 25) {
       return await getTopTracks(accessToken, timeRange, { limit: numTracks });
     case PLAYLIST_TYPE_RECENT:
       return await getRecentlyAddedTracks(accessToken, { limit: numTracks });
+    case PLAYLIST_TYPE_POPULAR:
+      return await getPopularTracks(accessToken, {limit: numTracks});
     default:
       throw new Error(`No matching playlist types for: ${_playlistType}`);
   }
