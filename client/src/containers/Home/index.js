@@ -1,9 +1,16 @@
 import React, { Component } from 'react';
-import { DropdownButton, Button, MenuItem } from 'react-bootstrap';
+import {
+  DropdownButton,
+  Button,
+  MenuItem,
+  OverlayTrigger,
+  Tooltip,
+} from 'react-bootstrap';
 import SongPreview from '../../components/SongPreview';
 import qs from 'querystring';
 import axios from 'axios';
 import FaIcon from '@fortawesome/react-fontawesome';
+import FaQuestionCircle from '@fortawesome/fontawesome-free-regular/faQuestionCircle';
 
 import { getTokens } from '../../services/authService.js';
 import { PLAYLIST_METADATA } from '../../constants.global.js';
@@ -16,18 +23,47 @@ import './index.css';
 const playlistTypeKeys = Object.keys(PLAYLIST_METADATA);
 
 const AddPlaylistButton = ({ onClick }) => {
+  const tooltip = (
+    <Tooltip id="add-tooltip">Add this playlist to Spotify.</Tooltip>
+  );
   return (
-    <Button bsClass="btn action-button" id="add-button" onClick={onClick}>
-      Save to Spotify
-    </Button>
+    <OverlayTrigger placement="bottom" overlay={tooltip} delayShow={50}>
+      <Button bsClass="btn action-button" id="add-button" onClick={onClick}>
+        Save to Spotify
+      </Button>
+    </OverlayTrigger>
   );
 };
 
 const SubscribeButton = ({ onClick }) => {
+  const tooltip = (
+    <Tooltip id="subscribe-tooltip">
+      Playlist will update daily with your listening habits & song collection.
+    </Tooltip>
+  );
   return (
-    <Button bsClass="btn action-button" id="subscribe-button" onClick={onClick}>
-      Save & Subscribe
-    </Button>
+    <OverlayTrigger placement="bottom" overlay={tooltip} delayShow={50}>
+      <Button
+        bsClass="btn action-button"
+        id="subscribe-button"
+        onClick={onClick}
+      >
+        Save Smart Playlist
+      </Button>
+    </OverlayTrigger>
+  );
+};
+
+const PlaylistTypeTooltip = ({ selectedPlaylist }) => {
+  const tooltip = (
+    <Tooltip id="playlist-tooltip">
+      {PLAYLIST_METADATA[selectedPlaylist].tooltip}
+    </Tooltip>
+  );
+  return (
+    <OverlayTrigger placement="right" delayShow={50} overlay={tooltip}>
+      <FaIcon icon={FaQuestionCircle} id="playlist-type-tooltip" />
+    </OverlayTrigger>
   );
 };
 
@@ -109,6 +145,9 @@ class Home extends Component {
               </MenuItem>
             ))}
           </DropdownButton>
+          {selectedPlaylist && (
+            <PlaylistTypeTooltip selectedPlaylist={selectedPlaylist} />
+          )}
         </div>
         {loading && (
           <FaIcon icon="spinner" className="spinner" size="6x" spin />
