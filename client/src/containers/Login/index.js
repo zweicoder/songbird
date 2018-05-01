@@ -18,9 +18,9 @@ class Login extends Component {
       <div className="login">
         <h1>Smarter Playlists for Spotify</h1>
         <ul>
-          <li>Create playlists based on a criteria from your Spotify library</li>
+          <li>Analyzes your own favorite song collection</li>
           <li>Playlists for recently added tracks, top tracks, and more</li>
-          <li>Playlists automatically change with your library</li>
+          <li>Playlist updates itself daily</li>
         </ul>
         <Button className="btn-landing" href={URL_BACKEND_LOGIN} external>
           <i className="fab fa-spotify fa-lg icon" />
