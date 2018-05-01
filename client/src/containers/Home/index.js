@@ -25,7 +25,7 @@ const AddPlaylistButton = ({ onClick }) => {
 const SubscribeButton = ({ onClick }) => {
   return (
     <Button bsClass="btn action-button" id="subscribe-button" onClick={onClick}>
-      Subscribe
+      Save & Subscribe
     </Button>
   );
 };
