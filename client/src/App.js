@@ -13,6 +13,7 @@ import Home from './containers/Home/';
 import Login from './containers/Login/';
 import Logout from './containers/Logout.js';
 import Header from './components/Header';
+import Footer from './components/Footer';
 
 
 import './App.css';
@@ -31,6 +32,7 @@ class App extends Component {
               <PrivateRoute path="/" component={Home} />
             </Switch>
           </div>
+          <Footer/>
         </div>
       </Router>
     );
