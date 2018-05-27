@@ -1,11 +1,7 @@
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap/dist/css/bootstrap-theme.css';
 import React, { Component } from 'react';
-import {
-  BrowserRouter as Router,
-  Route,
-  Switch,
-} from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 
 import PrivateRoute from './components/PrivateRoute.js';
 import ParamHandler from './components/ParamHandler.js';
@@ -15,7 +11,6 @@ import Logout from './containers/Logout.js';
 import Header from './components/Header';
 import Footer from './components/Footer';
 
-
 import './App.css';
 
 class App extends Component {
@@ -23,7 +18,7 @@ class App extends Component {
     return (
       <Router basename="/songbird">
         <div className="App">
-          <Header/>
+          <Header />
           <div className="container">
             <Route path="/" component={ParamHandler} />
             <Switch>
@@ -32,7 +27,7 @@ class App extends Component {
               <PrivateRoute path="/" component={Home} />
             </Switch>
           </div>
-          <Footer/>
+          <Footer />
         </div>
       </Router>
     );

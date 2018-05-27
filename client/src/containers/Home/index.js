@@ -124,7 +124,7 @@ class Home extends Component {
       refreshToken,
       playlistType: selectedPlaylist,
     });
-    this.notifySuccess('Successfully added playlist to Spotify!')
+    this.notifySuccess('Successfully added playlist to Spotify!');
     return;
   };
 
