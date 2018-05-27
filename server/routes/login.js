@@ -38,13 +38,7 @@ router.get('/callback', async function(req, res) {
   const storedState = req.cookies ? req.cookies[KEY_OAUTH2_STATE] : null;
 
   if (state === null || state !== storedState) {
-    res.redirect(
-      '/#' +
-        qs.stringify({
-          error: 'state_mismatch',
-        })
-    );
-    redirectWithError('state_mismatch');
+    redirectWithError(res, 'state_mismatch');
     return;
   }
   res.clearCookie(KEY_OAUTH2_STATE);
@@ -71,7 +65,7 @@ router.get('/callback', async function(req, res) {
   if (resp.err) {
     console.error('Error inserting user to database: ', resp.err);
     const error = 'internal_server_error';
-    redirectWithError(error);
+    redirectWithError(res, error);
     return;
   }
 
