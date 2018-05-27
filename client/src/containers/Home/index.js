@@ -11,6 +11,8 @@ import qs from 'querystring';
 import axios from 'axios';
 import FaIcon from '@fortawesome/react-fontawesome';
 import FaQuestionCircle from '@fortawesome/fontawesome-free-regular/faQuestionCircle';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import { getTokens } from '../../services/authService.js';
 import { PLAYLIST_METADATA } from '../../constants.global.js';
@@ -78,10 +80,13 @@ class Home extends Component {
     };
   }
 
+  componenetDidMount() {
+    this.notify();
+  }
+
   onDropdownSelect = eventKey => {
     this.setState({
       selectedPlaylist: eventKey,
-      // TODO loading lul
       loading: true,
       // Empty tracks
       tracks: [],
@@ -102,6 +107,15 @@ class Home extends Component {
     });
   };
 
+  notifySuccess = message => {
+    toast.success(message, {
+      position: toast.POSITION.BOTTOM_RIGHT,
+      className: 'toast-success',
+      progressClassName: 'toast-progress-success',
+      autoClose: 1500,
+    });
+  };
+
   onAddPlaylist = async () => {
     const selectedPlaylist = this.state.selectedPlaylist;
     console.log('Adding playlist option: ', selectedPlaylist);
@@ -110,6 +124,7 @@ class Home extends Component {
       refreshToken,
       playlistType: selectedPlaylist,
     });
+    this.notifySuccess('Successfully added playlist to Spotify!')
     return;
   };
 
@@ -120,6 +135,7 @@ class Home extends Component {
       refreshToken,
       playlistType: selectedPlaylist,
     });
+    this.notifySuccess('Successfully added smart playlist to Spotify!');
     return;
   };
 
@@ -128,6 +144,7 @@ class Home extends Component {
     const title = selectedPlaylist && PLAYLIST_METADATA[selectedPlaylist].title;
     return (
       <div className="home">
+        <ToastContainer />
         <div>
           <DropdownButton
             id="playlist-type-dropdown"

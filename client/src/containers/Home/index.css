@@ -31,3 +31,11 @@
   height: 50px;
   width: 50px;
 }
+
+.toast-success {
+  background: linear-gradient(to bottom, white, #cfcfcf);
+  color: black;
+}
+.toast-progress-success{
+  background: linear-gradient(to right, #035123, #07bc0c);
+}
