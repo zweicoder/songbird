@@ -20,8 +20,8 @@ async function refreshAccessToken(refreshToken) {
     const res = await axios.post(URL_SPOTIFY_REFRESH_TOKEN, queryParams, opts);
     return { result: res.data.access_token };
   } catch (err) {
-    console.error(err);
     console.error(`Failed to refresh access token: ${err.response.statusText}`);
+    console.error(err.response.data);
     throw err;
   }
 }
@@ -48,7 +48,7 @@ async function exchangeAuthorizationCode(code) {
     return { result: { accessToken, refreshToken } };
   } catch (err) {
     console.error('Failed to authenticate with given authorization code');
-    console.error(err.config);
+    // console.error(err.config);
     console.error(err.response.status);
     console.error(err.response.data);
     throw err;

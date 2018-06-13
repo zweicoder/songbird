@@ -26,3 +26,4 @@ services:
       - node
     command:
       - ./playlist_manager/index.js
+      - sync

@@ -45,6 +45,7 @@ async function main() {
   // TODO window it ?
   for (let subscription of subscriptions) {
     const { token: refreshToken, user_id: userId } = subscription;
+    console.log('Syncing playlist for: ', subscription);
     try {
       const { result: accessToken } = await refreshAccessToken(refreshToken);
       // TODO this is super slow, need to balance rates vs speed
@@ -67,4 +68,8 @@ async function main() {
   process.exit(0);
 }
 
-main();
+// Shittiest cli
+const args = process.argv.slice(2);
+if (args[0] === 'sync') {
+  main();
+}
