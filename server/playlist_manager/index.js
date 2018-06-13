@@ -61,6 +61,7 @@ async function main() {
     }
     // TODO this is super slow, need to balance rates vs speed
     // TODO update last synced in database
+    // TODO update playlist info to reflect sync time
     try {
       await syncSubscription(accessToken, subscription);
     }

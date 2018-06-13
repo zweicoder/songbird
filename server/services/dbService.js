@@ -144,6 +144,23 @@ async function deleteSubscriptionByUserId(userId) {
   }
 }
 
+// TODO
+async function updateSyncTime(subscriptionId) {
+  const client = await pool.connect();
+  try {
+    const res = await client.query(
+      'UPDATE subscriptions SET last_synced = NOW() WHERE id = $1',
+      [subscriptionId]
+    );
+    return {};
+  } catch (err) {
+    console.error(`Unable to update sync time for subscriptions ${subscriptionId}: `, err);
+    throw new Error(err);
+  } finally {
+    client.release();
+  }
+}
+
 module.exports = {
   getUserByToken,
   putUser,
@@ -151,4 +168,6 @@ module.exports = {
   getActiveSubscriptions,
   getSubscription,
   deleteSubscription,
+  deleteSubscriptionByUserId,
+  updateSyncTime,
 };
