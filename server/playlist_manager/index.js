@@ -45,18 +45,28 @@ async function main() {
   // TODO window it ?
   for (let subscription of subscriptions) {
     const { token: refreshToken, user_id: userId } = subscription;
-    const { result: accessToken } = await refreshAccessToken(refreshToken);
-    // TODO this is super slow, need to balance rates vs speed
+    let accessToken;
     try {
-      await syncSubscription(accessToken, subscription);
-    }
-    catch (err) {
+      const { result: accessToken } = await refreshAccessToken(refreshToken);
+    } catch(err) {
       // User revoked token
       if (err.data && err.data.error == 'invalid_grant') {
         console.log('Deleting revoked subscription of user: ', userId);
         await deleteSubscriptionByUserId(userId);
+      } else {
+        console.log('Unable to refresh token for subscription: ', subscription.id);
       }
+      // Skip if anything goes wrong
+      continue;
+    }
+    // TODO this is super slow, need to balance rates vs speed
+    // TODO update last synced in database
+    try {
+      await syncSubscription(accessToken, subscription);
+    }
+    catch (err) {
       console.error('Error while syncing subscription: ', err);
+      continue;
     }
   }
   console.log('Completed sync at :', new Date().toLocaleString());

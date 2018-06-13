@@ -12,5 +12,6 @@ CREATE TABLE subscriptions (
         spotify_playlist_id TEXT UNIQUE NOT NULL,
         playlist_type SMALLINT NOT NULL,
         created_at TIMESTAMPTZ DEFAULT NOW(),
+        last_synced TIMESTAMPTZ DEFAULT NOW(),
         deleted_at TIMESTAMPTZ
         );
