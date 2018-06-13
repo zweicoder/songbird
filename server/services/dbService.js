@@ -144,7 +144,6 @@ async function deleteSubscriptionByUserId(userId) {
   }
 }
 
-// TODO
 async function updateSyncTime(subscriptionId) {
   const client = await pool.connect();
   try {

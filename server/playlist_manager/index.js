@@ -50,7 +50,7 @@ async function main() {
       const { result: accessToken } = await refreshAccessToken(refreshToken);
     } catch(err) {
       // User revoked token
-      if (err.data && err.data.error == 'invalid_grant') {
+      if (err.response && err.response.data && err.data.error === 'invalid_grant') {
         console.log('Deleting revoked subscription of user: ', userId);
         await deleteSubscriptionByUserId(userId);
       } else {
