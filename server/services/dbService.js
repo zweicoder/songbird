@@ -128,6 +128,22 @@ async function deleteSubscription(subscriptionId) {
   }
 }
 
+async function deleteSubscriptionByUserId(userId) {
+  const client = await pool.connect();
+  try {
+    const res = await client.query(
+      'UPDATE subscriptions SET deleted_at = NOW() WHERE user_id = $1',
+      [userId]
+    );
+    return {};
+  } catch (err) {
+    console.error(`Unable to soft delete subscriptions of ${userId}: `, err);
+    throw new Error(err);
+  } finally {
+    client.release();
+  }
+}
+
 module.exports = {
   getUserByToken,
   putUser,

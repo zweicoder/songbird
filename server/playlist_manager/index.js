@@ -15,6 +15,7 @@ const { refreshAccessToken } = require('../services/spotify/oauth2Service.js');
 const {
   getActiveSubscriptions,
   deleteSubscription,
+  deleteSubscriptionByUserId,
 } = require('../services/dbService.js');
 
 async function syncSubscription(accessToken, subscription) {
@@ -43,10 +44,20 @@ async function main() {
   const { result: subscriptions } = await getActiveSubscriptions();
   // TODO window it ?
   for (let subscription of subscriptions) {
-    const { token: refreshToken } = subscription;
+    const { token: refreshToken, user_id: userId } = subscription;
     const { result: accessToken } = await refreshAccessToken(refreshToken);
     // TODO this is super slow, need to balance rates vs speed
-    await syncSubscription(accessToken, subscription);
+    try {
+      await syncSubscription(accessToken, subscription);
+    }
+    catch (err) {
+      // User revoked token
+      if (err.data && err.data.error == 'invalid_grant') {
+        console.log('Deleting revoked subscription of user: ', userId);
+        await deleteSubscriptionByUserId(userId);
+      }
+      console.error('Error while syncing subscription: ', err);
+    }
   }
   console.log('Completed sync at :', new Date().toLocaleString());
   process.exit(0);
