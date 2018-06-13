@@ -45,9 +45,12 @@ async function main() {
   // TODO window it ?
   for (let subscription of subscriptions) {
     const { token: refreshToken, user_id: userId } = subscription;
-    let accessToken;
     try {
       const { result: accessToken } = await refreshAccessToken(refreshToken);
+      // TODO this is super slow, need to balance rates vs speed
+      // TODO update last synced in database
+      // TODO update playlist info to reflect sync time
+      await syncSubscription(accessToken, subscription);
     } catch(err) {
       // User revoked token
       if (err.response && err.response.data && err.data.error === 'invalid_grant') {
@@ -57,16 +60,6 @@ async function main() {
         console.log('Unable to refresh token for subscription: ', subscription.id);
       }
       // Skip if anything goes wrong
-      continue;
-    }
-    // TODO this is super slow, need to balance rates vs speed
-    // TODO update last synced in database
-    // TODO update playlist info to reflect sync time
-    try {
-      await syncSubscription(accessToken, subscription);
-    }
-    catch (err) {
-      console.error('Error while syncing subscription: ', err);
       continue;
     }
   }
