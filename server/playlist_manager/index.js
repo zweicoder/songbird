@@ -51,7 +51,6 @@ async function main() {
       const { result: accessToken } = await refreshAccessToken(refreshToken);
       // TODO this is super slow, need to balance rates vs speed
       // TODO update last synced in database
-      // TODO update playlist info to reflect sync time
       await syncSubscription(accessToken, subscription);
       updatePlaylistLastSynced(userId, accessToken, playlistId);
     } catch(err) {
