@@ -10,6 +10,7 @@ const {
   getPlaylistTracks,
   putPlaylistSongs,
   userHasPlaylist,
+  updatePlaylistLastSynced,
 } = require('../services/spotify/playlistService.js');
 const { refreshAccessToken } = require('../services/spotify/oauth2Service.js');
 const {
@@ -44,7 +45,7 @@ async function main() {
   const { result: subscriptions } = await getActiveSubscriptions();
   // TODO window it ?
   for (let subscription of subscriptions) {
-    const { token: refreshToken, user_id: userId } = subscription;
+    const { token: refreshToken, user_id: userId, spotify_playlist_id: playlistId } = subscription;
     console.log('Syncing playlist for: ', subscription);
     try {
       const { result: accessToken } = await refreshAccessToken(refreshToken);
@@ -52,13 +53,14 @@ async function main() {
       // TODO update last synced in database
       // TODO update playlist info to reflect sync time
       await syncSubscription(accessToken, subscription);
+      updatePlaylistLastSynced(userId, accessToken, playlistId);
     } catch(err) {
       // User revoked token
       if (err.response && err.response.data && err.response.data.error === 'invalid_grant') {
         console.log('Deleting revoked subscription of user: ', userId);
         await deleteSubscriptionByUserId(userId);
       } else {
-        console.log('Unable to refresh token for subscription: ', subscription.id);
+        console.log('Unable to refresh token for subscription: ', subscription);
       }
       // Skip if anything goes wrong
       continue;
