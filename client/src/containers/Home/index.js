@@ -7,20 +7,17 @@ import {
   Tooltip,
 } from 'react-bootstrap';
 import SongPreview from '../../components/SongPreview';
-import qs from 'querystring';
 import axios from 'axios';
 import FaIcon from '@fortawesome/react-fontawesome';
 import FaQuestionCircle from '@fortawesome/fontawesome-free-regular/faQuestionCircle';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-import { getTokens, refreshAccessToken } from '../../services/authService.js';
+import { getRefreshToken, getAccessToken } from '../../services/authService.js';
 import { PLAYLIST_METADATA } from '../../constants.global.js';
-import {
-  URL_BACKEND_PLAYLIST,
-  URL_BACKEND_PLAYLIST_SUBSCRIBE,
-} from '../../constants.js';
+import { URL_BACKEND_PLAYLIST, URL_BACKEND_PLAYLIST_SUBSCRIBE } from '../../constants.js';
 import './index.css';
+import { getPlaylistTracks } from 'spotify-service/playlistService';
 
 const playlistTypeKeys = Object.keys(PLAYLIST_METADATA);
 
@@ -72,37 +69,28 @@ const PlaylistTypeTooltip = ({ selectedPlaylist }) => {
 class Home extends Component {
   constructor(props) {
     super(props);
-    const { refreshToken } = this.props;
     this.state = {
       selectedPlaylist: null,
       tracks: [],
-      refreshToken,
     };
-    refreshAccessToken(refreshToken);
   }
 
-  onDropdownSelect = eventKey => {
+  getTrackForPlaylist = async playlist => {
+    const { result: accessToken } = await getAccessToken();
+    const { result: tracks } = await getPlaylistTracks(accessToken, playlist);
     this.setState({
-      selectedPlaylist: eventKey,
+      loading: false,
+      tracks,
+    });
+  };
+  onDropdownSelect = selectedPlaylist => {
+    // Render loading spinner and empty tracks
+    this.setState({
+      selectedPlaylist,
       loading: true,
-      // Empty tracks
       tracks: [],
     });
-    const { refreshToken } = getTokens();
-    const queryParams = qs.stringify({
-      refreshToken,
-      playlistType: eventKey,
-    });
-    // TODO call spotify api with spotify-service using access token
-    axios.get(`${URL_BACKEND_PLAYLIST}?${queryParams}`).then(res => {
-      if (res.status !== 200) {
-        console.error(res);
-        return;
-      }
-
-      const { tracks } = res.data;
-      this.setState({ tracks, loading: false });
-    });
+    this.getTrackForPlaylist(selectedPlaylist);
   };
 
   notifySuccess = message => {
@@ -117,7 +105,7 @@ class Home extends Component {
   onAddPlaylist = async () => {
     const selectedPlaylist = this.state.selectedPlaylist;
     console.log('Adding playlist option: ', selectedPlaylist);
-    const { refreshToken } = getTokens();
+    const  refreshToken  = getRefreshToken();
     axios.post(URL_BACKEND_PLAYLIST, {
       refreshToken,
       playlistType: selectedPlaylist,
@@ -128,7 +116,7 @@ class Home extends Component {
 
   onSubscribe = async () => {
     const selectedPlaylist = this.state.selectedPlaylist;
-    const { refreshToken } = getTokens();
+    const refreshToken  = getRefreshToken();
     axios.post(URL_BACKEND_PLAYLIST_SUBSCRIBE, {
       refreshToken,
       playlistType: selectedPlaylist,
@@ -153,7 +141,7 @@ class Home extends Component {
             {playlistTypeKeys.map((key, idx) => (
               <MenuItem
                 key={key}
-                eventKey={key}
+                selectedPlaylist={key}
                 onSelect={this.onDropdownSelect}
               >
                 {PLAYLIST_METADATA[key].title}

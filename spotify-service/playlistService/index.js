@@ -7,7 +7,7 @@ const {
   getRecentlyAddedTracks,
   getPopularTracks,
   TIME_RANGE_OPTS,
-} = require('../trackService.js');
+} = require('../trackService');
 const { getOAuthHeader } = require('../oauth2Service');
 const {
   PLAYLIST_TYPE_TOP_LONG_TERM,
@@ -38,6 +38,7 @@ const playlistToTimeRange = {
  */
 async function getPlaylistTracks(accessToken, _playlistType, numTracks = 25) {
   console.log('Get playlist tracks for: ', _playlistType);
+  // TODO clean this up so only backend knows about this
   const playlistType =
     typeof _playlistType === 'number'
       ? PLAYLIST_TYPE_DB_REVERSE_MAP[_playlistType]
