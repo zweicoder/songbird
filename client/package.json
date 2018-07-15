@@ -43,6 +43,7 @@
     "react-dom": "^16.2.0",
     "react-router-dom": "^4.2.2",
     "react-toastify": "^4.0.1",
+    "spotify-service": "file:../spotify-service",
     "style-loader": "0.19.0",
     "sw-precache-webpack-plugin": "0.11.4",
     "url-loader": "0.6.2",

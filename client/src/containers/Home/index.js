@@ -14,7 +14,7 @@ import FaQuestionCircle from '@fortawesome/fontawesome-free-regular/faQuestionCi
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-import { getTokens } from '../../services/authService.js';
+import { getTokens, refreshAccessToken } from '../../services/authService.js';
 import { PLAYLIST_METADATA } from '../../constants.global.js';
 import {
   URL_BACKEND_PLAYLIST,
@@ -78,10 +78,7 @@ class Home extends Component {
       tracks: [],
       refreshToken,
     };
-  }
-
-  componenetDidMount() {
-    this.notify();
+    refreshAccessToken(refreshToken);
   }
 
   onDropdownSelect = eventKey => {
@@ -96,6 +93,7 @@ class Home extends Component {
       refreshToken,
       playlistType: eventKey,
     });
+    // TODO call spotify api with spotify-service using access token
     axios.get(`${URL_BACKEND_PLAYLIST}?${queryParams}`).then(res => {
       if (res.status !== 200) {
         console.error(res);
