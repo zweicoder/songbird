@@ -55,8 +55,8 @@ export function getRefreshToken() {
 // Returns access token, refreshing as needed. Only checks the time in local storage to determine if
 // token has expired, hence has a slight chance where this fails.
 export async function getAccessToken() {
-  const validTo = window.localStorage.setItem(KEY_SONGBIRD_TOKEN_VALID_TO);
-  const accessToken = window.localStorage.setItem(KEY_SONGBIRD_ACCESS_TOKEN);
+  const validTo = window.localStorage.getItem(KEY_SONGBIRD_TOKEN_VALID_TO);
+  const accessToken = window.localStorage.getItem(KEY_SONGBIRD_ACCESS_TOKEN);
   if (!accessToken) {
     return await refreshAccessToken();
   }

@@ -4,10 +4,12 @@ import React from 'react';
 import { Redirect } from 'react-router';
 
 const ParamHandler = () => {
+  if (window.location.search.length === 0) {
+    return null;
+  }
   const { accessToken, refreshToken, error } = qs.parse(window.location.search.substr(1));
   if (error) {
     console.error(error);
-    // TODO render some message or something, but PrivateRoute keeps redirecting to login anyway, keep urlParams when redirecting?
     return null;
   }
   const loggedIn = login({ accessToken, refreshToken });
