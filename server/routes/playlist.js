@@ -17,6 +17,7 @@ const {
 } = require('../services/dbService.js');
 const { PLAYLIST_METADATA } = require('../constants.global.js');
 const { wrapRoute } = require('../lib/utils.js');
+const logger = require('../lib/logger.js');
 
 const router = express.Router();
 
@@ -39,44 +40,13 @@ async function createPlaylist(refreshToken, playlistType, _playlistOpts) {
   return { result: playlistId };
 }
 
-router.get(
-  '/playlist',
-  wrapRoute(async (req, res) => {
-    const { refreshToken, playlistType } = req.query;
-    if (![refreshToken, playlistType].every(e => !!e)) {
-      return res
-        .status(400)
-        .json({ error: 'Bad request - missing query params!' });
-    }
-    const { result: accessToken } = await refreshAccessToken(refreshToken);
-
-    const { result: userId } = await getUserProfile(accessToken);
-    const userOpts = {
-      userId,
-      accessToken,
-    };
-    const { result } = await getPlaylistTracks(accessToken, playlistType);
-    if (result.length === 0) {
-      console.warn(`No tracks found for ${userId} with ${playlistType}`);
-      return res.json({});
-    }
-
-    // Pluck tracks for response
-    const tracks = result.map(track => ({
-      name: track.name,
-      album: track.album.name,
-      artists: track.artists.map(artist => artist.name),
-    }));
-    return res.json({ tracks });
-  })
-);
-
 router.post(
   '/playlist',
   jsonParser,
   wrapRoute(async (req, res) => {
     const { playlistType, refreshToken } = req.body;
     if (![playlistType, refreshToken].every(e => e)) {
+      logger.warn('Unable to create playlist due to missing arguments. Body: ', req.body);
       res.sendStatus(400);
       return;
     }
@@ -92,7 +62,7 @@ router.post(
   wrapRoute(async (req, res) => {
     const { playlistType, refreshToken } = req.body;
     if (![playlistType, refreshToken].every(e => e)) {
-      console.warn('Missing param in request body!');
+      logger.warn('Missing param in request body!');
       res.sendStatus(400);
       return;
     }
@@ -105,7 +75,7 @@ router.post(
     };
     const { result: dbUser } = await getDbUserByToken(refreshToken);
     if (!dbUser) {
-      console.warn(`Could not find user with token: `, refreshToken);
+      logger.warn(`Could not find user with token: `, refreshToken);
       res.sendStatus(400);
       return;
     }
@@ -125,7 +95,7 @@ router.post(
       );
       if (hasPlayList) {
         // Should be a mistake e.g. spamming button -  ignore request
-        console.log(
+        logger.info(
           'Found existing playlist with id: ',
           subscription.spotify_playlist_id
         );
@@ -134,7 +104,7 @@ router.post(
       }
     }
 
-    console.log('Inserting subscription for user: ', dbUser.spotify_username);
+    logger.info('Inserting subscription for user: %o', dbUser.spotify_username);
     const { result: playlistId } = await createPlaylist(
       refreshToken,
       playlistType,
@@ -142,7 +112,6 @@ router.post(
     );
     await addPlaylistSubscription(dbUser.id, playlistId, playlistType);
     res.sendStatus(200);
-    // TODO better handle uncaught errors that already created playlists
   })
 );
 

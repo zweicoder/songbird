@@ -17,8 +17,16 @@ const addedTimeSelector = trackObj => trackObj.added_at;
 
 // Get Most Popular tracks from the trackObjs.
 function _getPopularTracks(trackObjs, limit = 50) {
-  const sortByPopularityDesc = R.sortBy(R.pipe(popularitySelector, R.negate));
-  const topResults = R.pipe(sortByPopularityDesc, R.take(limit));
+  const sortByPopularityDesc = R.sortBy(
+    R.pipe(
+      popularitySelector,
+      R.negate
+    )
+  );
+  const topResults = R.pipe(
+    sortByPopularityDesc,
+    R.take(limit)
+  );
   return topResults(trackObjs);
 }
 
@@ -65,12 +73,8 @@ async function _getUserTracks(accessToken, { offset = 0, limit = 50 }) {
         tracks,
       },
     };
-  } catch (err) {
-    console.error('Error while requesting for user tracks: ');
-    console.error(err.config);
-    console.error(err.response.status);
-    console.error(err.response.data);
-    throw err;
+  } catch (error) {
+    return { error };
   }
 }
 
@@ -93,7 +97,11 @@ async function getAllUserTracks(accessToken, maxLimit = 250) {
 }
 
 // Get Top tracks of user based on given time range
-async function getTopTracks(accessToken, timeRange, { limit = 50, offset = 0 }) {
+async function getTopTracks(
+  accessToken,
+  timeRange,
+  { limit = 50, offset = 0 }
+) {
   const queryParams = qs.stringify({
     time_range: timeRange,
     limit,
@@ -114,12 +122,8 @@ async function getTopTracks(accessToken, timeRange, { limit = 50, offset = 0 }) 
     );
     const tracks = res.data.items;
     return { result: tracks };
-  } catch (err) {
-    console.error('Error while getting top tracks');
-    console.error(err.config);
-    console.error(err.response.status);
-    console.error(err.response.data);
-    throw err;
+  } catch (error) {
+    return { error };
   }
 }
 
@@ -129,10 +133,10 @@ async function getRecentlyAddedTracks(accessToken, { limit = 50 }) {
   return { result: result.tracks };
 }
 
-async function getPopularTracks(accessToken, {limit = 50}) {
-  const {result: trackObjs} = await getAllUserTracks(accessToken);
+async function getPopularTracks(accessToken, { limit = 50 }) {
+  const { result: trackObjs } = await getAllUserTracks(accessToken);
   const popularTracks = _getPopularTracks(trackObjs, limit);
-  return {result: popularTracks};
+  return { result: popularTracks };
 }
 
 module.exports = {

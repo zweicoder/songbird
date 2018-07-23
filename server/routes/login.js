@@ -3,6 +3,7 @@ const qs = require('query-string');
 const axios = require('axios');
 const uuidv4 = require('uuid/v4');
 
+const logger = require('../lib/logger.js')('routes/login.js');
 const oauthClient = require('../lib/oauthClient.js');
 const { getUserProfile } = require('../services/spotify/userService.js');
 const { putUser } = require('../services/dbService.js');
@@ -33,6 +34,7 @@ router.get('/login', function(req, res) {
 router.get('/access-token', async (req, res) => {
   const { refreshToken } = req.query;
   if (!refreshToken) {
+    logger.warn('No refreshToken supplied to refresh access token.');
     return res
       .status(400)
       .json({ error: 'Bad request - missing query params!' });
@@ -52,6 +54,7 @@ router.get('/callback', async function(req, res) {
   const storedState = req.cookies ? req.cookies[KEY_OAUTH2_STATE] : null;
 
   if (state === null || state !== storedState) {
+    logger.info('Failed to authenticate due to state_mismatch');
     redirectWithError(res, 'state_mismatch');
     return;
   }
@@ -69,15 +72,19 @@ router.get('/callback', async function(req, res) {
   const { accessToken, refreshToken } = resp.result;
 
   resp = await getUserProfile(accessToken);
-  if (resp.err) {
+  if (resp.error) {
+    logger.error('Unable to get user profile with new access token. Should never happen unless Spotify is down');
+    logger.error('%o', resp.error.response.data);
+    logger.error('%o', resp.error.response.status);
     const error = 'internal_server_error';
     redirectWithError(res, error);
     return;
   }
   const { id: userId } = resp.result;
   resp = await putUser(userId, refreshToken);
-  if (resp.err) {
-    console.error('Error inserting user to database: ', resp.err);
+  if (resp.error) {
+    logger.error('Error inserting user to database');
+    logger.error('%o', resp.error);
     const error = 'internal_server_error';
     redirectWithError(res, error);
     return;

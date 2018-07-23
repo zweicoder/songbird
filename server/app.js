@@ -10,23 +10,25 @@ const bodyParser = require('body-parser');
 const loginRouter = require('./routes/login.js');
 const playlistRouter = require('./routes/playlist.js');
 
+const logger = require('./lib/logger.js')('app.js');
+
 const app = express();
 
 app.use(bodyParser.json());
 app.use(cookieParser());
-app.use(morgan('tiny'));
+app.use(morgan('common'));
 app.use(cors());
 
 app.use(loginRouter, playlistRouter);
 
 process.on('unhandledRejection', function(reason, p) {
-  console.log("Unhandled Rejection:", reason.stack);
+  logger.error("Unhandled Rejection: %o", reason.stack);
 });
 
 app.use((err, req, res, next) => {
-  console.log("Unhandled Rejection:", err);
+  logger.error("Unhandled Rejection: %o", err);
   res.status(500).send('Oops! Looks like something broke :(');
 });
 
-console.log('Listening on 8888');
+logger.info('Listening on 8888');
 app.listen(8888);

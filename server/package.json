@@ -17,7 +17,8 @@
     "ramda": "^0.25.0",
     "request": "~2.83.0",
     "spotify-service": "file:../spotify-service",
-    "uuid": "^3.2.1"
+    "uuid": "^3.2.1",
+    "winston": "^3.0.0"
   },
   "scripts": {
     "start": "node app.js"

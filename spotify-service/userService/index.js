@@ -11,12 +11,8 @@ async function getUserProfile(accessToken) {
   try {
     const resp = await axios.get(URL_SPOTIFY_CURRENT_USER, opts);
     return { result: resp.data };
-  } catch (err) {
-    console.error('Error trying to get user profile');
-    console.error(err.config);
-    console.error(err.response.status);
-    console.error(err.response.data);
-    return { err };
+  } catch (error) {
+    return { error };
   }
 }
 

@@ -1,5 +1,8 @@
 const { Pool } = require('pg');
-const { PLAYLIST_TYPE_DB_MAP, DB_CONNECTION_STRING } = require('../constants.js');
+const {
+  PLAYLIST_TYPE_DB_MAP,
+  DB_CONNECTION_STRING,
+} = require('../constants.js');
 
 const pool = new Pool({
   connectionString: DB_CONNECTION_STRING,
@@ -50,9 +53,9 @@ async function putUser(userId, token) {
       [userId, token]
     );
     return { result: res.rows[0] };
-  } catch (err) {
-    console.error('Unable to putUser: ', err);
-    throw new Error(err);
+  } catch (error) {
+    console.error('Unable to putUser: ', error);
+    return { error };
   } finally {
     client.release();
   }
@@ -105,7 +108,10 @@ async function getSubscription(userId, playlistType) {
     );
     return { result: res.rows[0] };
   } catch (err) {
-    console.error(`Unable to getSubscription for ${userId}, ${dbPlaylistType}: `, err);
+    console.error(
+      `Unable to getSubscription for ${userId}, ${dbPlaylistType}: `,
+      err
+    );
     throw new Error(err);
   } finally {
     client.release();
@@ -121,7 +127,10 @@ async function deleteSubscription(subscriptionId) {
     );
     return {};
   } catch (err) {
-    console.error(`Unable to soft delete subscription ${subscriptionId}: `, err);
+    console.error(
+      `Unable to soft delete subscription ${subscriptionId}: `,
+      err
+    );
     throw new Error(err);
   } finally {
     client.release();
@@ -153,7 +162,10 @@ async function updateSyncTime(subscriptionId) {
     );
     return {};
   } catch (err) {
-    console.error(`Unable to update sync time for subscriptions ${subscriptionId}: `, err);
+    console.error(
+      `Unable to update sync time for subscriptions ${subscriptionId}: `,
+      err
+    );
     throw new Error(err);
   } finally {
     client.release();
