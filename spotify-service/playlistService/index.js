@@ -37,7 +37,6 @@ const playlistToTimeRange = {
  * @returns {err, result}
  */
 async function getPlaylistTracks(accessToken, _playlistType, numTracks = 25) {
-  console.log('Get playlist tracks for: ', _playlistType);
   // TODO clean this up so only backend knows about this
   const playlistType =
     typeof _playlistType === 'number'

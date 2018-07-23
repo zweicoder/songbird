@@ -78,9 +78,15 @@ class Home extends Component {
   getTrackForPlaylist = async playlist => {
     const { result: accessToken } = await getAccessToken();
     const { result: tracks } = await getPlaylistTracks(accessToken, playlist);
+    // Pluck out interesting attributes that we want here
+    const pluckedTracks = tracks.map(track => ({
+      name: track.name,
+      album: track.album.name,
+      artists: track.artists.map(artist => artist.name),
+    }));
     this.setState({
       loading: false,
-      tracks,
+      tracks: pluckedTracks,
     });
   };
   onDropdownSelect = selectedPlaylist => {
@@ -141,7 +147,7 @@ class Home extends Component {
             {playlistTypeKeys.map((key, idx) => (
               <MenuItem
                 key={key}
-                selectedPlaylist={key}
+                eventKey={key}
                 onSelect={this.onDropdownSelect}
               >
                 {PLAYLIST_METADATA[key].title}

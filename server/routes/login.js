@@ -3,9 +3,6 @@ const qs = require('query-string');
 const axios = require('axios');
 const uuidv4 = require('uuid/v4');
 
-const {
-  exchangeAuthorizationCode,
-} = require('../services/spotify/oauth2Service.js');
 const oauthClient = require('../lib/oauthClient.js');
 const { getUserProfile } = require('../services/spotify/userService.js');
 const { putUser } = require('../services/dbService.js');

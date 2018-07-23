@@ -12,7 +12,7 @@ const {
   userHasPlaylist,
   updatePlaylistLastSynced,
 } = require('../services/spotify/playlistService.js');
-const { refreshAccessToken } = require('../services/spotify/oauth2Service.js');
+const { refreshAccessToken } = require('../lib/oauthClient.js');
 const {
   getActiveSubscriptions,
   deleteSubscription,

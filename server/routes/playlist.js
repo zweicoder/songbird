@@ -9,7 +9,7 @@ const {
   userHasPlaylist,
 } = require('../services/spotify/playlistService.js');
 const { getUserProfile } = require('../services/spotify/userService.js');
-const { refreshAccessToken } = require('../services/spotify/oauth2Service.js');
+const { refreshAccessToken } = require('../lib/oauthClient.js');
 const {
   addPlaylistSubscription,
   getUserByToken: getDbUserByToken,

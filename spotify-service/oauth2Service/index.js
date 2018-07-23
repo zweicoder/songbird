@@ -19,10 +19,11 @@ function getBasicAuthHeader(clientId, clientSecret) {
 }
 
 // Used mainly by server to request for oauth tokens
-const OAuthClient = (clientId, clientSecret) => {
-  if (!clientId || !clientSecret) {
-    throw new Error('clientId & clientSecret is required!');
+const OAuthClient = opts => {
+  if (!Object.values(opts).every(e => !!e)) {
+    throw new Error('Missing arguments for OAuthClient construction: ', opts);
   }
+  const { clientId, clientSecret, redirectUri } = opts;
 
   async function refreshAccessToken(refreshToken) {
     try {
@@ -47,7 +48,7 @@ const OAuthClient = (clientId, clientSecret) => {
       throw err;
     }
   }
-  async function exchangeAuthorizationCode(code, redirectUri) {
+  async function exchangeAuthorizationCode(code) {
     const opts = {
       headers: getBasicAuthHeader(clientId, clientSecret),
     };
