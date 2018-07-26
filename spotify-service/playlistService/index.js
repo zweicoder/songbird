@@ -103,7 +103,10 @@ async function putPlaylistSongs(
     headers: getOAuthHeader(accessToken),
   };
   const getTrackUri = R.pipe(R.prop('uri'));
-  const getTrackUris = R.pipe(R.take(limit), R.map(getTrackUri));
+  const getTrackUris = R.pipe(
+    R.take(limit),
+    R.map(getTrackUri)
+  );
   const requestBody = {
     uris: getTrackUris(tracks),
   };
