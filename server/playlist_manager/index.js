@@ -4,14 +4,14 @@ const {
   getPopularTracks,
   getTopTracks,
   TIME_RANGE_OPTS,
-} = require('../services/spotify/trackService.js');
-const { getUserProfile } = require('../services/spotify/userService.js');
+} = require('spotify-service/trackService.js');
+const { getUserProfile } = require('spotify-service/userService');
 const {
   getPlaylistTracks,
   putPlaylistSongs,
   userHasPlaylist,
   updatePlaylistLastSynced,
-} = require('../services/spotify/playlistService.js');
+} = require('spotify-service/playlistService');
 const { refreshAccessToken } = require('../lib/oauthClient.js');
 const {
   getActiveSubscriptions,
@@ -45,7 +45,11 @@ async function main() {
   const { result: subscriptions } = await getActiveSubscriptions();
   // TODO window it ?
   for (let subscription of subscriptions) {
-    const { token: refreshToken, user_id: userId, spotify_playlist_id: playlistId } = subscription;
+    const {
+      token: refreshToken,
+      user_id: userId,
+      spotify_playlist_id: playlistId,
+    } = subscription;
     console.log('Syncing playlist for: ', subscription);
     try {
       const { result: accessToken } = await refreshAccessToken(refreshToken);
@@ -53,9 +57,13 @@ async function main() {
       // TODO update last synced in database
       await syncSubscription(accessToken, subscription);
       updatePlaylistLastSynced(userId, accessToken, playlistId);
-    } catch(err) {
+    } catch (err) {
       // User revoked token
-      if (err.response && err.response.data && err.response.data.error === 'invalid_grant') {
+      if (
+        err.response &&
+        err.response.data &&
+        err.response.data.error === 'invalid_grant'
+      ) {
         console.log('Deleting revoked subscription of user: ', userId);
         await deleteSubscriptionByUserId(userId);
       } else {
