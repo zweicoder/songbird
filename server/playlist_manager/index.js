@@ -1,11 +1,11 @@
+const { getUserProfile } = require('spotify-service/userService');
 const {
   getAllUserTracks,
   getRecentlyAddedTracks,
   getPopularTracks,
   getTopTracks,
   TIME_RANGE_OPTS,
-} = require('spotify-service/trackService.js');
-const { getUserProfile } = require('spotify-service/userService');
+} = require('spotify-service/trackService');
 const {
   getPlaylistTracks,
   putPlaylistSongs,
@@ -18,6 +18,7 @@ const {
   deleteSubscription,
   deleteSubscriptionByUserId,
 } = require('../services/dbService.js');
+const logger = require('../lib/logger.js')('playlist_manager');
 
 async function syncSubscription(accessToken, subscription) {
   const {
@@ -31,14 +32,15 @@ async function syncSubscription(accessToken, subscription) {
     spotifyPlaylistId
   );
   if (!playlistExists) {
-    console.log('Deleting stale subscription: ', subscription.id);
+    logger.info('Deleting stale subscription: %o', subscription.id);
     await deleteSubscription(subscription.id);
-    return;
+    return false;
   }
   const { result: tracks } = await getPlaylistTracks(accessToken, playlistType);
 
   await putPlaylistSongs(spotifyUserId, accessToken, spotifyPlaylistId, tracks);
-  console.log('Successfully synced subscription: ', subscription.id);
+  logger.info('Successfully synced subscription: %o', subscription.id);
+  return true;
 }
 
 async function main() {
@@ -50,13 +52,16 @@ async function main() {
       user_id: userId,
       spotify_playlist_id: playlistId,
     } = subscription;
-    console.log('Syncing playlist for: ', subscription);
+    logger.info('Syncing playlist for: %o', subscription);
     try {
       const { result: accessToken } = await refreshAccessToken(refreshToken);
       // TODO this is super slow, need to balance rates vs speed
-      // TODO update last synced in database
-      await syncSubscription(accessToken, subscription);
-      updatePlaylistLastSynced(userId, accessToken, playlistId);
+      let success;
+      success = await syncSubscription(accessToken, subscription);
+      if (success) {
+        logger.info('Successfully synced playlist. Updating playlist description...');
+        await updatePlaylistLastSynced(userId, accessToken, playlistId);
+      }
     } catch (err) {
       // User revoked token
       if (
@@ -64,16 +69,16 @@ async function main() {
         err.response.data &&
         err.response.data.error === 'invalid_grant'
       ) {
-        console.log('Deleting revoked subscription of user: ', userId);
+        logger.info('Deleting revoked subscription of user: %o', userId);
         await deleteSubscriptionByUserId(userId);
       } else {
-        console.log('Unable to refresh token for subscription: ', subscription);
+        logger.error('Unable to refresh token for subscription: %o', subscription);
       }
       // Skip if anything goes wrong
       continue;
     }
   }
-  console.log('Completed sync at :', new Date().toLocaleString());
+  logger.info('Completed sync at : %o', new Date().toLocaleString());
   process.exit(0);
 }
 
