@@ -13,13 +13,10 @@ const {
   PLAYLIST_TYPE_TOP_LONG_TERM,
   PLAYLIST_TYPE_TOP_MID_TERM,
   PLAYLIST_TYPE_TOP_SHORT_TERM,
-  PLAYLIST_TYPE_DB_MAP,
   PLAYLIST_TYPE_POPULAR,
   PLAYLIST_TYPE_RECENT,
   PLAYLIST_METADATA,
 } = require('./constants.js');
-
-const PLAYLIST_TYPE_DB_REVERSE_MAP = R.invertObj(PLAYLIST_TYPE_DB_MAP);
 
 const SPOTIFY_PLAYLIST_PUT_LIMIT = 100;
 
@@ -36,13 +33,7 @@ const playlistToTimeRange = {
  * @param int numTracks
  * @returns {err, result}
  */
-async function getPlaylistTracks(accessToken, _playlistType, numTracks = 25) {
-  // TODO clean this up so only backend knows about this
-  const playlistType =
-    typeof _playlistType === 'number'
-      ? PLAYLIST_TYPE_DB_REVERSE_MAP[_playlistType]
-      : _playlistType;
-
+async function getPlaylistTracks(accessToken, playlistType, numTracks = 25) {
   switch (playlistType) {
     case PLAYLIST_TYPE_TOP_SHORT_TERM:
     case PLAYLIST_TYPE_TOP_MID_TERM:
@@ -54,7 +45,7 @@ async function getPlaylistTracks(accessToken, _playlistType, numTracks = 25) {
     case PLAYLIST_TYPE_POPULAR:
       return await getPopularTracks(accessToken, { limit: numTracks });
     default:
-      throw new Error(`No matching playlist types for: ${_playlistType}`);
+      throw new Error(`No matching playlist types for: ${playlistType}`);
   }
 }
 

@@ -20,6 +20,18 @@ const {
 } = require('../services/dbService.js');
 const logger = require('./logger.js');
 
+const R = require('ramda');
+// TEMPORARY, moving towards custom playlists
+const PLAYLIST_TYPE_DB_MAP = {
+  PLAYLIST_TYPE_TOP_SHORT_TERM: 0,
+  PLAYLIST_TYPE_TOP_MID_TERM: 1,
+  PLAYLIST_TYPE_TOP_LONG_TERM: 2,
+  PLAYLIST_TYPE_POPULAR: 3,
+  PLAYLIST_TYPE_RECENT: 4,
+};
+
+const PLAYLIST_TYPE_DB_REVERSE_MAP = R.invertObj(PLAYLIST_TYPE_DB_MAP);
+
 async function syncSubscription(accessToken, subscription) {
   const {
     playlist_type: playlistType,
@@ -36,7 +48,9 @@ async function syncSubscription(accessToken, subscription) {
     await deleteSubscription(subscription.id);
     return false;
   }
-  const { result: tracks } = await getPlaylistTracks(accessToken, playlistType);
+  const spotifyPlaylistType = PLAYLIST_TYPE_DB_REVERSE_MAP[playlistType];
+  logger.info('Getting tracks for %o', spotifyPlaylistType);
+  const { result: tracks } = await getPlaylistTracks(accessToken, spotifyPlaylistType);
 
   await putPlaylistSongs(spotifyUserId, accessToken, spotifyPlaylistId, tracks);
   logger.info('Successfully synced subscription: %o', subscription.id);

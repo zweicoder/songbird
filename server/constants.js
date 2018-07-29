@@ -1,6 +1,5 @@
 require('dotenv').config();
 
-
 module.exports = {
   OAUTH_REDIRECT_URI: process.env.OAUTH_REDIRECT_URI || 'http://localhost:8888/callback',
   OAUTH_SCOPES:
