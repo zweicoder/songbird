@@ -21,3 +21,6 @@ const logger = winston.createLogger({
     new winston.transports.File({ filename: 'errors.log', level: 'error' }),
   ],
 });
+
+
+module.exports = logger;

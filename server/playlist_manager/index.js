@@ -18,7 +18,7 @@ const {
   deleteSubscription,
   deleteSubscriptionByUserId,
 } = require('../services/dbService.js');
-const logger = require('../lib/logger.js')('playlist_manager');
+const logger = require('./logger.js');
 
 async function syncSubscription(accessToken, subscription) {
   const {
