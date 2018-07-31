@@ -38,10 +38,10 @@ async function refreshAccessToken() {
     const res = await axios.get(
       `${URL_BACKEND_BASE}/access-token?${queryParams}`
     );
-    const { accessToken } = res.data;
+    const { result: accessToken } = res.data;
     window.localStorage.setItem(KEY_SONGBIRD_ACCESS_TOKEN, accessToken);
     console.log('Successfully refreshed token!');
-    return {result: accessToken};
+    return { result: accessToken };
   } catch (err) {
     console.error('Unable to refresh access token!');
     throw err;
