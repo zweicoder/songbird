@@ -1,6 +1,7 @@
 const R = require('ramda');
 const axios = require('axios');
 const qs = require('query-string');
+const moment = require('moment');
 const { getOAuthHeader } = require('../oauth2Service');
 
 const SPOTIFY_ENDPOINT_TRACKS = 'https://api.spotify.com/v1/me/tracks';
@@ -93,7 +94,80 @@ async function getAllUserTracks(accessToken, maxLimit = 250) {
       break;
     }
   }
+
   return { result: allTracks };
+}
+function window(arr, size) {
+  const windows = [];
+  for (let i= 0; i< arr.length; i+=size) {
+    windows.push(arr.slice(i, i+size));
+  }
+  return windows;
+}
+
+async function getDetailsOfAlbums(accessToken, albumIds){
+  function _getDetails(ids) {
+    const queryParams = qs.stringify({
+      // Manually join ourselves because most libraries just do `ids=1&ids=2` etc which might not work
+      ids: ids.join(','),
+    });
+    const options = {
+      headers: Object.assign(
+        {},
+        { 'Content-Type': 'application/json' },
+        getOAuthHeader(accessToken)
+      ),
+    };
+    return new Promise((resolve, reject) => {
+      return axios
+        .get(`https://api.spotify.com/v1/albums/?${queryParams}`, options)
+        .then(res => res.data.albums);
+      ;
+    }).catch(err => {
+      console.log('Error getting details of albums: ', err.message);
+      console.error(err.response.status);
+      console.error(err.response.data);
+    });
+  }
+  // Window by 20, request to albums endpoint
+  const albumIdSet = new Set(albumIds);
+  const idWindows = window(Array.from(albumIdSet), 20);
+  const promises = idWindows.map(_getDetails);
+
+  return Promise.all(promises);
+
+}
+
+async function preprocessTracks(accessToken, tracks) {
+  // Preprocess tracks to have our own features
+  const albumIds = tracks.map(track => track.album.id);
+  const albumDetails = await getDetailsOfAlbums(accessToken, albumIds);
+
+  const albumIdToGenres = R.pipe(
+    R.map(({id, genres}) => [id, genres]),
+    R.fromPairs
+  )(albumDetails);
+
+  return tracks.map(track => {
+    const added_at = moment(track.added_at);
+    const now = moment();
+    const age = moment.duration(now.diff(added_at)).asDays();
+
+    const album = track.album;
+    const year = moment(album.release_date).year();
+    const artists = track.artists.map(e => e.name);
+
+    // TODO Get all genres from the album details
+    const genres = albumIdToGenres[album.id];
+
+    const features = {
+      added_at,
+      age,
+      year,
+      genres,
+    };
+    return Object.assign({}, track, { features });
+  });
 }
 
 // Get Top tracks of user based on given time range

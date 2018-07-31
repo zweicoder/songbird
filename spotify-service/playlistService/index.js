@@ -27,7 +27,7 @@ const playlistToTimeRange = {
 };
 
 /**
- * Gets the tracks for a given playlist type and user
+ * Gets the tracks for a given preset playlist type and user
  * @param string accessToken
  * @param enum playlistType - The playlist type shared between frontend and backend
  * @param int numTracks
