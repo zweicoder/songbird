@@ -78,6 +78,9 @@ class Home extends Component {
   getTrackForPlaylist = async playlist => {
     const { result: accessToken } = await getAccessToken();
     const { result: tracks } = await getPlaylistTracks(accessToken, playlist);
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('Got tracks: ', tracks);
+    }
     // Pluck out interesting attributes that we want here
     const pluckedTracks = tracks.map(track => ({
       name: track.name,
