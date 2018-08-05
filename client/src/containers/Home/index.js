@@ -16,9 +16,13 @@ import 'react-toastify/dist/ReactToastify.css';
 import { getRefreshToken, getAccessToken } from '../../services/authService.js';
 import { PLAYLIST_METADATA } from '../../constants.global.js';
 import { URL_BACKEND_PLAYLIST, URL_BACKEND_PLAYLIST_SUBSCRIBE } from '../../constants.js';
-import './index.css';
 import { getPlaylistTracks } from 'spotify-service/playlistService';
+// TODO analyze tracks before letting users filter, or do it asynchronously in the background (with progress bar)
+import { getAllUserTracks, preprocessTracks } from 'spotify-service/trackService';
 
+import './index.css';
+
+const devlog = process.env.NODE_ENV === 'production' ? () => {} : console.log;
 const playlistTypeKeys = Object.keys(PLAYLIST_METADATA);
 
 const AddPlaylistButton = ({ onClick }) => {
@@ -75,12 +79,32 @@ class Home extends Component {
     };
   }
 
+  componentDidMount() {
+    this.getPreprocessedLibrary();
+  }
+
+  getPreprocessedLibrary = async () => {
+    // TODO set interval, progress bar, stop early etc
+    devlog('Getting preprocessed library...')
+    this.setState({
+      loading: true,
+      tracks: [],
+    });
+    const { result: accessToken } = await getAccessToken();
+    const { result: allTracks } = await getAllUserTracks(accessToken, 25);
+    devlog('All user tracks: ', allTracks);
+    const { result: processedTracks } = await preprocessTracks(accessToken, allTracks)
+    devlog('Processed Tracks: ', processedTracks)
+    /* this.setState({
+     *   loading: false,
+     *   tracks: processedTracks,
+     * }) */
+  };
+
   getTrackForPlaylist = async playlist => {
     const { result: accessToken } = await getAccessToken();
     const { result: tracks } = await getPlaylistTracks(accessToken, playlist);
-    if (process.env.NODE_ENV !== 'production') {
-      console.log('Got tracks: ', tracks);
-    }
+    devlog('Got tracks: ', tracks);
     // Pluck out interesting attributes that we want here
     const pluckedTracks = tracks.map(track => ({
       name: track.name,
