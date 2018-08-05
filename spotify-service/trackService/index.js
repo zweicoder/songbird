@@ -157,7 +157,6 @@ async function preprocessTracks(accessToken, tracks) {
     const year = moment(album.release_date).year();
     const artists = track.artists.map(e => e.name);
 
-    // TODO Get all genres from the album details
     const genres = albumIdToGenres[album.id];
 
     const features = {
