@@ -52,7 +52,7 @@ const DEFAULT_CONFIG = {
   moods: [],
   limit: 25,
 };
-const PlaylistBuilder = (config = DEFAULT_CONFIG) => ({
+const makePlaylistBuilder = (config = DEFAULT_CONFIG) => ({
   playlistConfig: config,
   withArtists(artists) {
     this.playlistConfig.artists = artists;
@@ -84,6 +84,10 @@ const PlaylistBuilder = (config = DEFAULT_CONFIG) => ({
   },
   // WARNING - this assumes the tracks have all the fields (not all endpoints return full track objects)
   build(tracks) {
+    if (tracks.length == 0) {
+      console.warn('Attempted to build playlist with no tracks');
+      return [];
+    }
     let playlistTracks = tracks;
     // Apply our filters
     const artists = this.playlistConfig.artists;
@@ -132,4 +136,4 @@ function isNonEmptyArray(arr) {
   return !!arr && arr.length && arr.length > 0;
 }
 
-module.exports = PlaylistBuilder;
+module.exports = makePlaylistBuilder;

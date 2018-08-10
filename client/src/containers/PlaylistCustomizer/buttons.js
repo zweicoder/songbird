@@ -1,24 +1,7 @@
 import React from 'react';
-import FaIcon from '@fortawesome/react-fontawesome';
-import FaQuestionCircle from '@fortawesome/fontawesome-free-regular/faQuestionCircle';
 import { Tooltip, OverlayTrigger, Button } from 'react-bootstrap';
 
-import { PLAYLIST_METADATA } from '../../constants.global.js';
 import './buttons.css';
-
-// TODO figure out tool tip for preset playlists
-const PlaylistTypeTooltip = ({ selectedPlaylist }) => {
-  const tooltip = (
-    <Tooltip id="playlist-tooltip">
-      {PLAYLIST_METADATA[selectedPlaylist].tooltip}
-    </Tooltip>
-  );
-  return (
-    <OverlayTrigger placement="right" delayShow={50} overlay={tooltip}>
-      <FaIcon icon={FaQuestionCircle} id="playlist-type-tooltip" />
-    </OverlayTrigger>
-  );
-};
 
 export const AddPlaylistButton = ({ onClick }) => {
   const tooltip = (

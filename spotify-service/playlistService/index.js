@@ -2,6 +2,7 @@ const axios = require('axios');
 const R = require('ramda');
 const moment = require('moment');
 
+const makePlaylistBuilder = require('./builder.js');
 const {
   getTopTracks,
   getRecentlyAddedTracks,
@@ -243,4 +244,6 @@ module.exports = {
   getAllUserPlaylists,
   userHasPlaylist,
   updatePlaylistLastSynced,
+
+  makePlaylistBuilder,
 };

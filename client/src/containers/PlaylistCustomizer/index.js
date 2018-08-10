@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
-import { DropdownButton, MenuItem } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import axios from 'axios';
-import Select from 'react-select';
+import FaIcon from '@fortawesome/react-fontawesome';
+import {faPlus} from '@fortawesome/free-solid-svg-icons';
 
+import makePlaylistBuilder from 'spotify-service/playlistService';
 import { getRefreshToken, getAccessToken } from '../../services/authService.js';
 import SongPreview from '../../components/SongPreview';
 import { AddPlaylistButton, SubscribeButton } from './buttons.js';
+import SingleSelect from '../../components/SingleSelect';
 
 import {
   URL_BACKEND_PLAYLIST,
@@ -77,33 +79,44 @@ class PlaylistCustomizer extends Component {
       console.log('Unable to add incomplete customization');
       return;
     }
-    // TODO use playlist builder instead
+    // Update config & build new tracks from it
     const builderConfig = Object.assign({}, this.state.builderConfig, {
       [selectedType]: selectedValue,
     });
-    this.setState({ selectedType: null, selectedValue: null, builderConfig });
+    const builder = makePlaylistBuilder(builderConfig);
+    const tracks = builder.build(this.state._tracks);
+    this.setState({
+      selectedType: null,
+      selectedValue: null,
+      builderConfig,
+      tracks,
+    });
   };
 
   render() {
-    // TODO default to preset, change 'value' component for other types
-    // value can be list (react-multiselect)
     const ValueComponent =
       this.state.selectedType &&
       CUSTOMIZER_COMPONENT_MAP[this.state.selectedType.value];
     return (
       <div className="playlist-customizer">
-        <div>Customize playlist:</div>
         <div>
-          <Select
+          <SingleSelect
             className="customization-select"
-            placeholder="Select Customization"
-            value={this.state.selectedType}
+            placeholder="Build your own Playlist"
             options={CUSTOMIZER_SELECT_OPTIONS}
             onChange={this.onTypeChange}
           />
         </div>
-        {ValueComponent && <ValueComponent />}
-
+        {ValueComponent && (
+          <div className="customization-select">
+            <ValueComponent />
+          </div>
+        )}
+        {ValueComponent && (
+          <button className="icon-btn">
+            <FaIcon icon={faPlus} color="#CCC" size="1x" />
+          </button>
+        )}
         {this.state.tracks.length > 0 && (
           <div className="preview-content">
             <AddPlaylistButton onClick={this.onAddPlaylist} />

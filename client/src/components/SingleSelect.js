@@ -14,11 +14,33 @@ class SingleSelect extends Component {
     this.props.onChange && this.props.onChange(selectedOption);
   };
   render() {
+    const customStyles = {
+      option: (base, state) => ({
+        ...base,
+        color: 'black',
+      }),
+      control: (base) => ({
+        ...base,
+        borderRadius: '0px',
+        border: 'none',
+        borderLeft: '#ccc solid 1px',
+      }),
+      indicatorSeparator: (base) => ({
+        ...base,
+        display: 'none',
+      }),
+      input: (base) => ({
+        ...base,
+      }),
+    };
+    const {options, onChange, ...restProps} = this.props
     return (
       <Select
         value={this.state.selectedOption}
-        options={this.props.options}
+        options={options}
         onChange={this.handleChange}
+        styles={customStyles}
+        {...restProps}
       />
     );
   }

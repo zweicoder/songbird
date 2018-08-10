@@ -1,9 +1,21 @@
 .playlist-customizer {
-  color: #2b2e2f;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
+
 .customization-select {
+  min-width: 250px;
+  width: fit-content;
+  color: 'white';
+}
+.icon-btn {
   border: none;
-  width: 280px;
+  border-left: #ccc solid 1px;
+  padding: 11px;
+  background: white;
+  height: 38px;
+  border-radius: 0px;
 }
 
 .dropdown-menu {
