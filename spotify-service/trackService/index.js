@@ -50,7 +50,7 @@ function _getTracksByTimeWindow(trackObjs, timeDeltaInMillis) {
 }
 
 // Helper method to get user tracks, returns the uri for getting next set of tracks on top of requested tracks
-async function _getUserTracks(accessToken, { offset = 0, limit = 50 }) {
+async function getPagedUserTracks(accessToken, { offset = 0, limit = 50 }) {
   const queryParams = qs.stringify({
     limit,
     offset,
@@ -72,6 +72,7 @@ async function _getUserTracks(accessToken, { offset = 0, limit = 50 }) {
       result: {
         next: res.data.next,
         tracks,
+        total: res.data.total,
       },
     };
   } catch (error) {
@@ -80,16 +81,28 @@ async function _getUserTracks(accessToken, { offset = 0, limit = 50 }) {
 }
 
 // Gets all user tracks. Tracks returned here are 'saved track objects' with a `created_at` field
-async function getAllUserTracks(accessToken, maxLimit = 250) {
+// Progress is passed into a callbackFn, if defined. CallbackFn should return true/ false to determine whether
+// function should continue to execute, or end early.
+async function getAllUserTracks(accessToken, { maxLimit = 250, callbackFn }) {
   // Request by the maximum number of tracks per request
   const limit = Math.min(50, maxLimit);
   const allTracks = [];
 
   // Default maxLimit limits per user to request up to 5 times
   for (let i = 0; i < maxLimit; i += limit) {
-    const { result } = await _getUserTracks(accessToken, { offset: i, limit });
-    const { next, tracks } = result;
+    const { result } = await getPagedUserTracks(accessToken, {
+      offset: i,
+      limit,
+    });
+    const { next, tracks, total } = result;
     allTracks.push(...tracks);
+    if (callbackFn) {
+      const opts = { numTracks: allTracks.length, total };
+      const shouldContinue = callbackFn(opts);
+      if (!shouldContinue) {
+        break;
+      }
+    }
     if (!next) {
       break;
     }
@@ -156,9 +169,9 @@ async function getDetailsOfArtists(accessToken, artistIds) {
 }
 
 const RELEASE_DATE_FORMATS = {
-  'year': 'YYYY',
-  'month': 'YYYY-MM',
-  'day': 'YYYY-MM-DD',
+  year: 'YYYY',
+  month: 'YYYY-MM',
+  day: 'YYYY-MM-DD',
 };
 
 async function preprocessTracks(accessToken, tracks) {
@@ -240,7 +253,7 @@ async function getTopTracks(
 
 // Get Most Recently Added tracks
 async function getRecentlyAddedTracks(accessToken, { limit = 50 }) {
-  const { result } = await _getUserTracks(accessToken, { limit });
+  const { result } = await getPagedUserTracks(accessToken, { limit });
   return { result: result.tracks };
 }
 
@@ -251,6 +264,7 @@ async function getPopularTracks(accessToken, { limit = 50 }) {
 }
 
 module.exports = {
+  getPagedUserTracks,
   getAllUserTracks,
   getRecentlyAddedTracks,
   getTopTracks,
