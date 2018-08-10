@@ -12,6 +12,10 @@ import {
   URL_BACKEND_PLAYLIST,
   URL_BACKEND_PLAYLIST_SUBSCRIBE,
 } from '../../constants.js';
+import {
+  CUSTOMIZER_SELECT_OPTIONS,
+  CUSTOMIZER_COMPONENT_MAP,
+} from './customizerOptions.js';
 
 import './index.css';
 
@@ -22,8 +26,9 @@ class PlaylistCustomizer extends Component {
     this.state = {
       _tracks: tracks, // As passed down from parent
       tracks: [], // Filtered
-      filters: {},
-      selectedOption: 'genre',
+      builderConfig: {},
+      selectedType: null,
+      selectedValue: null,
     };
   }
   notifySuccess = message => {
@@ -59,31 +64,45 @@ class PlaylistCustomizer extends Component {
     return;
   };
 
-  onCustomizationTypeChange = selectedOption => {
-    this.setState({ selectedOption });
+  onTypeChange = selectedType => {
+    this.setState({ selectedType });
   };
+  onValueChange = selectedValue => {
+    this.setState({ selectedValue });
+  };
+
+  onAddCustomization = () => {
+    const { selectedType, selectedValue } = this.state;
+    if (!selectedValue || !selectedType) {
+      console.log('Unable to add incomplete customization');
+      return;
+    }
+    // TODO use playlist builder instead
+    const builderConfig = Object.assign({}, this.state.builderConfig, {
+      [selectedType]: selectedValue,
+    });
+    this.setState({ selectedType: null, selectedValue: null, builderConfig });
+  };
+
   render() {
     // TODO default to preset, change 'value' component for other types
     // value can be list (react-multiselect)
-    const opts = [
-      {
-        value: 'preset',
-        label: 'Preset',
-      },
-      { value: 'genre', label: 'Genre' },
-    ];
+    const ValueComponent =
+      this.state.selectedType &&
+      CUSTOMIZER_COMPONENT_MAP[this.state.selectedType.value];
     return (
-      <div>
+      <div className="playlist-customizer">
         <div>Customize playlist:</div>
         <div>
           <Select
-            className='customization-select'
-            placeholder='Select Customization'
-            value={this.state.selectedOption}
-            options={opts}
-            onChange={this.onCustomizationTypeChange}
+            className="customization-select"
+            placeholder="Select Customization"
+            value={this.state.selectedType}
+            options={CUSTOMIZER_SELECT_OPTIONS}
+            onChange={this.onTypeChange}
           />
         </div>
+        {ValueComponent && <ValueComponent />}
 
         {this.state.tracks.length > 0 && (
           <div className="preview-content">

@@ -1,7 +1,9 @@
+.playlist-customizer {
+  color: #2b2e2f;
+}
 .customization-select {
   border: none;
   width: 280px;
-  color: #2b2e2f;
 }
 
 .dropdown-menu {
