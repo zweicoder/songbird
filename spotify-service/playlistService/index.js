@@ -153,7 +153,7 @@ async function updatePlaylistLastSynced(userId, accessToken, playlistId) {
       'LL'
     )}`,
   };
-  putPlaylistDetails(userId, accessToken, playlistId, playlistDetails);
+  await putPlaylistDetails(userId, accessToken, playlistId, playlistDetails);
 }
 
 // Retrieves playlist with given spotify playlist ID. Not really used
