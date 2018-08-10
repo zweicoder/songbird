@@ -1,0 +1,14 @@
+.customization-select {
+  border: none;
+  width: 280px;
+  color: #2b2e2f;
+}
+
+.dropdown-menu {
+  width: 100%;
+}
+
+.dropdown-menu > li > a {
+  padding-top: 7px;
+  padding-bottom: 7px;
+}

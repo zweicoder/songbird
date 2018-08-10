@@ -2,29 +2,6 @@
   margin: 30px auto;
 }
 
-#playlist-type-dropdown {
-  border: none;
-  width: 280px;
-}
-#playlist-type-tooltip {
-  margin-left: 15px;
-  height: 15px;
-  width: 15px;
-}
-
-.dropdown-menu {
-  width: 100%;
-}
-
-.dropdown-menu > li > a {
-  padding-top: 7px;
-  padding-bottom: 7px;
-}
-
-
-.preview-content {
-  margin-top: 20px;
-}
 
 .home .spinner {
   margin-top: 30px;
@@ -32,6 +9,11 @@
   width: 50px;
 }
 
+
+
+.preview-content {
+  margin-top: 20px;
+}
 .toast-success {
   background: linear-gradient(to bottom, white, #cfcfcf);
   color: black;
