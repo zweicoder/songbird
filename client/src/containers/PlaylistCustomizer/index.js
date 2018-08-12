@@ -83,44 +83,45 @@ class PlaylistCustomizer extends Component {
   };
 
   onDeleteCustomization = key => {
-    devlog('Deleting customization: ', this.state)
+    devlog('Deleting customization: ', this.state);
     const builder = this.state.builder.deleteKey(key);
     const tracks = builder.isEmpty() ? [] : this.buildPlaylist();
     this.setState({ builder, tracks });
   };
 
   onAddCustomization = () => {
-    devlog('Adding customization: ', this.state);
-    const { selectedType, selectedValue, builder } = this.state;
+    const { selectedType, selectedValue, builder, _tracks } = this.state;
+    devlog('Adding customization: ', selectedType, selectedValue);
     if (!selectedValue || !selectedType) {
       console.log('Unable to add incomplete customization');
       return;
     }
     // Update config & build new tracks from it
-    const newBuilder = builder.withKey(
-      selectedType.value,
-      selectedValue.value
-    );
-    const tracks = this.buildPlaylist();
+    // Value can be either an array or a single value (preset)
+    const customizationValue = Array.isArray(selectedValue)
+      ? selectedValue.map(e=>e.value)
+      : selectedValue.value;
+    const newBuilder = builder.withKey(selectedType.value, customizationValue);
+    const tracks = newBuilder.build(_tracks);
     this.setState({
       builder: newBuilder,
       tracks,
     });
-
-    // Only clear if succeeded? or don't clear at all cause now it's idempotent
-    /* this.setState({
-     *   selectedType: null, *   selectedValue: null,
-     * }) */
+    devlog('Added customization: ', this.state);
   };
 
+  getTracks = () => this.state._tracks;
+
   render() {
-    // TODO render the builder config, allow adding customization
     const { selectedType, builder, tracks } = this.state;
     const ValueComponent =
       selectedType && CUSTOMIZER_COMPONENT_MAP[selectedType.value];
     return (
       <div className="playlist-customizer">
-        <CustomizerInfo builder={builder} onItemDelete={this.onDeleteCustomization} />
+        <CustomizerInfo
+          builder={builder}
+          onItemDelete={this.onDeleteCustomization}
+        />
         <div className="playlist-customizer-container">
           <div>
             <SingleSelect
@@ -132,7 +133,10 @@ class PlaylistCustomizer extends Component {
           </div>
           {ValueComponent && (
             <div className="customization-select">
-              <ValueComponent onChange={this.onValueChange} />
+              <ValueComponent
+                onChange={this.onValueChange}
+                getTracks={this.getTracks}
+              />
             </div>
           )}
           {ValueComponent && (
@@ -140,14 +144,14 @@ class PlaylistCustomizer extends Component {
               <FaIcon icon={faPlus} color="#CCC" size="1x" />
             </button>
           )}
-          {tracks.length > 0 && (
-            <div className="preview-content">
-              <AddPlaylistButton onClick={this.onAddPlaylist} />
-              <SubscribeButton onClick={this.onSubscribe} />
-              <SongPreview tracks={tracks} />
-            </div>
-          )}
         </div>
+        {tracks.length > 0 && (
+          <div className="preview-content">
+            <AddPlaylistButton onClick={this.onAddPlaylist} />
+            <SubscribeButton onClick={this.onSubscribe} />
+            <SongPreview tracks={tracks} />
+          </div>
+        )}
       </div>
     );
   }

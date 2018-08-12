@@ -3,8 +3,10 @@
 }
 .customizer-container-title {
   margin: 12px;
-  font-weight: 900;
+  font-weight: 100;
   font-size: 20px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
 }
 
 .item-container {

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Select from 'react-select';
 import PropTypes from 'prop-types';
 
-class SingleSelect extends Component {
+class MultiSelect extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -36,6 +36,7 @@ class SingleSelect extends Component {
     const {options, onChange, ...restProps} = this.props;
     return (
       <Select
+        isMulti
         value={this.state.selectedOption}
         options={options}
         onChange={this.handleChange}
@@ -46,9 +47,9 @@ class SingleSelect extends Component {
   }
 }
 
-SingleSelect.propTypes = {
+MultiSelect.propTypes = {
   onChange: PropTypes.func,
   options: PropTypes.array.isRequired,
 };
 
-export default SingleSelect;
+export default MultiSelect;

@@ -4,8 +4,6 @@ import PropTypes from 'prop-types';
 
 import { PLAYLIST_METADATA } from '../../../constants.global.js';
 
-// TODO figure out tool tip for preset playlists
-
 const options = Object.keys(PLAYLIST_METADATA).map(key => ({
   value: key,
   label: PLAYLIST_METADATA[key].title,

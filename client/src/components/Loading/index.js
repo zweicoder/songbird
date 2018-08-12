@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 import { Line } from 'rc-progress';
+import './index.css'
 
 class Loading extends Component {
   render() {
     if (this.props.loading) {
       return (
-        <div style={{ width: '500px' }}>
+        <div className="loading">
           <Line
             percent={this.props.progress}
             strokeWidth="1"

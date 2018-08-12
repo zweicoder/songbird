@@ -8,6 +8,7 @@ import { PLAYLIST_METADATA } from '../../../constants.global.js';
 import {
   KEY_SELECT_TYPE_GENRE,
   KEY_SELECT_TYPE_PRESET,
+  KEY_SELECT_TYPE_AGE_RANGE,
 } from '../customizerOptions.js';
 
 import './index.css';
@@ -18,6 +19,26 @@ const InfoTitle = ({ children }) => {
 
 const InfoSubtext = ({ children }) => {
   return <div className="info-subtext">{children}</div>;
+};
+
+const InfoContainer = ({ children }) => {
+  return (
+    <div className="customizer-info">
+      <div className="customizer-container-title">Building Playlist with:</div>
+      {children}
+    </div>
+  );
+};
+
+const InfoItem = ({ children, onItemDelete }) => {
+  return (
+    <div className="item-container">
+      {children}
+      <button onClick={onItemDelete}>
+        <FaIcon icon={faTimes} />
+      </button>
+    </div>
+  );
 };
 
 const PlaylistTypeTooltip = ({ text }) => {
@@ -50,28 +71,22 @@ const Genre = ({ genres, onItemDelete }) => {
   }
   return (
     <InfoItem onItemDelete={onItemDelete}>
-      <InfoTitle>Genre is in [{genres.toString()}]</InfoTitle>
+      <InfoTitle>Genre is {genres.join(' / ')}</InfoTitle>
     </InfoItem>
   );
 };
 
-const InfoContainer = ({ children }) => {
+const TimeAdded = ({ ageRanges, onItemDelete }) => {
+  if (!ageRanges || ageRanges.length === 0) {
+    return null;
+  }
+  const { high, low } = ageRanges[0];
   return (
-    <div className="customizer-info">
-      <div className="customizer-container-title">Building Playlist with:</div>
-      {children}
-    </div>
-  );
-};
-
-const InfoItem = ({ children, onItemDelete }) => {
-  return (
-    <div className="item-container">
-      {children}
-      <button onClick={onItemDelete}>
-        <FaIcon icon={faTimes} />
-      </button>
-    </div>
+    <InfoItem onItemDelete={onItemDelete}>
+      <InfoTitle>
+        Track was added within ${low} - ${high} days
+      </InfoTitle>
+    </InfoItem>
   );
 };
 
@@ -85,7 +100,7 @@ const CustomizerInfo = ({ builder, onItemDelete }) => {
   const onItemDeleteForKey = configKey => {
     return () => onItemDelete(configKey);
   };
-  const { preset, genres } = config;
+  const { preset, genres, ageRanges } = config;
 
   // Preset takes precedence
   if (preset) {
@@ -104,14 +119,14 @@ const CustomizerInfo = ({ builder, onItemDelete }) => {
   }
 
   // TODO other customizations
-  // TODO make this prettier
-  // TODO make sure the binding of this works and we can still set state
   return (
     <InfoContainer>
       <Genre
         genres={genres}
         onItemDelete={onItemDeleteForKey(KEY_SELECT_TYPE_GENRE)}
       />
+      <TimeAdded ageRanges={ageRanges} onItemDelete={onItemDeleteForKey(KEY_SELECT_TYPE_AGE_RANGE)}/>
+
       <InfoSubtext>
         psst! You can add more customizations for your own special sauce
         playlist!
@@ -122,6 +137,6 @@ const CustomizerInfo = ({ builder, onItemDelete }) => {
 CustomizerInfo.propTypes = {
   onItemDelete: propTypes.func.isRequired,
   builder: propTypes.object.isRequired,
-}
+};
 
 export default CustomizerInfo;

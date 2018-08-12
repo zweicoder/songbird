@@ -62,6 +62,10 @@ const makePlaylistBuilder = (config = DEFAULT_CONFIG, tracks = []) => ({
       console.warn('Attempted to add value for unknown key: ', key, value);
       return this;
     }
+    if (!value) {
+      console.warn(`${value} passed in as value for withKey. To delete a value use deleteKey(key) instead to avoid bugs`);
+      return this;
+    }
     const config = Object.assign({}, this.config, {
       [key]: value,
     });
@@ -73,11 +77,11 @@ const makePlaylistBuilder = (config = DEFAULT_CONFIG, tracks = []) => ({
   isEmpty() {
     return (
       this.config.preset == null &&
-      !isNonEmptyArray(this.config.ageRanges.length) &&
-      !isNonEmptyArray(this.config.yearRanges.length) &&
-      !isNonEmptyArray(this.config.artists.length) &&
-      !isNonEmptyArray(this.config.genres.length) &&
-      !isNonEmptyArray(this.config.moods.length)
+      !isNonEmptyArray(this.config.ageRanges) &&
+      !isNonEmptyArray(this.config.yearRanges) &&
+      !isNonEmptyArray(this.config.artists) &&
+      !isNonEmptyArray(this.config.genres) &&
+      !isNonEmptyArray(this.config.moods)
     );
   },
   withTracks(tracks) {
@@ -85,6 +89,7 @@ const makePlaylistBuilder = (config = DEFAULT_CONFIG, tracks = []) => ({
   },
   // WARNING - this assumes the tracks have all the fields (not all endpoints return full track objects)
   build(_tracks) {
+    console.log('Building with: ', this.config);
     let playlistTracks = _tracks || this.tracks;
     if (playlistTracks.length === 0) {
       console.warn('Attempted to build playlist with no tracks');
@@ -94,13 +99,13 @@ const makePlaylistBuilder = (config = DEFAULT_CONFIG, tracks = []) => ({
     const artists = this.config.artists;
     if (isNonEmptyArray(artists)) {
       playlistTracks = playlistTracks.filter(track =>
-        track.artists.some(e => e in artists)
+        track.artists.some(e => artists.indexOf(e) !== -1)
       );
     }
     const genres = this.config.genres;
     if (isNonEmptyArray(genres)) {
       playlistTracks = playlistTracks.filter(track =>
-        track.genres.some(e => e in genres)
+        track.features.genres.some(e => genres.indexOf(e) !== -1)
       );
     }
 
@@ -110,7 +115,7 @@ const makePlaylistBuilder = (config = DEFAULT_CONFIG, tracks = []) => ({
     if (!!ageRange) {
       const { low, high } = ageRange;
       playlistTracks = playlistTracks.filter(
-        track => track.age <= high && track.age >= low
+        track => track.features.age <= high && track.features.age >= low
       );
     }
 
@@ -119,13 +124,14 @@ const makePlaylistBuilder = (config = DEFAULT_CONFIG, tracks = []) => ({
     if (!!yearRange) {
       const { low, high } = yearRange;
       playlistTracks = playlistTracks.filter(
-        track => track.year <= high && track.year >= low
+        track => track.features.year <= high && track.features.year >= low
       );
     }
 
     // Limit by 25. Change if we have premium features
     const limit = Math.min(this.config.limit, DEFAULT_PLAYLIST_SIZE_LIMIT);
     playlistTracks = playlistTracks.slice(0, limit);
+    console.log('Built playlist with tracks: ', playlistTracks);
     return playlistTracks;
   },
 });

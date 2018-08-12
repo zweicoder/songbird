@@ -8,7 +8,6 @@ import PlaylistCustomizer from '../../containers/PlaylistCustomizer';
 
 import { getAccessToken } from '../../services/authService.js';
 import { getPlaylistTracks } from 'spotify-service/playlistService';
-// TODO analyze tracks before letting users filter, or do it asynchronously in the background (with progress bar)
 import {
   getAllUserTracks,
   preprocessTracks,
@@ -31,7 +30,9 @@ class Home extends Component {
 
   componentDidMount() {
     // TODO enable
-    /* this.getPreprocessedLibrary(); */
+    if (window.location.hash !== '#notracks') {
+      this.getPreprocessedLibrary();
+    }
   }
 
   getPreprocessedLibrary = async () => {
@@ -54,6 +55,7 @@ class Home extends Component {
       tracks: [],
       progress: {},
     });
+
     const { result: accessToken } = await getAccessToken();
     const { result: allTracks } = await getAllUserTracks(accessToken, {
       maxLimit: 300,
@@ -108,7 +110,7 @@ class Home extends Component {
     return (
       <div className="home">
         <ToastContainer />
-        {loading && `Processing ${progress.num} / ${progress.total} tracks`}
+        {loading && progress.total && `Processing ${progress.num} / ${progress.total} tracks`}
         <Loading loading={loading} progress={progress.percentage}>
           <PlaylistCustomizer tracks={tracks}/>
         </Loading>
