@@ -24,15 +24,24 @@ import './index.css';
 
 const devlog = process.env.NODE_ENV === 'production' ? () => {} : console.log;
 
-const SongPreviewContainer = ({ tracks, allTracks }) => {
-  // Let users explore their library if they haven't created a playlist
+const SongPreviewContainer = ({ tracks, allTracks, builder }) => {
   if (tracks.length === 0) {
-    return (
-      <div className="preview-content">
-        <h2>Your Library</h2>
-        <SongPreview tracks={allTracks} />
-      </div>
-    );
+    if (builder.isEmpty()) {
+      // Let users explore their library if they haven't created a playlist
+      return (
+        <div className="preview-content">
+          <h2>Your Library</h2>
+          <SongPreview tracks={allTracks} />
+        </div>
+      );
+    } else {
+      return (
+        <h4 style={{ padding: '20px' }}>
+          Oops! Looks like there's nothing here! Try again with different
+          filters!
+        </h4>
+      );
+    }
   }
   return (
     <div className="preview-content">
@@ -96,16 +105,13 @@ class PlaylistCustomizer extends Component {
     this.setState({ selectedValue });
   };
 
-  buildPlaylist = () => {
-    const { builder, _tracks } = this.state;
-    return builder.build(_tracks);
-  };
-
   onDeleteCustomization = key => {
-    devlog('Deleting customization: ', this.state);
-    const builder = this.state.builder.deleteKey(key);
-    const tracks = builder.isEmpty() ? [] : this.buildPlaylist();
-    this.setState({ builder, tracks });
+    devlog('Deleting customization: ', key);
+    const { builder, _tracks } = this.state;
+    const newBuilder = builder.deleteKey(key);
+    const tracks = newBuilder.isEmpty() ? [] : newBuilder.build(_tracks);
+    this.setState({ builder: newBuilder, tracks });
+    devlog('Deleted customization: ',this.state)
   };
 
   onAddCustomization = () => {
@@ -164,7 +170,11 @@ class PlaylistCustomizer extends Component {
             </button>
           )}
         </div>
-        <SongPreviewContainer tracks={tracks} allTracks={allTracks} />
+        <SongPreviewContainer
+          tracks={tracks}
+          allTracks={allTracks}
+          builder={builder}
+        />
       </div>
     );
   }

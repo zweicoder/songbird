@@ -1,13 +1,9 @@
 import React, { Component } from 'react';
-import MultiSelect from '../../../components/MultiSelect';
 import PropTypes from 'prop-types';
 
+import MultiSelect from '../../../components/MultiSelect';
+import { capitalCase } from '../utils.js';
 
-// Converts every first character of words in a string to capital
-function capitalCase(str) {
-  const splitted = str.split(' ');
-  return splitted.map(e=> e.charAt(0).toUpperCase() + e.substr(1)).join(' ');
-}
 
 class GenreValue extends Component {
   render() {

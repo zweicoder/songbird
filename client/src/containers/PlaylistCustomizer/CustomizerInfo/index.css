@@ -14,10 +14,12 @@
   background-color: white;
   border-radius: 3px;
   color: #333;
-  padding: 2px 7px;
   margin-bottom: 5px;
+  max-width: 500px;
 }
 .item-container > button {
+  padding-left: 10px;
+  padding-right: 10px;
   background-color: transparent;
   border: none;
 }
@@ -28,6 +30,6 @@
 }
 
 .info-title {
-  padding: 3px;
+  padding: 5px 10px;
   font-weight: 800;
 }

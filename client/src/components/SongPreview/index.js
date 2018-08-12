@@ -31,29 +31,50 @@ function Track({ track, idx }) {
   );
 }
 
-const SongPreview = ({ tracks }) => {
-  if (!tracks || tracks.length === 0) {
-    return null;
+class SongPreview extends React.Component {
+  constructor(props) {
+    super(props);
+    const { pageSize } = props;
+    this.state = { limit: pageSize };
   }
-  return (
-    tracks &&
-    tracks.length > 0 && (
-      <Table bsClass="table table-responsive song-preview">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Title</th>
-            <th>Artist</th>
-            <th>Album</th>
-            <th>Genres</th>
-          </tr>
-        </thead>
-        <tbody>
-          {tracks.map((track, idx) => <Track key={idx} track={track} idx={idx} />)}
-        </tbody>
-      </Table>
-    )
-  );
-};
+  increaseLimit = () => {
+    this.setState({ limit: this.state.limit + this.props.pageSize });
+  };
+  render() {
+    const { tracks, pageSize } = this.props;
+    if (!tracks || tracks.length === 0) {
+      return null;
+    }
+
+    const { limit } = this.state;
+    const renderedTracks = limit ? tracks.slice(0, limit) : tracks;
+    const canLoadMore = limit && limit + pageSize <= tracks.length;
+    return (
+      <div>
+        <Table bsClass="table table-responsive song-preview">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Title</th>
+              <th>Artist</th>
+              <th>Album</th>
+              <th>Genres</th>
+            </tr>
+          </thead>
+          <tbody>
+            {renderedTracks.map((track, idx) => (
+              <Track key={idx} track={track} idx={idx} />
+            ))}
+          </tbody>
+        </Table>
+        {canLoadMore &&  (
+          <button className="action-button" onClick={this.increaseLimit}>
+            See More
+          </button>
+        )}
+      </div>
+    );
+  }
+}
 
 export default SongPreview;

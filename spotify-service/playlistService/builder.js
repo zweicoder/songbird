@@ -57,13 +57,9 @@ const ALLOWED_KEYS = Object.keys(DEFAULT_CONFIG);
 const makePlaylistBuilder = (config = DEFAULT_CONFIG, tracks = []) => ({
   config,
   tracks,
-  withKey(key, value) {
+  _withKey(key, value) {
     if (ALLOWED_KEYS.indexOf(key) === -1) {
       console.warn('Attempted to add value for unknown key: ', key, value);
-      return this;
-    }
-    if (!value) {
-      console.warn(`${value} passed in as value for withKey. To delete a value use deleteKey(key) instead to avoid bugs`);
       return this;
     }
     const config = Object.assign({}, this.config, {
@@ -71,8 +67,17 @@ const makePlaylistBuilder = (config = DEFAULT_CONFIG, tracks = []) => ({
     });
     return makePlaylistBuilder(config);
   },
+  withKey(key, value) {
+    if (!value) {
+      console.warn(
+        `${value} passed in as value for withKey. To delete a value use deleteKey(key) instead to avoid bugs`
+      );
+      return this;
+    }
+    return this._withKey(key, value);
+  },
   deleteKey(key) {
-    return this.withKey(key, null);
+    return this._withKey(key, null);
   },
   isEmpty() {
     return (
@@ -95,6 +100,12 @@ const makePlaylistBuilder = (config = DEFAULT_CONFIG, tracks = []) => ({
       console.warn('Attempted to build playlist with no tracks');
       return [];
     }
+
+    if (this.config.preset) {
+      // TODO call our old methods
+      return [];
+    }
+
     // Apply our filters
     const artists = this.config.artists;
     if (isNonEmptyArray(artists)) {

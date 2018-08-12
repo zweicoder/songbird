@@ -4,6 +4,7 @@ import { FontAwesomeIcon as FaIcon } from '@fortawesome/react-fontawesome';
 import { faQuestionCircle, faTimes } from '@fortawesome/free-solid-svg-icons';
 import propTypes from 'prop-types';
 
+import { capitalCase } from '../utils.js';
 import { PLAYLIST_METADATA } from '../../../constants.global.js';
 import {
   KEY_SELECT_TYPE_GENRE,
@@ -24,7 +25,7 @@ const InfoSubtext = ({ children }) => {
 const InfoContainer = ({ children }) => {
   return (
     <div className="customizer-info">
-      <div className="customizer-container-title">Building Playlist with:</div>
+      <div className="customizer-container-title">Building Playlist where:</div>
       {children}
     </div>
   );
@@ -34,7 +35,7 @@ const InfoItem = ({ children, onItemDelete }) => {
   return (
     <div className="item-container">
       {children}
-      <button onClick={onItemDelete}>
+      <button onClick={onItemDelete} style={{borderLeft: '#ccc solid 1px'}}>
         <FaIcon icon={faTimes} />
       </button>
     </div>
@@ -71,7 +72,7 @@ const Genre = ({ genres, onItemDelete }) => {
   }
   return (
     <InfoItem onItemDelete={onItemDelete}>
-      <InfoTitle>Genre is {genres.join(' / ')}</InfoTitle>
+      <InfoTitle>Genre is {genres.map(capitalCase).join(' / ')}</InfoTitle>
     </InfoItem>
   );
 };
@@ -118,7 +119,6 @@ const CustomizerInfo = ({ builder, onItemDelete }) => {
     );
   }
 
-  // TODO other customizations
   return (
     <InfoContainer>
       <Genre

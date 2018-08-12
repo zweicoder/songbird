@@ -24,6 +24,8 @@ class MultiSelect extends Component {
         borderRadius: '0px',
         border: 'none',
         borderLeft: '#ccc solid 1px',
+        // FIXME FIX THE OVERFLOW SOME DAY
+        maxWidth: '500px',
       }),
       indicatorSeparator: (base) => ({
         ...base,
