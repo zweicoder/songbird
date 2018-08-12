@@ -31,7 +31,7 @@ class PlaylistCustomizer extends Component {
     this.state = {
       _tracks: tracks, // As passed down from parent
       tracks: [], // Filtered
-      builderConfig: {},
+      builder: makePlaylistBuilder(),
       selectedType: null,
       selectedValue: null,
     };
@@ -72,69 +72,82 @@ class PlaylistCustomizer extends Component {
   onTypeChange = selectedType => {
     this.setState({ selectedType });
   };
+
   onValueChange = selectedValue => {
     this.setState({ selectedValue });
   };
 
+  buildPlaylist = () => {
+    const { builder, _tracks } = this.state;
+    return builder.build(_tracks);
+  };
+
+  onDeleteCustomization = key => {
+    devlog('Deleting customization: ', this.state)
+    const builder = this.state.builder.deleteKey(key);
+    const tracks = builder.isEmpty() ? [] : this.buildPlaylist();
+    this.setState({ builder, tracks });
+  };
+
   onAddCustomization = () => {
     devlog('Adding customization: ', this.state);
-    const { selectedType, selectedValue } = this.state;
+    const { selectedType, selectedValue, builder } = this.state;
     if (!selectedValue || !selectedType) {
       console.log('Unable to add incomplete customization');
-      console.log(this.state);
       return;
     }
     // Update config & build new tracks from it
-    const builderConfig = Object.assign({}, this.state.builderConfig, {
-      [selectedType]: selectedValue,
-    });
-    const builder = makePlaylistBuilder(builderConfig);
-    const tracks = builder.build(this.state._tracks);
+    const newBuilder = builder.withKey(
+      selectedType.value,
+      selectedValue.value
+    );
+    const tracks = this.buildPlaylist();
     this.setState({
-      builderConfig,
+      builder: newBuilder,
       tracks,
     });
 
     // Only clear if succeeded? or don't clear at all cause now it's idempotent
     /* this.setState({
-     *   selectedType: null,
-     *   selectedValue: null,
+     *   selectedType: null, *   selectedValue: null,
      * }) */
   };
 
   render() {
     // TODO render the builder config, allow adding customization
+    const { selectedType, builder, tracks } = this.state;
     const ValueComponent =
-      this.state.selectedType &&
-      CUSTOMIZER_COMPONENT_MAP[this.state.selectedType.value];
+      selectedType && CUSTOMIZER_COMPONENT_MAP[selectedType.value];
     return (
       <div className="playlist-customizer">
-        <CustomizerInfo/>
-        <div>
-          <SingleSelect
-            className="customization-select"
-            placeholder="Build your own Playlist"
-            options={CUSTOMIZER_SELECT_OPTIONS}
-            onChange={this.onTypeChange}
-          />
+        <CustomizerInfo builder={builder} onItemDelete={this.onDeleteCustomization} />
+        <div className="playlist-customizer-container">
+          <div>
+            <SingleSelect
+              className="customization-select"
+              placeholder="Build your own Playlist"
+              options={CUSTOMIZER_SELECT_OPTIONS}
+              onChange={this.onTypeChange}
+            />
+          </div>
+          {ValueComponent && (
+            <div className="customization-select">
+              <ValueComponent onChange={this.onValueChange} />
+            </div>
+          )}
+          {ValueComponent && (
+            <button className="icon-btn" onClick={this.onAddCustomization}>
+              <FaIcon icon={faPlus} color="#CCC" size="1x" />
+            </button>
+          )}
+          {tracks.length > 0 && (
+            <div className="preview-content">
+              <AddPlaylistButton onClick={this.onAddPlaylist} />
+              <SubscribeButton onClick={this.onSubscribe} />
+              <SongPreview tracks={tracks} />
+            </div>
+          )}
         </div>
-        {ValueComponent && (
-          <div className="customization-select">
-            <ValueComponent onChange={this.onValueChange} />
-          </div>
-        )}
-        {ValueComponent && (
-          <button className="icon-btn" onClick={this.onAddCustomization}>
-            <FaIcon icon={faPlus} color="#CCC" size="1x" />
-          </button>
-        )}
-        {this.state.tracks.length > 0 && (
-          <div className="preview-content">
-            <AddPlaylistButton onClick={this.onAddPlaylist} />
-            <SubscribeButton onClick={this.onSubscribe} />
-            <SongPreview tracks={this.state.tracks} />
-          </div>
-        )}
       </div>
     );
   }

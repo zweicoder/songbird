@@ -1,0 +1,31 @@
+.customizer-info {
+  padding: 10px;
+}
+.customizer-container-title {
+  margin: 12px;
+  font-weight: 900;
+  font-size: 20px;
+}
+
+.item-container {
+  display: inline-flex;
+  background-color: white;
+  border-radius: 3px;
+  color: #333;
+  padding: 2px 7px;
+  margin-bottom: 5px;
+}
+.item-container > button {
+  background-color: transparent;
+  border: none;
+}
+
+.info-subtext {
+  padding: 2px;
+  font-size: 10px;
+}
+
+.info-title {
+  padding: 3px;
+  font-weight: 800;
+}

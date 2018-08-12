@@ -14,8 +14,8 @@ const DEFAULT_PLAYLIST_SIZE_LIMIT = 25;
       preset: 1
    }
    OR
-   A playlsitConfig where:
-   struct playlistConfig{
+   A playlistConfig where:
+   struct config{
       // (low, high) days since song was added
       ageRanges: []int ,
 
@@ -44,6 +44,7 @@ const DEFAULT_PLAYLIST_SIZE_LIMIT = 25;
    Clauses cannot be combined with other clauses now for simplicity (unless enough demand + figured out frontend flow)
 **/
 const DEFAULT_CONFIG = {
+  preset: null,
   ageRanges: [],
   yearRanges: [],
   artists: [],
@@ -52,51 +53,51 @@ const DEFAULT_CONFIG = {
   moods: [],
   limit: 25,
 };
-const makePlaylistBuilder = (config = DEFAULT_CONFIG) => ({
-  playlistConfig: config,
-  withArtists(artists) {
-    this.playlistConfig.artists = artists;
-    return this;
+const ALLOWED_KEYS = Object.keys(DEFAULT_CONFIG);
+const makePlaylistBuilder = (config = DEFAULT_CONFIG, tracks = []) => ({
+  config,
+  tracks,
+  withKey(key, value) {
+    if (ALLOWED_KEYS.indexOf(key) === -1) {
+      console.warn('Attempted to add value for unknown key: ', key, value);
+      return this;
+    }
+    const config = Object.assign({}, this.config, {
+      [key]: value,
+    });
+    return makePlaylistBuilder(config);
   },
-  withGenres(genres) {
-    this.playlistConfig.genres = genres;
-    return this;
+  deleteKey(key) {
+    return this.withKey(key, null);
   },
-  withMoods(moods) {
-    this.playlistConfig.moods = moods;
-    return this;
+  isEmpty() {
+    return (
+      this.config.preset == null &&
+      !isNonEmptyArray(this.config.ageRanges.length) &&
+      !isNonEmptyArray(this.config.yearRanges.length) &&
+      !isNonEmptyArray(this.config.artists.length) &&
+      !isNonEmptyArray(this.config.genres.length) &&
+      !isNonEmptyArray(this.config.moods.length)
+    );
   },
-  withDecades(yearRanges) {
-    this.playlistConfig.yearRanges = yearRanges;
-    return this;
-  },
-  withDayRanges(ageRanges) {
-    this.playlistConfig.ageRanges = ageRanges;
-    return this;
-  },
-  withGenres(genres) {
-    this.playlistConfig.genres = genres;
-    return this;
-  },
-  withLimit(limit) {
-    this.playlistConfig.limit = limit;
-    return this;
+  withTracks(tracks) {
+    return makePlaylistBuilder(this.config, tracks);
   },
   // WARNING - this assumes the tracks have all the fields (not all endpoints return full track objects)
-  build(tracks) {
-    if (tracks.length == 0) {
+  build(_tracks) {
+    let playlistTracks = _tracks || this.tracks;
+    if (playlistTracks.length === 0) {
       console.warn('Attempted to build playlist with no tracks');
       return [];
     }
-    let playlistTracks = tracks;
     // Apply our filters
-    const artists = this.playlistConfig.artists;
+    const artists = this.config.artists;
     if (isNonEmptyArray(artists)) {
       playlistTracks = playlistTracks.filter(track =>
         track.artists.some(e => e in artists)
       );
     }
-    const genres = this.playlistConfig.genres;
+    const genres = this.config.genres;
     if (isNonEmptyArray(genres)) {
       playlistTracks = playlistTracks.filter(track =>
         track.genres.some(e => e in genres)
@@ -105,7 +106,7 @@ const makePlaylistBuilder = (config = DEFAULT_CONFIG) => ({
 
     // This is a list to prevent any unnecessary migrations but we only care about the first item now.
     // In the future we _might_ want to allow multiple age ranges, but they might intersect
-    const ageRange = this.playlistConfig.ageRanges[0];
+    const ageRange = this.config.ageRanges[0];
     if (!!ageRange) {
       const { low, high } = ageRange;
       playlistTracks = playlistTracks.filter(
@@ -114,7 +115,7 @@ const makePlaylistBuilder = (config = DEFAULT_CONFIG) => ({
     }
 
     // Same story as ageRange here
-    const yearRange = this.playlistConfig.yearRanges[0];
+    const yearRange = this.config.yearRanges[0];
     if (!!yearRange) {
       const { low, high } = yearRange;
       playlistTracks = playlistTracks.filter(
@@ -123,10 +124,7 @@ const makePlaylistBuilder = (config = DEFAULT_CONFIG) => ({
     }
 
     // Limit by 25. Change if we have premium features
-    const limit = Math.min(
-      this.playlistConfig.limit,
-      DEFAULT_PLAYLIST_SIZE_LIMIT
-    );
+    const limit = Math.min(this.config.limit, DEFAULT_PLAYLIST_SIZE_LIMIT);
     playlistTracks = playlistTracks.slice(0, limit);
     return playlistTracks;
   },

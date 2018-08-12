@@ -1,5 +1,13 @@
 .playlist-customizer {
   display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.playlist-customizer-container {
+  display: flex;
+  flex-direction: row;
   justify-content: center;
   align-items: center;
 }

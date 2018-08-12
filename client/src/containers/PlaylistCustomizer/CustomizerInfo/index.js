@@ -1,4 +1,16 @@
 import React from 'react';
+import { Tooltip, OverlayTrigger } from 'react-bootstrap';
+import { FontAwesomeIcon as FaIcon } from '@fortawesome/react-fontawesome';
+import { faQuestionCircle, faTimes } from '@fortawesome/free-solid-svg-icons';
+import propTypes from 'prop-types';
+
+import { PLAYLIST_METADATA } from '../../../constants.global.js';
+import {
+  KEY_SELECT_TYPE_GENRE,
+  KEY_SELECT_TYPE_PRESET,
+} from '../customizerOptions.js';
+
+import './index.css';
 
 const InfoTitle = ({ children }) => {
   return <div className="info-title">{children}</div>;
@@ -8,47 +20,108 @@ const InfoSubtext = ({ children }) => {
   return <div className="info-subtext">{children}</div>;
 };
 
-const Preset = ({ preset }) => {
+const PlaylistTypeTooltip = ({ text }) => {
+  if (!text) {
+    return null;
+  }
+
+  const tooltip = <Tooltip id="playlist-tooltip">{text}</Tooltip>;
   return (
-    <div>
-      <InfoTitle>Preset of {preset}</InfoTitle>
-      <InfoSubtext>
-        Note: Presets take precedence over other filters. They cannot be
-        combined with other filters right now!
-      </InfoSubtext>
+    <OverlayTrigger placement="right" delayShow={50} overlay={tooltip}>
+      <FaIcon icon={faQuestionCircle} id="playlist-type-tooltip" />
+    </OverlayTrigger>
+  );
+};
+
+const Preset = ({ preset, onItemDelete }) => {
+  const { title, tooltip } = PLAYLIST_METADATA[preset];
+  return (
+    <InfoItem onItemDelete={onItemDelete}>
+      <InfoTitle>
+        Preset of {title} <PlaylistTypeTooltip text={tooltip} />
+      </InfoTitle>
+    </InfoItem>
+  );
+};
+
+const Genre = ({ genres, onItemDelete }) => {
+  if (!genres || genres.length === 0) {
+    return null;
+  }
+  return (
+    <InfoItem onItemDelete={onItemDelete}>
+      <InfoTitle>Genre is in [{genres.toString()}]</InfoTitle>
+    </InfoItem>
+  );
+};
+
+const InfoContainer = ({ children }) => {
+  return (
+    <div className="customizer-info">
+      <div className="customizer-container-title">Building Playlist with:</div>
+      {children}
     </div>
   );
 };
 
-const Genre = ({ genres }) => {
-  if (!genres) {
-    return null;
-  }
+const InfoItem = ({ children, onItemDelete }) => {
   return (
-    <div>
-      <InfoTitle>Genre is in [{genres.toString()}]</InfoTitle>
+    <div className="item-container">
+      {children}
+      <button onClick={onItemDelete}>
+        <FaIcon icon={faTimes} />
+      </button>
     </div>
   );
 };
 
 // Component to take render information in builderConfig
-const CustomizerInfo = ({ config }) => {
-  if (!config) {
+const CustomizerInfo = ({ builder, onItemDelete }) => {
+  if (!builder || builder.isEmpty()) {
     return null;
   }
+  const { config } = builder;
 
+  const onItemDeleteForKey = configKey => {
+    return () => onItemDelete(configKey);
+  };
   const { preset, genres } = config;
+
   // Preset takes precedence
   if (preset) {
-    return <Preset preset={config.preset} />;
+    return (
+      <InfoContainer>
+        <Preset
+          preset={config.preset}
+          onItemDelete={onItemDeleteForKey(KEY_SELECT_TYPE_PRESET)}
+        />
+        <InfoSubtext>
+          Note: Presets take precedence over other customizations. They cannot
+          be combined with other customizations right now!
+        </InfoSubtext>
+      </InfoContainer>
+    );
   }
 
   // TODO other customizations
+  // TODO make this prettier
+  // TODO make sure the binding of this works and we can still set state
   return (
-    <div>
-      <Genre genres={genres} />
-    </div>
+    <InfoContainer>
+      <Genre
+        genres={genres}
+        onItemDelete={onItemDeleteForKey(KEY_SELECT_TYPE_GENRE)}
+      />
+      <InfoSubtext>
+        psst! You can add more customizations for your own special sauce
+        playlist!
+      </InfoSubtext>
+    </InfoContainer>
   );
 };
+CustomizerInfo.propTypes = {
+  onItemDelete: propTypes.func.isRequired,
+  builder: propTypes.object.isRequired,
+}
 
 export default CustomizerInfo;
