@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { toast } from 'react-toastify';
 import axios from 'axios';
-import FaIcon from '@fortawesome/react-fontawesome';
-import {faPlus} from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon as FaIcon } from '@fortawesome/react-fontawesome';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
 import makePlaylistBuilder from 'spotify-service/playlistService';
 import { getRefreshToken, getAccessToken } from '../../services/authService.js';

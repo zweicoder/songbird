@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import SingleSelect from '../../../components/SingleSelect';
 import PropTypes from 'prop-types';
-import FaIcon from '@fortawesome/react-fontawesome';
+import { FontAwesomeIcon as FaIcon } from '@fortawesome/react-fontawesome';
 import FaQuestionCircle from '@fortawesome/free-solid-svg-icons/faQuestionCircle';
 import { Tooltip, OverlayTrigger } from 'react-bootstrap';
 
