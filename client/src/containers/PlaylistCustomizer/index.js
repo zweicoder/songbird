@@ -24,6 +24,25 @@ import './index.css';
 
 const devlog = process.env.NODE_ENV === 'production' ? () => {} : console.log;
 
+const SongPreviewContainer = ({ tracks, allTracks }) => {
+  // Let users explore their library if they haven't created a playlist
+  if (tracks.length === 0) {
+    return (
+      <div className="preview-content">
+        <h2>Your Library</h2>
+        <SongPreview tracks={allTracks} />
+      </div>
+    );
+  }
+  return (
+    <div className="preview-content">
+      <AddPlaylistButton onClick={this.onAddPlaylist} />
+      <SubscribeButton onClick={this.onSubscribe} />
+      <SongPreview tracks={tracks} />
+    </div>
+  );
+};
+
 class PlaylistCustomizer extends Component {
   constructor(props) {
     super(props);
@@ -99,7 +118,7 @@ class PlaylistCustomizer extends Component {
     // Update config & build new tracks from it
     // Value can be either an array or a single value (preset)
     const customizationValue = Array.isArray(selectedValue)
-      ? selectedValue.map(e=>e.value)
+      ? selectedValue.map(e => e.value)
       : selectedValue.value;
     const newBuilder = builder.withKey(selectedType.value, customizationValue);
     const tracks = newBuilder.build(_tracks);
@@ -113,7 +132,7 @@ class PlaylistCustomizer extends Component {
   getTracks = () => this.state._tracks;
 
   render() {
-    const { selectedType, builder, tracks } = this.state;
+    const { selectedType, builder, tracks, _tracks: allTracks } = this.state;
     const ValueComponent =
       selectedType && CUSTOMIZER_COMPONENT_MAP[selectedType.value];
     return (
@@ -145,13 +164,7 @@ class PlaylistCustomizer extends Component {
             </button>
           )}
         </div>
-        {tracks.length > 0 && (
-          <div className="preview-content">
-            <AddPlaylistButton onClick={this.onAddPlaylist} />
-            <SubscribeButton onClick={this.onSubscribe} />
-            <SongPreview tracks={tracks} />
-          </div>
-        )}
+        <SongPreviewContainer tracks={tracks} allTracks={allTracks} />
       </div>
     );
   }

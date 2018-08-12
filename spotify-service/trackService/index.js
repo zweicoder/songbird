@@ -65,9 +65,12 @@ async function getPagedUserTracks(accessToken, { offset = 0, limit = 50 }) {
       options
     );
     const savedTrackObjs = res.data.items;
+    // Merge added_at into track obj
     const tracks = savedTrackObjs.map(({ added_at, track }) =>
       Object.assign({}, track, { added_at })
     );
+    // Filter away tracks that are basically empty (e.g. redacted content / japnese songs)
+    const filteredTracks = tracks.filter(e => e.name !== '');
     return {
       result: {
         next: res.data.next,
