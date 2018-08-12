@@ -4,11 +4,12 @@ import axios from 'axios';
 import { FontAwesomeIcon as FaIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
-import makePlaylistBuilder from 'spotify-service/playlistService';
+import { makePlaylistBuilder } from 'spotify-service/playlistService';
 import { getRefreshToken, getAccessToken } from '../../services/authService.js';
 import SongPreview from '../../components/SongPreview';
 import { AddPlaylistButton, SubscribeButton } from './buttons.js';
 import SingleSelect from '../../components/SingleSelect';
+import CustomizerInfo from './CustomizerInfo';
 
 import {
   URL_BACKEND_PLAYLIST,
@@ -20,6 +21,8 @@ import {
 } from './customizerOptions.js';
 
 import './index.css';
+
+const devlog = process.env.NODE_ENV === 'production' ? () => {} : console.log;
 
 class PlaylistCustomizer extends Component {
   constructor(props) {
@@ -74,9 +77,11 @@ class PlaylistCustomizer extends Component {
   };
 
   onAddCustomization = () => {
+    devlog('Adding customization: ', this.state);
     const { selectedType, selectedValue } = this.state;
     if (!selectedValue || !selectedType) {
       console.log('Unable to add incomplete customization');
+      console.log(this.state);
       return;
     }
     // Update config & build new tracks from it
@@ -86,19 +91,25 @@ class PlaylistCustomizer extends Component {
     const builder = makePlaylistBuilder(builderConfig);
     const tracks = builder.build(this.state._tracks);
     this.setState({
-      selectedType: null,
-      selectedValue: null,
       builderConfig,
       tracks,
     });
+
+    // Only clear if succeeded? or don't clear at all cause now it's idempotent
+    /* this.setState({
+     *   selectedType: null,
+     *   selectedValue: null,
+     * }) */
   };
 
   render() {
+    // TODO render the builder config, allow adding customization
     const ValueComponent =
       this.state.selectedType &&
       CUSTOMIZER_COMPONENT_MAP[this.state.selectedType.value];
     return (
       <div className="playlist-customizer">
+        <CustomizerInfo/>
         <div>
           <SingleSelect
             className="customization-select"
@@ -109,11 +120,11 @@ class PlaylistCustomizer extends Component {
         </div>
         {ValueComponent && (
           <div className="customization-select">
-            <ValueComponent />
+            <ValueComponent onChange={this.onValueChange} />
           </div>
         )}
         {ValueComponent && (
-          <button className="icon-btn">
+          <button className="icon-btn" onClick={this.onAddCustomization}>
             <FaIcon icon={faPlus} color="#CCC" size="1x" />
           </button>
         )}
