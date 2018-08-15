@@ -29,7 +29,6 @@ class Home extends Component {
   }
 
   componentDidMount() {
-    // TODO enable
     if (window.location.hash !== '#notracks') {
       this.getPreprocessedLibrary();
     }

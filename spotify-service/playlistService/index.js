@@ -200,7 +200,6 @@ async function _getUserPlaylists(accessToken, { offset = 0, limit = 50 }) {
   }
 }
 
-// TODO with other info like genre
 async function getAllUserPlaylists(accessToken, maxLimit = 250) {
   const limit = 50;
   const allPlaylists = [];
