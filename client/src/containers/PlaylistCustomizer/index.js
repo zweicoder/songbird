@@ -59,6 +59,7 @@ class PlaylistCustomizer extends Component {
     this.state = {
       _tracks: tracks, // As passed down from parent
       tracks: [], // Filtered
+      loading: false,
       builder: makePlaylistBuilder({}),
       selectedType: null,
       selectedValue: null,
@@ -66,11 +67,11 @@ class PlaylistCustomizer extends Component {
   }
   async componentDidMount() {
     // Set access token
-    const {result: accessToken} = await getAccessToken();
+    const { result: accessToken } = await getAccessToken();
     const builder = makePlaylistBuilder({
       accessToken,
     });
-    this.setState({builder});
+    this.setState({ builder });
   }
   notifySuccess = message => {
     toast.success(message, {
@@ -121,15 +122,15 @@ class PlaylistCustomizer extends Component {
       this.setState({ tracks: [] });
       return;
     }
+    this.setState({ loading: true });
     const tracks = await builder.build(_tracks);
-    this.setState({ tracks });
+    this.setState({ tracks, loading: false });
   };
 
   onDeleteCustomization = key => {
     devlog('Deleting customization: ', key);
     const { builder } = this.state;
-    this.setState({ builder: builder.deleteKey(key) });
-    this.buildPlaylist();
+    this.setState({ builder: builder.deleteKey(key) }, this.buildPlaylist);
     devlog('Deleted customization: ', this.state);
   };
 
@@ -154,7 +155,13 @@ class PlaylistCustomizer extends Component {
   getTracks = () => this.state._tracks;
 
   render() {
-    const { selectedType, builder, tracks, _tracks: allTracks } = this.state;
+    const {
+      selectedType,
+      builder,
+      tracks,
+      _tracks: allTracks,
+      loading,
+    } = this.state;
     const ValueComponent =
       selectedType && CUSTOMIZER_COMPONENT_MAP[selectedType.value];
     return (
@@ -186,11 +193,15 @@ class PlaylistCustomizer extends Component {
             </button>
           )}
         </div>
-        <SongPreviewContainer
-          tracks={tracks}
-          allTracks={allTracks}
-          builder={builder}
-        />
+        {loading ? (
+          <FaIcon icon="spinner" className="spinner" size="4x" spin />
+        ) : (
+          <SongPreviewContainer
+            tracks={tracks}
+            allTracks={allTracks}
+            builder={builder}
+          />
+        )}
       </div>
     );
   }

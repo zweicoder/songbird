@@ -35,3 +35,8 @@
   padding-top: 7px;
   padding-bottom: 7px;
 }
+
+.spinner {
+  position: absolute;
+  top: 50%;
+}

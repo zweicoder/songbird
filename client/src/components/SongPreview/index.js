@@ -9,34 +9,29 @@ function truncate(str, limit) {
   return str.substr(0, limit) + '...';
 }
 
-function Track({ track, idx }) {
+function GenreNames({ genres, idx }) {
+  const genreNames = genres.join(', ');
+  if (genreNames.length > 40) {
+    const tooltip = <Tooltip id={idx}>{genreNames}</Tooltip>;
+    return (
+      <OverlayTrigger overlay={tooltip} placement="bottom">
+        <td>{truncate(genreNames, 40)}</td>
+      </OverlayTrigger>
+    );
+  }
+  return <td>{genreNames}</td>;
+}
+
+function Track({ track, idx, columns }) {
   const { name, artists, album, features } = track;
   const artistNames = artists.map(artist => artist.name).join(', ');
-  if (!features) {
-    // Although we can, preset tracks are currently not preprocessed
-    return <tr>
-      <td>{idx + 1}.</td>
-      <td>{name}</td>
-      <td>{artistNames}</td>
-      <td>{album.name}</td>
-    </tr>
-  }
-
-  const genreNames = features.genres.join(', ');
-  const tooltip = <Tooltip id={idx}>{genreNames}</Tooltip>;
   return (
     <tr>
       <td>{idx + 1}.</td>
       <td>{name}</td>
       <td>{artistNames}</td>
       <td>{album.name}</td>
-      {genreNames.length > 40 ? (
-        <OverlayTrigger overlay={tooltip} placement="bottom">
-          <td>{truncate(genreNames, 40)}</td>
-        </OverlayTrigger>
-      ) : (
-        <td>{genreNames}</td>
-      )}
+      {columns.genres && <GenreNames genres={features.genres} idx={idx} />}
     </tr>
   );
 }
@@ -59,6 +54,13 @@ class SongPreview extends React.Component {
     const { limit } = this.state;
     const renderedTracks = limit ? tracks.slice(0, limit) : tracks;
     const canLoadMore = limit && limit + pageSize <= tracks.length;
+
+    const columns = {
+      genres: true,
+    };
+    if (tracks.some(e => !e.features)) {
+      columns.genres = false;
+    }
     return (
       <div>
         <Table bsClass="table table-responsive song-preview">
@@ -68,16 +70,16 @@ class SongPreview extends React.Component {
               <th>Title</th>
               <th>Artist</th>
               <th>Album</th>
-              <th>Genres</th>
+              {columns.genres && <th>Genres</th>}
             </tr>
           </thead>
           <tbody>
             {renderedTracks.map((track, idx) => (
-              <Track key={idx} track={track} idx={idx} />
+              <Track key={idx} track={track} idx={idx} columns={columns} />
             ))}
           </tbody>
         </Table>
-        {canLoadMore &&  (
+        {canLoadMore && (
           <button className="action-button" onClick={this.increaseLimit}>
             See More
           </button>
