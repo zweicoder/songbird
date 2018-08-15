@@ -59,10 +59,18 @@ class PlaylistCustomizer extends Component {
     this.state = {
       _tracks: tracks, // As passed down from parent
       tracks: [], // Filtered
-      builder: makePlaylistBuilder(),
+      builder: makePlaylistBuilder({}),
       selectedType: null,
       selectedValue: null,
     };
+  }
+  async componentDidMount() {
+    // Set access token
+    const {result: accessToken} = await getAccessToken();
+    const builder = makePlaylistBuilder({
+      accessToken,
+    });
+    this.setState({builder});
   }
   notifySuccess = message => {
     toast.success(message, {
@@ -105,18 +113,28 @@ class PlaylistCustomizer extends Component {
     this.setState({ selectedValue });
   };
 
+  buildPlaylist = async () => {
+    devlog('Building playlist...');
+    const { builder, _tracks } = this.state;
+    if (!builder || builder.isEmpty()) {
+      devlog('Builder is null or empty!');
+      this.setState({ tracks: [] });
+      return;
+    }
+    const tracks = await builder.build(_tracks);
+    this.setState({ tracks });
+  };
+
   onDeleteCustomization = key => {
     devlog('Deleting customization: ', key);
-    const { builder, _tracks } = this.state;
-    const newBuilder = builder.deleteKey(key);
-    const tracks = newBuilder.isEmpty() ? [] : newBuilder.build(_tracks);
-    this.setState({ builder: newBuilder, tracks });
-    devlog('Deleted customization: ',this.state)
+    const { builder } = this.state;
+    this.setState({ builder: builder.deleteKey(key) });
+    this.buildPlaylist();
+    devlog('Deleted customization: ', this.state);
   };
 
   onAddCustomization = () => {
-    const { selectedType, selectedValue, builder, _tracks } = this.state;
-    devlog('Adding customization: ', selectedType, selectedValue);
+    const { selectedType, selectedValue, builder } = this.state;
     if (!selectedValue || !selectedType) {
       console.log('Unable to add incomplete customization');
       return;
@@ -126,12 +144,10 @@ class PlaylistCustomizer extends Component {
     const customizationValue = Array.isArray(selectedValue)
       ? selectedValue.map(e => e.value)
       : selectedValue.value;
-    const newBuilder = builder.withKey(selectedType.value, customizationValue);
-    const tracks = newBuilder.build(_tracks);
-    this.setState({
-      builder: newBuilder,
-      tracks,
-    });
+    const customizationType = selectedType.value;
+    devlog('Adding customization: ', customizationType, customizationValue);
+    const newBuilder = builder.withKey(customizationType, customizationValue);
+    this.setState({ builder: newBuilder }, this.buildPlaylist);
     devlog('Added customization: ', this.state);
   };
 

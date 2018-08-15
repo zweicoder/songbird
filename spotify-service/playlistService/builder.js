@@ -1,10 +1,5 @@
-/**
- Playlist builder to generate songs from various criteria.
+const { getPresetTracks } = require('../trackService');
 
- Basically go through all given tracks and apply functions sequentially to get the last playlist.
-
- Currently doesn't work with 'preset' playlists like top tracks
-**/
 const DEFAULT_PLAYLIST_SIZE_LIMIT = 25;
 
 /**
@@ -54,9 +49,14 @@ const DEFAULT_CONFIG = {
   limit: 25,
 };
 const ALLOWED_KEYS = Object.keys(DEFAULT_CONFIG);
-const makePlaylistBuilder = (config = DEFAULT_CONFIG, tracks = []) => ({
+// TODO make sure playlist manager works
+// TODO make presets work again
+const makePlaylistBuilder = ({
+  config = DEFAULT_CONFIG,
+  accessToken,
+} = {}) => ({
   config,
-  tracks,
+  accessToken,
   _withKey(key, value) {
     if (ALLOWED_KEYS.indexOf(key) === -1) {
       console.warn('Attempted to add value for unknown key: ', key, value);
@@ -65,7 +65,7 @@ const makePlaylistBuilder = (config = DEFAULT_CONFIG, tracks = []) => ({
     const config = Object.assign({}, this.config, {
       [key]: value,
     });
-    return makePlaylistBuilder(config);
+    return makePlaylistBuilder({ config, accessToken });
   },
   withKey(key, value) {
     if (!value) {
@@ -89,11 +89,8 @@ const makePlaylistBuilder = (config = DEFAULT_CONFIG, tracks = []) => ({
       !isNonEmptyArray(this.config.moods)
     );
   },
-  withTracks(tracks) {
-    return makePlaylistBuilder(this.config, tracks);
-  },
   // WARNING - this assumes the tracks have all the fields (not all endpoints return full track objects)
-  build(_tracks) {
+  async build(_tracks) {
     console.log('Building with: ', this.config);
     let playlistTracks = _tracks || this.tracks;
     if (playlistTracks.length === 0) {
@@ -102,8 +99,11 @@ const makePlaylistBuilder = (config = DEFAULT_CONFIG, tracks = []) => ({
     }
 
     if (this.config.preset) {
-      // TODO call our old methods
-      return [];
+      const { result: tracks } = await getPresetTracks(
+        accessToken,
+        this.config.preset
+      );
+      return tracks;
     }
 
     // Apply our filters

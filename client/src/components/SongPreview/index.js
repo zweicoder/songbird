@@ -12,6 +12,16 @@ function truncate(str, limit) {
 function Track({ track, idx }) {
   const { name, artists, album, features } = track;
   const artistNames = artists.map(artist => artist.name).join(', ');
+  if (!features) {
+    // Although we can, preset tracks are currently not preprocessed
+    return <tr>
+      <td>{idx + 1}.</td>
+      <td>{name}</td>
+      <td>{artistNames}</td>
+      <td>{album.name}</td>
+    </tr>
+  }
+
   const genreNames = features.genres.join(', ');
   const tooltip = <Tooltip id={idx}>{genreNames}</Tooltip>;
   return (

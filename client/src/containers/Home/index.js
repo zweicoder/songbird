@@ -7,7 +7,6 @@ import Loading from '../../components/Loading';
 import PlaylistCustomizer from '../../containers/PlaylistCustomizer';
 
 import { getAccessToken } from '../../services/authService.js';
-import { getPlaylistTracks } from 'spotify-service/playlistService';
 import {
   getAllUserTracks,
   preprocessTracks,
@@ -70,34 +69,6 @@ class Home extends Component {
       loading: false,
       tracks: processedTracks,
     });
-  };
-
-  // DEPRECATED
-  getTrackForPlaylist = async playlist => {
-    const { result: accessToken } = await getAccessToken();
-    const { result: tracks } = await getPlaylistTracks(accessToken, playlist);
-    devlog('Got tracks: ', tracks);
-    // Pluck out interesting attributes that we want here
-    const pluckedTracks = tracks.map(track => ({
-      name: track.name,
-      album: track.album.name,
-      artists: track.artists.map(artist => artist.name),
-    }));
-    this.setState({
-      loading: false,
-      tracks: pluckedTracks,
-    });
-  };
-
-  // DEPRECATED
-  onDropdownSelect = selectedPlaylist => {
-    // Render loading spinner and empty tracks
-    this.setState({
-      selectedPlaylist,
-      loading: true,
-      tracks: [],
-    });
-    this.getTrackForPlaylist(selectedPlaylist);
   };
 
   onStopLoading = () => {
