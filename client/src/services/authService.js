@@ -39,7 +39,7 @@ async function refreshAccessToken() {
       `${URL_BACKEND_BASE}/access-token?${queryParams}`
     );
     const { result: accessToken } = res.data;
-    window.localStorage.setItem(KEY_SONGBIRD_ACCESS_TOKEN, accessToken);
+    login({accessToken, refreshToken});
     console.log('Successfully refreshed token!');
     return { result: accessToken };
   } catch (err) {

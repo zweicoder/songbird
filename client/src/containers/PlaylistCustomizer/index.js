@@ -24,7 +24,13 @@ import './index.css';
 
 const devlog = process.env.NODE_ENV === 'production' ? () => {} : console.log;
 
-const SongPreviewContainer = ({ tracks, allTracks, builder }) => {
+const SongPreviewContainer = ({
+  tracks,
+  allTracks,
+  builder,
+  onSubscribe,
+  onAdd,
+}) => {
   if (tracks.length === 0) {
     if (builder.isEmpty()) {
       // Let users explore their library if they haven't created a playlist
@@ -45,8 +51,8 @@ const SongPreviewContainer = ({ tracks, allTracks, builder }) => {
   }
   return (
     <div className="preview-content">
-      <AddPlaylistButton onClick={this.onAddPlaylist} />
-      <SubscribeButton onClick={this.onSubscribe} />
+      <AddPlaylistButton onClick={onAdd} />
+      <SubscribeButton onClick={onSubscribe} />
       <SongPreview tracks={tracks} />
     </div>
   );
@@ -82,27 +88,35 @@ class PlaylistCustomizer extends Component {
     });
   };
 
-  // TODO update these
-  onAddPlaylist = async () => {
-    const selectedPlaylist = this.state.selectedPlaylist;
-    console.log('Adding playlist option: ', selectedPlaylist);
+  getPlaylistName() {
+    return (
+      document.querySelector('#playlist-name').textContent.trim() ||
+      'My Awesome Playlist'
+    );
+  }
+  onAdd = async () => {
+    const { tracks } = this.state;
+    const playlistName = this.getPlaylistName();
     const refreshToken = getRefreshToken();
     axios.post(URL_BACKEND_PLAYLIST, {
       refreshToken,
-      playlistType: selectedPlaylist,
+      tracks,
+      playlistOpts: { name: playlistName },
     });
-    this.notifySuccess('Successfully added playlist to Spotify!');
+    this.notifySuccess(`Added normal playlist '${playlistName}' to Spotify!`);
     return;
   };
 
   onSubscribe = async () => {
-    const selectedPlaylist = this.state.selectedPlaylist;
+    const { tracks } = this.state;
+    const playlistName = this.getPlaylistName();
     const refreshToken = getRefreshToken();
     axios.post(URL_BACKEND_PLAYLIST_SUBSCRIBE, {
       refreshToken,
-      playlistType: selectedPlaylist,
+      tracks,
+      playlistOpts: { name: playlistName },
     });
-    this.notifySuccess('Successfully added smart playlist to Spotify!');
+    this.notifySuccess(`Added smart playlist '${playlistName}' to Spotify!`);
     return;
   };
 
@@ -200,6 +214,8 @@ class PlaylistCustomizer extends Component {
             tracks={tracks}
             allTracks={allTracks}
             builder={builder}
+            onSubscribe={this.onSubscribe}
+            onAdd={this.onAdd}
           />
         )}
       </div>

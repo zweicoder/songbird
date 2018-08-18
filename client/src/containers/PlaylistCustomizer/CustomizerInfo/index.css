@@ -33,3 +33,7 @@
   padding: 5px 10px;
   font-weight: 800;
 }
+
+#playlist-name {
+  border-bottom: white dashed 1px;
+}

@@ -25,7 +25,7 @@ const InfoSubtext = ({ children }) => {
 const InfoContainer = ({ children }) => {
   return (
     <div className="customizer-info">
-      <div className="customizer-container-title">Building Playlist where:</div>
+      <h2 contentEditable suppressContentEditableWarning id="playlist-name">Playlist Name Here</h2>
       {children}
     </div>
   );

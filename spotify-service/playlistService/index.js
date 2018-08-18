@@ -16,6 +16,7 @@ const SPOTIFY_PLAYLIST_PUT_LIMIT = 100;
 async function createEmptyPlaylist(userId, accessToken, playlistOpts) {
   const { name, description } = playlistOpts;
   if (![name, description].every(e => !!e)) {
+    console.warn('Missing playlist metadata to create playlist!');
     return { err: 'Playlist metadata required!' };
   }
 
@@ -73,7 +74,6 @@ async function putPlaylistSongs(
   } catch (err) {
     console.error('Error while syncing playlist for user: ');
     console.error(err.config);
-    console.error(err.response.status);
     console.error(err.response.data);
     throw err;
   }
@@ -124,12 +124,10 @@ async function getPlaylist(userId, accessToken, playlistId) {
       `https://api.spotify.com/v1/users/${userId}/playlists/${playlistId}`,
       opts
     );
-    console.log(res.data);
     return res.data;
   } catch (err) {
-    console.error('Error while syncing playlist for user: ');
+    console.error('Error while getting playlist for user: ');
     console.error(err.config);
-    console.error(err.response.status);
     console.error(err.response.data);
     throw err;
   }
@@ -149,9 +147,8 @@ async function _getUserPlaylists(accessToken, { offset = 0, limit = 50 }) {
     const { next, items: playlists } = res.data;
     return { result: { next, playlists } };
   } catch (err) {
-    console.error('Error while syncing playlist for user: ');
+    console.error('Error while getting user playlist: ');
     console.error(err.config);
-    console.error(err.response.status);
     console.error(err.response.data);
     throw err;
   }
