@@ -76,8 +76,8 @@ async function preprocessTracks(accessToken, tracks) {
     await getDetailsOfArtists(accessToken, artistIds),
     await getDetailsOfAlbums(accessToken, albumIds),
   ]);
-  console.log('Album details: ', albumDetails);
-  console.log('Artist details: ', artistDetails);
+  // console.log('Album details: ', albumDetails);
+  // console.log('Artist details: ', artistDetails);
 
   const idToGenres = R.pipe(
     R.map(({ id, genres }) => [id, genres]),

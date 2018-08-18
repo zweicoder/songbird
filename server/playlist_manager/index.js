@@ -1,10 +1,7 @@
 const { getUserProfile } = require('spotify-service/userService');
 const {
   getAllUserTracks,
-  getRecentlyAddedTracks,
-  getPopularTracks,
-  getTopTracks,
-  TIME_RANGE_OPTS,
+  preprocessTracks,
 } = require('spotify-service/trackService');
 const {
   getPlaylistTracks,
@@ -21,20 +18,12 @@ const {
 } = require('../services/dbService.js');
 const logger = require('./logger.js');
 
-const R = require('ramda');
-// TEMPORARY, moving towards custom playlists
-const PLAYLIST_TYPE_DB_MAP = {
-  PLAYLIST_TYPE_TOP_SHORT_TERM: 0,
-  PLAYLIST_TYPE_TOP_MID_TERM: 1,
-  PLAYLIST_TYPE_TOP_LONG_TERM: 2,
-  PLAYLIST_TYPE_POPULAR: 3,
-  PLAYLIST_TYPE_RECENT: 4,
-};
-
-const PLAYLIST_TYPE_DB_REVERSE_MAP = R.invertObj(PLAYLIST_TYPE_DB_MAP);
+const LRU = require('./lru.js');
+const accessTokenCache = LRU(10000);
+const trackCache = LRU(100);
 
 async function syncSubscription(accessToken, subscription) {
-  logger.info('Syncing playlist for: %o', subscription);
+  logger.info('Syncing playlist %o', subscription.id);
   const {
     playlist_config: playlistConfig,
     spotify_playlist_id: spotifyPlaylistId,
@@ -50,16 +39,35 @@ async function syncSubscription(accessToken, subscription) {
     await deleteSubscription(subscription.id);
     return false;
   }
-  let builder;
+  let playlistTracks;
   if (playlistConfig.preset) {
-    builder = makePlaylistBuilder({config: playlistConfig, accessToken});
+    const builder = makePlaylistBuilder({ config: playlistConfig, accessToken });
+    playlistTracks = await builder.build();
   } else {
-    const userLibrary = await getAllUserTracks(accessToken);
-    builder = makePlaylistBuilder({config: playlistConfig, accessToken, tracks: userLibrary});
+    // Cache tracks cause it takes a lot more effort to get them
+    if (!trackCache.get(spotifyUserId)) {
+      logger.info('Processing user library...');
+      const {result: tracks} = await getAllUserTracks(accessToken);
+      const {result: processedTracks} = await preprocessTracks(accessToken, tracks);
+      trackCache.set(spotifyUserId, processedTracks);
+      logger.info('Processed %o tracks', processedTracks.length);
+    }
+    const userLibrary = trackCache.get(spotifyUserId);
+    trackCache.set(spotifyUserId, userLibrary);
+    const builder = makePlaylistBuilder({
+      config: playlistConfig,
+      accessToken,
+    });
+    playlistTracks = builder.build(userLibrary);
   }
-  const playlistTracks = await builder.build();
 
-  await putPlaylistSongs(spotifyUserId, accessToken, spotifyPlaylistId, playlistTracks);
+  logger.info('Updating songs in playlist...');
+  await putPlaylistSongs(
+    spotifyUserId,
+    accessToken,
+    spotifyPlaylistId,
+    playlistTracks
+  );
   logger.info('Successfully synced subscription: %o', subscription.id);
   return true;
 }
@@ -79,7 +87,9 @@ async function main() {
       let success;
       success = await syncSubscription(accessToken, subscription);
       if (success) {
-        logger.info('Successfully synced playlist. Updating playlist description...');
+        logger.info(
+          'Successfully synced playlist. Updating playlist description...'
+        );
         await updatePlaylistLastSynced(userId, accessToken, playlistId);
       }
     } catch (err) {
@@ -92,7 +102,11 @@ async function main() {
         logger.info('Deleting revoked subscription of user: %o', userId);
         await deleteSubscriptionByUserId(userId);
       } else {
-        logger.error('Unable to refresh token for subscription: %o', subscription);
+        logger.error(
+          'Unable to refresh token for subscription: %o',
+          subscription.id
+        );
+        logger.error(err.stack);
       }
       // Skip if anything goes wrong
       continue;

@@ -91,7 +91,6 @@ const makePlaylistBuilder = ({
   },
   // WARNING - this assumes the tracks have all the fields (not all endpoints return full track objects)
   async build(_tracks) {
-    console.log('Building with: ', this.config);
     if (this.config.preset) {
       const { result: tracks } = await getPresetTracks(
         accessToken,
@@ -142,7 +141,6 @@ const makePlaylistBuilder = ({
     // Limit by 25. Change if we have premium features
     const limit = Math.min(this.config.limit, DEFAULT_PLAYLIST_SIZE_LIMIT);
     playlistTracks = playlistTracks.slice(0, limit);
-    console.log('Built playlist with tracks: ', playlistTracks);
     return playlistTracks;
   },
 });

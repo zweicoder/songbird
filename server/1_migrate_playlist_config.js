@@ -39,6 +39,15 @@ async function migrateSubscriptions(
     client.release();
   }
 }
+const PLAYLIST_TYPE_DB_REVERSE_MAP = {
+  0: 'PLAYLIST_TYPE_TOP_SHORT_TERM',
+  1: 'PLAYLIST_TYPE_TOP_MID_TERM',
+  2: 'PLAYLIST_TYPE_TOP_LONG_TERM',
+  3: 'PLAYLIST_TYPE_POPULAR',
+  4: 'PLAYLIST_TYPE_RECENT',
+};
+
+
 
 const DEFAULT_CONFIG = {
   preset: null,
@@ -54,9 +63,12 @@ async function main() {
   console.log('Executing migrations...');
   const allSubscriptions = await getAllSubscriptions();
   for (let subscription of allSubscriptions) {
-    console.log(`Migrating ${subscription}...`);
-    const {id, playlist_type} = subscription;
-    const playlistConfig = Object.assign({}, DEFAULT_CONFIG, {preset: playlist_type});
+    const {id, playlist_type, playlist_config} = subscription;
+    if(playlist_config) {
+      continue;
+    }
+    console.log('Migrating ', subscription);
+    const playlistConfig = Object.assign({}, DEFAULT_CONFIG, {preset: PLAYLIST_TYPE_DB_REVERSE_MAP[playlist_type]});
     await migrateSubscriptions(id, playlistConfig);
   }
 

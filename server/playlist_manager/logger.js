@@ -6,6 +6,7 @@ const customFormat = format.combine(
   format.splat(),
   format.align(),
   format.json(),
+  format.colorize(),
   format.label({ label: 'playlist_manager' }),
   format.printf(
     info =>

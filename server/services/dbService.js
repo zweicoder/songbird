@@ -2,16 +2,6 @@ const { Pool } = require('pg');
 const { DB_CONNECTION_STRING } = require('../constants.js');
 const R = require('ramda');
 
-const PLAYLIST_TYPE_DB_MAP = {
-  PLAYLIST_TYPE_TOP_SHORT_TERM: 0,
-  PLAYLIST_TYPE_TOP_MID_TERM: 1,
-  PLAYLIST_TYPE_TOP_LONG_TERM: 2,
-  PLAYLIST_TYPE_POPULAR: 3,
-  PLAYLIST_TYPE_RECENT: 4,
-};
-
-const PLAYLIST_TYPE_DB_REVERSE_MAP = R.invertObj(PLAYLIST_TYPE_DB_MAP);
-
 const pool = new Pool({
   connectionString: DB_CONNECTION_STRING,
   max: 10,
