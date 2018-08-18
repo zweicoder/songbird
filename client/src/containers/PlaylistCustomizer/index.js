@@ -108,12 +108,13 @@ class PlaylistCustomizer extends Component {
   };
 
   onSubscribe = async () => {
-    const { tracks } = this.state;
+    const { tracks, builder } = this.state;
     const playlistName = this.getPlaylistName();
     const refreshToken = getRefreshToken();
     axios.post(URL_BACKEND_PLAYLIST_SUBSCRIBE, {
       refreshToken,
       tracks,
+      playlistConfig: builder.config,
       playlistOpts: { name: playlistName },
     });
     this.notifySuccess(`Added smart playlist '${playlistName}' to Spotify!`);
