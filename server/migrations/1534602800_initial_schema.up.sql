@@ -1,3 +1,4 @@
+
 CREATE TABLE users (
         id SERIAL PRIMARY KEY,
         spotify_username TEXT UNIQUE NOT NULL,

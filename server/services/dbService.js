@@ -72,14 +72,13 @@ async function putUser(userId, token) {
 async function addPlaylistSubscription(
   userId,
   spotifyPlaylistId,
-  playlistType
+  playlistConfig
 ) {
-  const dbPlaylistType = PLAYLIST_TYPE_DB_MAP[playlistType];
   const client = await pool.connect();
   try {
     const res = await client.query(
-      'INSERT INTO subscriptions (user_id, spotify_playlist_id, playlist_type) VALUES ($1, $2, $3)',
-      [userId, spotifyPlaylistId, dbPlaylistType]
+      'INSERT INTO subscriptions (user_id, spotify_playlist_id, playlist_config) VALUES ($1, $2, $3)',
+      [userId, spotifyPlaylistId, playlistConfig]
     );
     return {};
   } catch (err) {
