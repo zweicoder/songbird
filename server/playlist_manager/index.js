@@ -11,6 +11,7 @@ const {
   putPlaylistSongs,
   userHasPlaylist,
   updatePlaylistLastSynced,
+  makePlaylistBuilder,
 } = require('spotify-service/playlistService');
 const { refreshAccessToken } = require('../lib/oauthClient.js');
 const {
@@ -33,8 +34,9 @@ const PLAYLIST_TYPE_DB_MAP = {
 const PLAYLIST_TYPE_DB_REVERSE_MAP = R.invertObj(PLAYLIST_TYPE_DB_MAP);
 
 async function syncSubscription(accessToken, subscription) {
+  logger.info('Syncing playlist for: %o', subscription);
   const {
-    playlist_type: playlistType,
+    playlist_config: playlistConfig,
     spotify_playlist_id: spotifyPlaylistId,
     spotify_username: spotifyUserId,
     token: refreshToken,
@@ -48,11 +50,16 @@ async function syncSubscription(accessToken, subscription) {
     await deleteSubscription(subscription.id);
     return false;
   }
-  const spotifyPlaylistType = PLAYLIST_TYPE_DB_REVERSE_MAP[playlistType];
-  logger.info('Getting tracks for %o', spotifyPlaylistType);
-  const { result: tracks } = await getPlaylistTracks(accessToken, spotifyPlaylistType);
+  let builder;
+  if (playlistConfig.preset) {
+    builder = makePlaylistBuilder({config: playlistConfig, accessToken});
+  } else {
+    const userLibrary = await getAllUserTracks(accessToken);
+    builder = makePlaylistBuilder({config: playlistConfig, accessToken, tracks: userLibrary});
+  }
+  const playlistTracks = await builder.build();
 
-  await putPlaylistSongs(spotifyUserId, accessToken, spotifyPlaylistId, tracks);
+  await putPlaylistSongs(spotifyUserId, accessToken, spotifyPlaylistId, playlistTracks);
   logger.info('Successfully synced subscription: %o', subscription.id);
   return true;
 }
@@ -66,7 +73,6 @@ async function main() {
       user_id: userId,
       spotify_playlist_id: playlistId,
     } = subscription;
-    logger.info('Syncing playlist for: %o', subscription);
     try {
       const { result: accessToken } = await refreshAccessToken(refreshToken);
       // TODO this is super slow, need to balance rates vs speed

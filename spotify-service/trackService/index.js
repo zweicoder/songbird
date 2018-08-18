@@ -91,12 +91,11 @@ async function getPagedUserTracks(accessToken, { offset = 0, limit = 50 }) {
 // Progress is passed into a callbackFn, if defined. CallbackFn should return true/ false to determine whether
 // function should continue to execute, or end early.
 // FIXME this actually always returns by multiples of 50, so if max limit is 99 it still returns 100. Not impt tho
-async function getAllUserTracks(accessToken, { maxLimit = 250, callbackFn }) {
+async function getAllUserTracks(accessToken, { maxLimit = 1000, callbackFn }) {
   // Request by the maximum number of tracks per request
   const limit = Math.min(50, maxLimit);
   const allTracks = [];
 
-  // Default maxLimit limits per user to request up to 5 times
   for (let i = 0; i < maxLimit; i += limit) {
     const { result } = await getPagedUserTracks(accessToken, {
       offset: i,

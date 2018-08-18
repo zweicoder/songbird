@@ -56,7 +56,6 @@ class Home extends Component {
 
     const { result: accessToken } = await getAccessToken();
     const { result: allTracks } = await getAllUserTracks(accessToken, {
-      maxLimit: 300,
       callbackFn: updateProgress,
     });
     devlog('All user tracks: ', allTracks);

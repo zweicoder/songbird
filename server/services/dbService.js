@@ -105,26 +105,6 @@ async function getActiveSubscriptions() {
   }
 }
 
-async function getSubscription(userId, playlistType) {
-  const dbPlaylistType = PLAYLIST_TYPE_DB_MAP[playlistType];
-  const client = await pool.connect();
-  try {
-    const res = await client.query(
-      'SELECT * FROM subscriptions WHERE user_id = $1 AND playlist_type = $2',
-      [userId, dbPlaylistType]
-    );
-    return { result: res.rows[0] };
-  } catch (err) {
-    console.error(
-      `Unable to getSubscription for ${userId}, ${dbPlaylistType}: `,
-      err
-    );
-    throw new Error(err);
-  } finally {
-    client.release();
-  }
-}
-
 async function deleteSubscription(subscriptionId) {
   const client = await pool.connect();
   try {
@@ -184,7 +164,6 @@ module.exports = {
   putUser,
   addPlaylistSubscription,
   getActiveSubscriptions,
-  getSubscription,
   deleteSubscription,
   deleteSubscriptionByUserId,
   updateSyncTime,

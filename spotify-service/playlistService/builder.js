@@ -92,18 +92,18 @@ const makePlaylistBuilder = ({
   // WARNING - this assumes the tracks have all the fields (not all endpoints return full track objects)
   async build(_tracks) {
     console.log('Building with: ', this.config);
-    let playlistTracks = _tracks || this.tracks;
-    if (playlistTracks.length === 0) {
-      console.warn('Attempted to build playlist with no tracks');
-      return [];
-    }
-
     if (this.config.preset) {
       const { result: tracks } = await getPresetTracks(
         accessToken,
         this.config.preset
       );
       return tracks;
+    }
+
+    let playlistTracks = _tracks || this.tracks;
+    if (playlistTracks.length === 0) {
+      console.warn('Attempted to build playlist with no tracks');
+      return [];
     }
 
     // Apply our filters
