@@ -5,7 +5,7 @@ const uuidv4 = require('uuid/v4');
 
 const logger = require('../lib/logger.js')('routes/login.js');
 const oauthClient = require('../lib/oauthClient.js');
-const { getUserProfile } = require('spotify-service/userService');
+const { getUserProfile } = require('spotify-service').userService;
 const { putUser } = require('../services/dbService.js');
 const {
   OAUTH_REDIRECT_URI,

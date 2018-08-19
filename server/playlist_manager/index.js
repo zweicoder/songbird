@@ -1,15 +1,15 @@
-const { getUserProfile } = require('spotify-service/userService');
+const { getUserProfile } = require('spotify-service').userService;
 const {
   getAllUserTracks,
   preprocessTracks,
-} = require('spotify-service/trackService');
+} = require('spotify-service').trackService;
 const {
   getPlaylistTracks,
   putPlaylistSongs,
   userHasPlaylist,
   updatePlaylistLastSynced,
   makePlaylistBuilder,
-} = require('spotify-service/playlistService');
+} = require('spotify-service').playlistService;
 const { refreshAccessToken } = require('../lib/oauthClient.js');
 const {
   getActiveSubscriptions,

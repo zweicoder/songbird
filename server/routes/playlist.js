@@ -7,8 +7,8 @@ const {
   createEmptyPlaylist,
   putPlaylistSongs,
   userHasPlaylist,
-} = require('spotify-service/playlistService');
-const { getUserProfile } = require('spotify-service/userService');
+} = require('spotify-service').playlistService;
+const { getUserProfile } = require('spotify-service').userService;
 const { refreshAccessToken } = require('../lib/oauthClient.js');
 const {
   addPlaylistSubscription,

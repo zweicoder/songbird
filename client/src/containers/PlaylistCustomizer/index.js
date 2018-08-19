@@ -4,7 +4,7 @@ import axios from 'axios';
 import { FontAwesomeIcon as FaIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
-import { makePlaylistBuilder } from 'spotify-service/playlistService';
+import { playlistService } from 'spotify-service';
 import { getRefreshToken, getAccessToken } from '../../services/authService.js';
 import SongPreview from '../../components/SongPreview';
 import { AddPlaylistButton, SubscribeButton } from './buttons.js';
@@ -21,6 +21,8 @@ import {
 } from './customizerOptions.js';
 
 import './index.css';
+
+const { makePlaylistBuilder } = playlistService;
 
 const devlog = process.env.NODE_ENV === 'production' ? () => {} : console.log;
 

@@ -7,14 +7,13 @@ import Loading from '../../components/Loading';
 import PlaylistCustomizer from '../../containers/PlaylistCustomizer';
 
 import { getAccessToken } from '../../services/authService.js';
-import {
-  getAllUserTracks,
-  preprocessTracks,
-} from 'spotify-service/trackService';
+import { trackService } from 'spotify-service';
 
 import './index.css';
 
 const devlog = process.env.NODE_ENV === 'production' ? () => {} : console.log;
+
+const { getAllUserTracks, preprocessTracks } = trackService;
 
 class Home extends Component {
   constructor(props) {
@@ -79,9 +78,11 @@ class Home extends Component {
     return (
       <div className="home">
         <ToastContainer />
-        {loading && progress.total && `Processing ${progress.num} / ${progress.total} tracks`}
+        {loading &&
+          progress.total &&
+          `Processing ${progress.num} / ${progress.total} tracks`}
         <Loading loading={loading} progress={progress.percentage}>
-          <PlaylistCustomizer tracks={tracks}/>
+          <PlaylistCustomizer tracks={tracks} />
         </Loading>
         {loading && (
           <Button bsClass="btn action-button" onClick={this.onStopLoading}>

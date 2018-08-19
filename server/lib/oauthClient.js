@@ -1,4 +1,4 @@
-const { OAuthClient } = require('spotify-service/oauth2Service');
+const { OAuthClient } = require('spotify-service').oauth2Service;
 const {
   OAUTH_CLIENT_ID,
   OAUTH_CLIENT_SECRET,
