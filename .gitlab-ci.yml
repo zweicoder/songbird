@@ -3,6 +3,17 @@ stages:
   - build
   - deploy
 
+build spotify-service:
+  stage: build
+  cache:
+    paths:
+      - spotify-service/node_modules
+  script:
+    - cd spotify-servicec/
+    - mkdir build
+    - npm i
+    - npm run build
+
 build songbird:
   stage: build
   cache:
@@ -10,8 +21,8 @@ build songbird:
       - client/node_modules
   script:
     - cd client/
-    - yarn
-    - yarn build
+    - npm i
+    - npm run build
   artifacts:
     paths:
       - client/build/
