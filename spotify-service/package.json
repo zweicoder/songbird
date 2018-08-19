@@ -11,7 +11,7 @@
   "dependencies": {
     "axios": "^0.18.0",
     "moment": "^2.22.2",
-    "query-string": "^6.1.0",
+    "query-string": "^5.1.1",
     "ramda": "^0.25.0"
   }
 }

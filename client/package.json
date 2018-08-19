@@ -59,6 +59,7 @@
   "scripts": {
     "start": "node scripts/start.js",
     "build": "node scripts/build.js",
+    "prebuild": "node scripts/prebuild.js",
     "test": "node scripts/test.js --env=jsdom"
   },
   "homepage": "https://zweicoder.gitlab.io/songbird",
@@ -103,5 +104,9 @@
   },
   "eslintConfig": {
     "extends": "react-app"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "shelljs": "^0.8.2"
   }
 }
