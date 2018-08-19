@@ -85,7 +85,7 @@ const TimeAdded = ({ ageRanges, onItemDelete }) => {
   return (
     <InfoItem onItemDelete={onItemDelete}>
       <InfoTitle>
-        Track was added within ${low} - ${high} days
+        Track was added {low} - {high} days ago
       </InfoTitle>
     </InfoItem>
   );
