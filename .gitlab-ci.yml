@@ -1,21 +1,22 @@
 image: node:carbon
 stages:
-  - build
+  - build-spotify-service
+  - build-songbird
   - deploy
 
 build spotify-service:
-  stage: build
+  stage: build-spotify-service
   cache:
     paths:
       - spotify-service/node_modules
   script:
-    - cd spotify-servicec/
+    - cd spotify-service/
     - mkdir build
     - npm i
     - npm run build
 
 build songbird:
-  stage: build
+  stage: build-songbird
   cache:
     paths:
       - client/node_modules
