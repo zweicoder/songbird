@@ -3,9 +3,9 @@ FROM node:carbon
 WORKDIR /app/spotify-service
 COPY spotify-service/ .
 RUN npm i
+RUN npm build
 
 WORKDIR /app
-RUN ls
 WORKDIR /app/server
 COPY server/ .
 RUN npm i
