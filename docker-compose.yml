@@ -21,7 +21,9 @@ services:
       - "5433:5432"
 
   manager:
-    build: .
+    build:
+      context: .
+      dockerfile: server.Dockerfile
     env_file:
       - ./env/dev.env
       - /etc/songbird/secrets.env
