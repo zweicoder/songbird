@@ -1,11 +1,28 @@
-
 {
   "presets": [
-    ["env", {
-      "targets": {
-        "browsers": ["last 2 versions", "safari >= 7"]
+    [
+      "env",
+      {
+        "targets": {
+          "browsers": [
+            "last 2 versions",
+            "safari >= 7"
+          ],
+          "node": "current"
+        }
       }
-    }]
+    ]
   ],
-  "ignore": ["node_modules"]
+  "plugins": [
+    [
+      "transform-runtime",
+      {
+        "polyfill": false,
+        "regenerator": true
+      }
+    ]
+  ],
+  "ignore": [
+    "node_modules"
+  ]
 }
