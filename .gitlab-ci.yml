@@ -23,6 +23,7 @@ build songbird:
   script:
     - cd client/
     - npm i
+    - npm i ../spotify-service
     - npm run build
   artifacts:
     paths:
