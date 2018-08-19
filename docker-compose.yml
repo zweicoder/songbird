@@ -2,7 +2,10 @@ version: '3'
 
 services:
   api:
-    build: .
+    build:
+      context: .
+      dockerfile: server.Dockerfile
+
     ports:
       - "8888:8888"
     env_file:
