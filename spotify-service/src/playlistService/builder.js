@@ -49,8 +49,7 @@ const DEFAULT_CONFIG = {
   limit: 25,
 };
 const ALLOWED_KEYS = Object.keys(DEFAULT_CONFIG);
-// TODO make sure playlist manager works
-// TODO make presets work again
+
 const makePlaylistBuilder = ({
   config = DEFAULT_CONFIG,
   accessToken,

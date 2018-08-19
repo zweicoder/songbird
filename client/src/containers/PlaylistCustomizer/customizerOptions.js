@@ -1,5 +1,6 @@
 import Preset from './customizers/Preset.js';
 import Genre from './customizers/Genre.js';
+import AgeRange from './customizers/AgeRange.js';
 
 // THESE SHOULD BE THE SAME AS THE BACKEND
 export const KEY_SELECT_TYPE_GENRE = 'genres';
@@ -25,4 +26,5 @@ export const CUSTOMIZER_SELECT_OPTIONS = [
 export const CUSTOMIZER_COMPONENT_MAP ={
   [KEY_SELECT_TYPE_PRESET]: Preset,
   [KEY_SELECT_TYPE_GENRE]: Genre,
+  [KEY_SELECT_TYPE_AGE_RANGE]: AgeRange,
 };
