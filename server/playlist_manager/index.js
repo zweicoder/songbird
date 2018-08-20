@@ -19,7 +19,6 @@ const {
 const logger = require('./logger.js');
 
 const LRU = require('./lru.js');
-const accessTokenCache = LRU(10000);
 const trackCache = LRU(100);
 
 async function syncSubscription(accessToken, subscription) {
@@ -53,12 +52,11 @@ async function syncSubscription(accessToken, subscription) {
       logger.info('Processed %o tracks', processedTracks.length);
     }
     const userLibrary = trackCache.get(spotifyUserId);
-    trackCache.set(spotifyUserId, userLibrary);
     const builder = makePlaylistBuilder({
       config: playlistConfig,
       accessToken,
     });
-    playlistTracks = builder.build(userLibrary);
+    playlistTracks = await builder.build(userLibrary);
   }
 
   logger.info('Updating songs in playlist...');
