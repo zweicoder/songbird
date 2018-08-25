@@ -78,7 +78,7 @@ async function getPagedUserTracks(accessToken, { offset = 0, limit = 50 }) {
     return {
       result: {
         next: res.data.next,
-        tracks,
+        tracks: filteredTracks,
         total: res.data.total,
       },
     };
