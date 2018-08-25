@@ -41,6 +41,13 @@ const OAuthClient = opts => {
       );
       return { result: res.data.access_token };
     } catch (err) {
+      if (
+        err.response &&
+        err.response.data &&
+        err.response.data.error === 'invalid_grant'
+      ) {
+        return { err: 'invalid_grant' };
+      }
       console.error(
         `Failed to refresh access token: ${err.response.statusText}`
       );

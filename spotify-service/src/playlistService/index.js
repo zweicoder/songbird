@@ -154,7 +154,7 @@ async function _getUserPlaylists(accessToken, { offset = 0, limit = 50 }) {
   }
 }
 
-async function getAllUserPlaylists(accessToken, maxLimit = 250) {
+async function getAllUserPlaylists(accessToken, maxLimit = 1000) {
   const limit = 50;
   const allPlaylists = [];
 
@@ -173,6 +173,53 @@ async function getAllUserPlaylists(accessToken, maxLimit = 250) {
   return { result: allPlaylists };
 }
 
+function leftDifference(setA, setB) {
+  var _difference = new Set(setA);
+  for (let elem of setB) {
+    _difference.delete(elem);
+  }
+  return _difference;
+}
+
+function intersection(setA, setB) {
+  var _intersection = new Set();
+  for (let elem of setB) {
+    if (setA.has(elem)) {
+      _intersection.add(elem);
+    }
+  }
+  return _intersection;
+}
+
+// Checks if any of the playlists are no longer there (stale subscription)
+// Also useful to check how many playlists user has
+// TODO can make this and userHasPlaylist to return early instead of getting all playlists
+async function getStalePlaylists(accessToken, subscriptions) {
+  const { result: playlists } = await getAllUserPlaylists(accessToken);
+  const libraryPlaylistIds = playlists.map(e => e.id);
+  const subscriptionIds = subscriptions.map(e => e.spotify_playlist_id);
+  const libSet = new Set(libraryPlaylistIds);
+  const subSet = new Set(subscriptionIds);
+  const staleSet = leftDifference(subSet, libSet);
+  const active = [];
+  const stale = [];
+  for (let subscription of subscriptions) {
+    if (staleSet.has(subscription.spotify_playlist_id)) {
+      stale.push(subscription);
+    } else {
+      active.push(subscription);
+    }
+  }
+  // console.log(stale)
+
+  return {
+    result: {
+      active,
+      stale,
+    },
+  };
+}
+
 async function userHasPlaylist(accessToken, playlistId) {
   const { result: playlists } = await getAllUserPlaylists(accessToken);
   const playlistIds = playlists.map(e => e.id);
@@ -189,4 +236,5 @@ module.exports = {
   userHasPlaylist,
   updatePlaylistLastSynced,
   makePlaylistBuilder,
+  getStalePlaylists,
 };

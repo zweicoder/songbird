@@ -1,3 +1,5 @@
+const R = require('ramda');
+
 const { getUserProfile } = require('spotify-service').userService;
 const {
   getAllUserTracks,
@@ -9,104 +11,119 @@ const {
   userHasPlaylist,
   updatePlaylistLastSynced,
   makePlaylistBuilder,
+  getStalePlaylists,
 } = require('spotify-service').playlistService;
 const { refreshAccessToken } = require('../lib/oauthClient.js');
 const {
   getActiveSubscriptions,
-  deleteSubscription,
+  deleteSubscriptionById,
+  deleteSubscriptionsById,
   deleteSubscriptionByUserId,
 } = require('../services/dbService.js');
 const logger = require('./logger.js');
 
-const LRU = require('./lru.js');
-const trackCache = LRU(100);
-
-async function syncSubscription(accessToken, subscription) {
-  logger.info('Syncing playlist %o', subscription.id);
-  const {
-    playlist_config: playlistConfig,
-    spotify_playlist_id: spotifyPlaylistId,
-    spotify_username: spotifyUserId,
-    token: refreshToken,
-  } = subscription;
-  const { result: playlistExists } = await userHasPlaylist(
-    accessToken,
-    spotifyPlaylistId
-  );
-  if (!playlistExists) {
-    logger.info('Deleting stale subscription: %o', subscription.id);
-    await deleteSubscription(subscription.id);
-    return false;
-  }
-  let playlistTracks;
-  if (playlistConfig.preset) {
-    const builder = makePlaylistBuilder({ config: playlistConfig, accessToken });
-    playlistTracks = await builder.build();
-  } else {
-    // Cache tracks cause it takes a lot more effort to get them
-    if (!trackCache.get(spotifyUserId)) {
-      logger.info('Processing user library...');
-      const {result: tracks} = await getAllUserTracks(accessToken);
-      const {result: processedTracks} = await preprocessTracks(accessToken, tracks);
-      trackCache.set(spotifyUserId, processedTracks);
-      logger.info('Processed %o tracks', processedTracks.length);
+// Assumes subscriptions are grouped by user. Otherwise use global LRU cache.
+async function syncSubscriptions(accessToken, subscriptions) {
+  let userLibrary;
+  async function doSyncSubscription(subscription) {
+    logger.info('Syncing subscription %o...', subscription.id);
+    logger.info('Config: %o', subscription.playlist_config);
+    const {
+      playlist_config: playlistConfig,
+      spotify_playlist_id: spotifyPlaylistId,
+      spotify_username: spotifyUserId,
+      token: refreshToken,
+    } = subscription;
+    let playlistTracks;
+    if (playlistConfig.preset) {
+      const builder = makePlaylistBuilder({
+        config: playlistConfig,
+        accessToken,
+      });
+      playlistTracks = await builder.build();
+    } else {
+      // Cache tracks cause it takes a lot more effort to get them
+      // Cache is only scoped in parent function. Use global LRU cache if need to share across other instances.
+      if (!userLibrary) {
+        logger.info('Processing user library...');
+        const { result: tracks } = await getAllUserTracks(accessToken);
+        const { result: processedTracks } = await preprocessTracks(
+          accessToken,
+          tracks
+        );
+        userLibrary = processedTracks;
+        logger.info('Processed %o tracks', processedTracks.length);
+      }
+      const builder = makePlaylistBuilder({
+        config: playlistConfig,
+        accessToken,
+      });
+      playlistTracks = await builder.build(userLibrary);
     }
-    const userLibrary = trackCache.get(spotifyUserId);
-    const builder = makePlaylistBuilder({
-      config: playlistConfig,
+
+    logger.info('Updating songs in playlist...');
+    await putPlaylistSongs(
+      spotifyUserId,
       accessToken,
-    });
-    playlistTracks = await builder.build(userLibrary);
+      spotifyPlaylistId,
+      playlistTracks
+    );
+    logger.info('Successfully updated subscription: %o', subscription.id);
   }
 
-  logger.info('Updating songs in playlist...');
-  await putPlaylistSongs(
-    spotifyUserId,
-    accessToken,
-    spotifyPlaylistId,
-    playlistTracks
-  );
-  logger.info('Successfully synced subscription: %o', subscription.id);
-  return true;
+  for (let subscription of subscriptions) {
+    try {
+      await doSyncSubscription(subscription);
+    } catch (err) {
+      logger.error('Error while syncing subscription %o:', subscription);
+      logger.error(err.stack);
+      logger.error('Aborting!');
+      continue;
+    }
+  }
 }
 
 async function main() {
   const { result: subscriptions } = await getActiveSubscriptions();
-  // TODO window it ?
-  for (let subscription of subscriptions) {
-    const {
-      token: refreshToken,
-      user_id: userId,
-      spotify_playlist_id: playlistId,
-    } = subscription;
+  const groupSubscriptionByUsers = R.pipe(
+    R.groupBy(sub => sub.user_id),
+    R.toPairs
+  );
+  const groups = groupSubscriptionByUsers(subscriptions);
+  for (let group of groups) {
     try {
-      const { result: accessToken } = await refreshAccessToken(refreshToken);
-      // TODO this is super slow, need to balance rates vs speed
-      let success;
-      success = await syncSubscription(accessToken, subscription);
-      if (success) {
+      const [userId, subscriptions] = group;
+      const { spotify_username, token: refreshToken } = subscriptions[0];
+      logger.info('Syncing for user %o...', spotify_username);
+      const { result: accessToken, err } = await refreshAccessToken(
+        refreshToken
+      );
+      if (err && err === 'invalid_grant') {
         logger.info(
-          'Successfully synced playlist. Updating playlist description...'
+          'Token has been revoked by user. Invalidating subscriptions...'
         );
-        await updatePlaylistLastSynced(userId, accessToken, playlistId);
+        deleteSubscriptionByUserId(userId);
+        logger.info('Deleted subscriptions by %o', userId);
+        continue;
       }
+
+      // Token is still active
+      // Check if playlists are already deleted
+      const {
+        result: { active, stale },
+      } = await getStalePlaylists(accessToken, subscriptions);
+
+      // Delete any stale subscriptions
+      if (stale.length) {
+        logger.info('Deleting %o stale subscriptions', stale.length);
+        deleteSubscriptionsById(stale.map(e=>e.id));
+      }
+
+      logger.info('Found %o active subscriptions', active.length);
+      await syncSubscriptions(accessToken, active);
     } catch (err) {
-      // User revoked token
-      if (
-        err.response &&
-        err.response.data &&
-        err.response.data.error === 'invalid_grant'
-      ) {
-        logger.info('Deleting revoked subscription of user: %o', userId);
-        await deleteSubscriptionByUserId(userId);
-      } else {
-        logger.error(
-          'Unable to refresh token for subscription: %o',
-          subscription.id
-        );
-        logger.error(err.stack);
-      }
-      // Skip if anything goes wrong
+      logger.error('Error while syncing for %o', group);
+      logger.error(err.stack);
       continue;
     }
   }

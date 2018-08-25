@@ -84,7 +84,7 @@ async function getActiveSubscriptions() {
   const client = await pool.connect();
   try {
     const res = await client.query(
-      'SELECT s.*, spotify_username, token FROM subscriptions s INNER JOIN users u ON u.id = s.user_id WHERE s.deleted_at IS NULL'
+      'SELECT s.*, spotify_username, token FROM subscriptions s INNER JOIN users u ON u.id = s.user_id WHERE s.deleted_at IS NULL ORDER BY u.id DESC'
     );
     return { result: res.rows };
   } catch (err) {
@@ -95,7 +95,10 @@ async function getActiveSubscriptions() {
   }
 }
 
-async function deleteSubscription(subscriptionId) {
+async function deleteSubscriptionById(subscriptionId) {
+  if (!subscriptionId) {
+    return { err: 'No input' };
+  }
   const client = await pool.connect();
   try {
     const res = await client.query(
@@ -106,6 +109,29 @@ async function deleteSubscription(subscriptionId) {
   } catch (err) {
     console.error(
       `Unable to soft delete subscription ${subscriptionId}: `,
+      err
+    );
+    throw new Error(err);
+  } finally {
+    client.release();
+  }
+}
+
+async function deleteSubscriptionsById(subscriptionIds) {
+  if (!subscriptionIds || !subscriptionIds.length) {
+    return { err: 'No input' };
+  }
+  const client = await pool.connect();
+  try {
+    // We are vulnerable to attack by spotify oh noes
+    const stringifiedIds = `(${subscriptionIds.join(',')})`;
+    const res = await client.query(
+      `UPDATE subscriptions SET deleted_at = NOW() WHERE id IN ${stringifiedIds}`
+    );
+    return {};
+  } catch (err) {
+    console.error(
+      `Unable to soft delete multiple subscriptions (${subscriptionIds}): `,
       err
     );
     throw new Error(err);
@@ -154,7 +180,8 @@ module.exports = {
   putUser,
   addPlaylistSubscription,
   getActiveSubscriptions,
-  deleteSubscription,
+  deleteSubscriptionById,
+  deleteSubscriptionsById,
   deleteSubscriptionByUserId,
   updateSyncTime,
 };
