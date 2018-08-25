@@ -32,6 +32,7 @@ function Track({ track, idx, columns }) {
       <td>{artistNames}</td>
       <td>{album.name}</td>
       {columns.genres && <GenreNames genres={features.genres} idx={idx} />}
+      {columns.year && <td>{features.year}</td>}
     </tr>
   );
 }
@@ -57,9 +58,12 @@ class SongPreview extends React.Component {
 
     const columns = {
       genres: true,
+      year: true,
     };
-    if (tracks.some(e => !e.features)) {
+    const tracksWerePreprocessed = tracks.every(e => e.features);
+    if (!tracksWerePreprocessed) {
       columns.genres = false;
+      columns.year = false;
     }
     return (
       <div>
@@ -71,6 +75,7 @@ class SongPreview extends React.Component {
               <th>Artist</th>
               <th>Album</th>
               {columns.genres && <th>Genres</th>}
+              {columns.year && <th>Year</th>}
             </tr>
           </thead>
           <tbody>

@@ -10,6 +10,7 @@ import {
   KEY_SELECT_TYPE_GENRE,
   KEY_SELECT_TYPE_PRESET,
   KEY_SELECT_TYPE_AGE_RANGE,
+  KEY_SELECT_TYPE_YEAR_RANGE,
 } from '../customizerOptions.js';
 
 import './index.css';
@@ -91,6 +92,20 @@ const TimeAdded = ({ ageRanges, onItemDelete }) => {
   );
 };
 
+const YearOfRelease = ({ yearRanges, onItemDelete }) => {
+  if (!yearRanges || yearRanges.length === 0) {
+    return null;
+  }
+  const { high, low } = yearRanges[0];
+  return (
+    <InfoItem onItemDelete={onItemDelete}>
+      <InfoTitle>
+        Track was relased in {low} - {high}
+      </InfoTitle>
+    </InfoItem>
+  );
+};
+
 // Component to take render information in builderConfig
 const CustomizerInfo = ({ builder, onItemDelete }) => {
   if (!builder || builder.isEmpty()) {
@@ -101,7 +116,7 @@ const CustomizerInfo = ({ builder, onItemDelete }) => {
   const onItemDeleteForKey = configKey => {
     return () => onItemDelete(configKey);
   };
-  const { preset, genres, ageRanges } = config;
+  const { preset, genres, ageRanges, yearRanges } = config;
 
   // Preset takes precedence
   if (preset) {
@@ -126,6 +141,7 @@ const CustomizerInfo = ({ builder, onItemDelete }) => {
         onItemDelete={onItemDeleteForKey(KEY_SELECT_TYPE_GENRE)}
       />
       <TimeAdded ageRanges={ageRanges} onItemDelete={onItemDeleteForKey(KEY_SELECT_TYPE_AGE_RANGE)}/>
+      <YearOfRelease yearRanges={yearRanges} onItemDelete={onItemDeleteForKey(KEY_SELECT_TYPE_YEAR_RANGE)}/>
 
       <InfoSubtext>
         psst! You can add more customizations for your own special sauce

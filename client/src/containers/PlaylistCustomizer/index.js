@@ -142,6 +142,7 @@ class PlaylistCustomizer extends Component {
     this.setState({ loading: true });
     const tracks = await builder.build(_tracks);
     this.setState({ tracks, loading: false });
+    devlog(tracks)
   };
 
   onDeleteCustomization = key => {
