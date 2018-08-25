@@ -116,7 +116,7 @@ async function main() {
       // Delete any stale subscriptions
       if (stale.length) {
         logger.info('Deleting %o stale subscriptions', stale.length);
-        deleteSubscriptionsById(stale.map(e=>e.id));
+        deleteSubscriptionsById(stale.map(e => e.id));
       }
 
       logger.info('Found %o active subscriptions', active.length);
