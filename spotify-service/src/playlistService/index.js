@@ -144,8 +144,8 @@ async function _getUserPlaylists(accessToken, { offset = 0, limit = 50 }) {
       'https://api.spotify.com/v1/me/playlists',
       opts
     );
-    const { next, items: playlists } = res.data;
-    return { result: { next, playlists } };
+    const { next, items: playlists, total } = res.data;
+    return { result: { next, playlists, total } };
   } catch (err) {
     console.error('Error while getting user playlist: ');
     console.error(err.config);
@@ -164,9 +164,10 @@ async function getAllUserPlaylists(accessToken, maxLimit = 1000) {
       offset: i,
       limit,
     });
-    const { next, playlists } = result;
+    const { next, playlists, total } = result;
     allPlaylists.push(...playlists);
-    if (!next) {
+    // Spotify uses a circular array for this, so it wont end unless we stop when we exceed the total
+    if (!next || i + limit > total) {
       break;
     }
   }
@@ -210,7 +211,6 @@ async function getStalePlaylists(accessToken, subscriptions) {
       active.push(subscription);
     }
   }
-  // console.log(stale)
 
   return {
     result: {
