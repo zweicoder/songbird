@@ -81,20 +81,20 @@ class PlaylistCustomizer extends Component {
     });
     this.setState({ builder });
   }
-  notifySuccess = message => {
+  notifySuccess = (message, duration = 1500) => {
     toast.success(message, {
       position: toast.POSITION.BOTTOM_RIGHT,
       className: 'toast-default',
       progressClassName: 'toast-progress-default',
-      autoClose: 1500,
+      autoClose: duration,
     });
   };
-  notifyError = message => {
+  notifyError = (message, duration = 1500) => {
     toast.error(message, {
       position: toast.POSITION.BOTTOM_RIGHT,
       className: 'toast-default',
       progressClassName: 'toast-progress-default',
-      autoClose: 1500,
+      autoClose: duration,
     });
   };
 
@@ -117,6 +117,12 @@ class PlaylistCustomizer extends Component {
     return;
   };
 
+  notifyUncaughtError = () => {
+    this.notifyError(
+      'Oops something went wrong T_T I suggest you complain loudly to the developer!',
+      4000
+    );
+  };
   onSubscribe = async () => {
     const { tracks, builder } = this.state;
     const playlistName = this.getPlaylistName();
@@ -130,16 +136,26 @@ class PlaylistCustomizer extends Component {
       });
     } catch (err) {
       if (err.response) {
+        if (err.response.status === 500) {
+          console.error(err.response);
+          this.notifyUncaughtError();
+          return;
+        }
+
         const responseData = err.response.data;
         if (responseData.error === 'ERROR_PLAYLIST_LIMIT_REACHED') {
           this.notifyError(
-            'Failed to add smart playlist - You have exceeded the number of playlists you can have!'
+            'Failed to add smart playlist - You have exceeded the number of playlists you can have!',
+            4000
           );
           return;
         }
+
+        console.warn('Uncaught custom error: ', err.response);
+        return;
       } else {
         console.error(err);
-        this.notifyError('Oops something went wrong T_T I suggest you complain loudly to the developer!');
+        this.notifyUncaughtError();
         return;
       }
     }

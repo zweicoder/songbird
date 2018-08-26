@@ -27,7 +27,7 @@ const PLAYLIST_METADATA = {
   }
 };
 
-const BASIC_USER_PLAYLIST_LIMIT = 4;
+const PLAYLIST_LIMIT_BASIC = 4;
 const PLAYLIST_LIMIT_HARD_CAP= 25;
 
 // Keep create-react-app for now - This file has to be fully ES5

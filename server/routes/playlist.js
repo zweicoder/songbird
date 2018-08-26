@@ -16,7 +16,11 @@ const {
   getUserByToken: getDbUserByToken,
   getSubscriptionsByUserId,
 } = require('../services/dbService.js');
-const { PLAYLIST_METADATA,  PLAYLIST_LIMIT_HARD_CAP, PLAYLIST_LIMIT_BASIC } = require('../constants.global.js');
+const {
+  PLAYLIST_METADATA,
+  PLAYLIST_LIMIT_HARD_CAP,
+  PLAYLIST_LIMIT_BASIC,
+} = require('../constants.global.js');
 const { wrapRoute } = require('../lib/utils.js');
 const logger = require('../lib/logger.js')('routes/playlist.js');
 
@@ -99,16 +103,32 @@ router.post(
       res.sendStatus(400);
       return;
     }
-    const { result: accessToken } = await refreshAccessToken(refreshToken);
-    const { result: subscriptions } = await getSubscriptionsByUserId(dbUser.id);
+    const [
+      { result: accessToken },
+      { result: subscriptions },
+    ] = await Promise.all([
+      refreshAccessToken(refreshToken),
+      getSubscriptionsByUserId(dbUser.id),
+    ]);
+    logger.info('Checking for existing subscriptions...');
     const {
       result: { active, stale },
     } = await getStalePlaylists(accessToken, subscriptions);
     // Check if user's premium subscription has expired (7 days grace period)
-    const userIsPremium = moment() <= moment(dbUser.premium_date).add(7, 'days');
+    const userIsPremium = dbUser.premium_date
+      ? moment() <= moment(dbUser.premium_date).add(7, 'days')
+      : false;
 
-    const limit = userIsPremium ? PLAYLIST_LIMIT_HARD_CAP : PLAYLIST_LIMIT_BASIC;
+    const limit = userIsPremium
+      ? PLAYLIST_LIMIT_HARD_CAP
+      : PLAYLIST_LIMIT_BASIC;
+    logger.info(
+      `User: ${
+        dbUser.spotify_username
+      } | isPremium: ${userIsPremium} | active: ${active.length}`
+    );
     if (active.length >= limit) {
+      logger.info(`User: ${dbUser.spotify_username} limit exceeded`);
       res.status(400).send({
         error: 'ERROR_PLAYLIST_LIMIT_REACHED',
         message: 'User has reached limit of playlists',
@@ -126,7 +146,7 @@ router.post(
       _playlistOpts
     );
     const { result: playlistId } = await createPlaylistWithTracks({
-      refreshToken,
+      accessToken,
       tracks,
       playlistOpts,
     });

@@ -83,12 +83,12 @@ async function getSubscriptionsByUserId(userId) {
   const client = await pool.connect();
   try {
     const res = await client.query(
-      'SELECT * FROM subscription WHERE user_id = $1',
+      'SELECT * FROM subscriptions WHERE user_id = $1',
       [userId]
     );
     return { result: res.rows };
   } catch (err) {
-    console.error('Unable to getActiveSubscriptions: ', err);
+    console.error('Unable to getSubscriptionsByUserId: ', err);
     throw new Error(err);
   } finally {
     client.release();
