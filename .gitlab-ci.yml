@@ -25,6 +25,7 @@ build songbird:
       - client/node_modules
   script:
     - cd client/
+    - rm package-lock.json
     - npm i
     - npm run build
   artifacts:
