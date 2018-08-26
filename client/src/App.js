@@ -10,6 +10,7 @@ import Login from './containers/Login/';
 import Logout from './containers/Logout.js';
 import Header from './components/Header';
 import Footer from './components/Footer';
+import Premium from './containers/Premium';
 
 import './App.css';
 
@@ -24,6 +25,7 @@ class App extends Component {
             <Switch>
               <Route path="/logout" component={Logout} />
               <Route path="/login" component={Login} />
+              <PrivateRoute path="/premium" component={Premium}/>
               <PrivateRoute path="/" component={Home} />
             </Switch>
           </div>
