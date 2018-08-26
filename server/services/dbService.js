@@ -79,6 +79,21 @@ async function addPlaylistSubscription(
   }
 }
 
+async function getSubscriptionsByUserId(userId) {
+  const client = await pool.connect();
+  try {
+    const res = await client.query(
+      'SELECT * FROM subscription WHERE user_id = $1',
+      [userId]
+    );
+    return { result: res.rows };
+  } catch (err) {
+    console.error('Unable to getActiveSubscriptions: ', err);
+    throw new Error(err);
+  } finally {
+    client.release();
+  }
+}
 // Get active subscriptions, joined on user_id for token
 async function getActiveSubscriptions() {
   const client = await pool.connect();
@@ -180,6 +195,7 @@ module.exports = {
   putUser,
   addPlaylistSubscription,
   getActiveSubscriptions,
+  getSubscriptionsByUserId,
   deleteSubscriptionById,
   deleteSubscriptionsById,
   deleteSubscriptionByUserId,

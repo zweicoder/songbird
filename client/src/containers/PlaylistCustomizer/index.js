@@ -84,8 +84,16 @@ class PlaylistCustomizer extends Component {
   notifySuccess = message => {
     toast.success(message, {
       position: toast.POSITION.BOTTOM_RIGHT,
-      className: 'toast-success',
-      progressClassName: 'toast-progress-success',
+      className: 'toast-default',
+      progressClassName: 'toast-progress-default',
+      autoClose: 1500,
+    });
+  };
+  notifyError = message => {
+    toast.error(message, {
+      position: toast.POSITION.BOTTOM_RIGHT,
+      className: 'toast-default',
+      progressClassName: 'toast-progress-default',
       autoClose: 1500,
     });
   };
@@ -113,12 +121,28 @@ class PlaylistCustomizer extends Component {
     const { tracks, builder } = this.state;
     const playlistName = this.getPlaylistName();
     const refreshToken = getRefreshToken();
-    axios.post(URL_BACKEND_PLAYLIST_SUBSCRIBE, {
-      refreshToken,
-      tracks,
-      playlistConfig: builder.config,
-      playlistOpts: { name: playlistName },
-    });
+    try {
+      await axios.post(URL_BACKEND_PLAYLIST_SUBSCRIBE, {
+        refreshToken,
+        tracks,
+        playlistConfig: builder.config,
+        playlistOpts: { name: playlistName },
+      });
+    } catch (err) {
+      if (err.response) {
+        const responseData = err.response.data;
+        if (responseData.error === 'ERROR_PLAYLIST_LIMIT_REACHED') {
+          this.notifyError(
+            'Failed to add smart playlist - You have exceeded the number of playlists you can have!'
+          );
+          return;
+        }
+      } else {
+        console.error(err);
+        this.notifyError('Oops something went wrong T_T I suggest you complain loudly to the developer!');
+        return;
+      }
+    }
     this.notifySuccess(`Added smart playlist '${playlistName}' to Spotify!`);
     return;
   };
@@ -142,7 +166,7 @@ class PlaylistCustomizer extends Component {
     this.setState({ loading: true });
     const tracks = await builder.build(_tracks);
     this.setState({ tracks, loading: false });
-    devlog(tracks)
+    devlog(tracks);
   };
 
   onDeleteCustomization = key => {

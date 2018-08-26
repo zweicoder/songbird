@@ -9,10 +9,11 @@
 .preview-content {
   margin-top: 20px;
 }
-.toast-success {
+
+.toast-default {
   background: linear-gradient(to bottom, white, #cfcfcf);
   color: black;
 }
-.toast-progress-success{
+.toast-progress-default{
   background: linear-gradient(to right, #035123, #07bc0c);
 }

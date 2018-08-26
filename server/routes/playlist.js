@@ -6,15 +6,17 @@ const {
   getPlaylistTracks,
   createEmptyPlaylist,
   putPlaylistSongs,
-  userHasPlaylist,
+  getAllUserPlaylists,
+  getStalePlaylists,
 } = require('spotify-service').playlistService;
 const { getUserProfile } = require('spotify-service').userService;
 const { refreshAccessToken } = require('../lib/oauthClient.js');
 const {
   addPlaylistSubscription,
   getUserByToken: getDbUserByToken,
+  getSubscriptionsByUserId,
 } = require('../services/dbService.js');
-const { PLAYLIST_METADATA } = require('../constants.global.js');
+const { PLAYLIST_METADATA,  PLAYLIST_LIMIT_HARD_CAP, PLAYLIST_LIMIT_BASIC } = require('../constants.global.js');
 const { wrapRoute } = require('../lib/utils.js');
 const logger = require('../lib/logger.js')('routes/playlist.js');
 
@@ -22,10 +24,18 @@ const router = express.Router();
 
 async function createPlaylistWithTracks({
   refreshToken,
+  accessToken,
   tracks,
   playlistOpts: _playlistOpts,
 }) {
-  const { result: accessToken } = await refreshAccessToken(refreshToken);
+  if (!accessToken && !refreshToken) {
+    logger.warn('No token passed to createPlaylistWithTracks');
+    return { err: 'No Token' };
+  }
+  if (!accessToken) {
+    const res = await refreshAccessToken(refreshToken);
+    accessToken = res.result;
+  }
   const { result: userProfile } = await getUserProfile(accessToken);
   const userId = userProfile.id;
 
@@ -68,13 +78,41 @@ router.post(
   '/playlist/subscribe',
   jsonParser,
   wrapRoute(async (req, res) => {
-    const { playlistConfig, refreshToken, tracks, playlistOpts: _playlistOpts } = req.body;
+    const {
+      playlistConfig,
+      refreshToken,
+      tracks,
+      playlistOpts: _playlistOpts,
+    } = req.body;
     if (![playlistConfig, refreshToken, tracks].every(e => e)) {
       logger.warn(
         'Missing param in request body. Keys in body: %o',
         Object.keys(req.body)
       );
       res.sendStatus(400);
+      return;
+    }
+
+    const { result: dbUser } = await getDbUserByToken(refreshToken);
+    if (!dbUser) {
+      logger.warn('Could not find user with token: %o', refreshToken);
+      res.sendStatus(400);
+      return;
+    }
+    const { result: accessToken } = await refreshAccessToken(refreshToken);
+    const { result: subscriptions } = await getSubscriptionsByUserId(dbUser.id);
+    const {
+      result: { active, stale },
+    } = await getStalePlaylists(accessToken, subscriptions);
+    // Check if user's premium subscription has expired (7 days grace period)
+    const userIsPremium = moment() <= moment(dbUser.premium_date).add(7, 'days');
+
+    const limit = userIsPremium ? PLAYLIST_LIMIT_HARD_CAP : PLAYLIST_LIMIT_BASIC;
+    if (active.length >= limit) {
+      res.status(400).send({
+        error: 'ERROR_PLAYLIST_LIMIT_REACHED',
+        message: 'User has reached limit of playlists',
+      });
       return;
     }
 
@@ -87,13 +125,6 @@ router.post(
       },
       _playlistOpts
     );
-    const { result: dbUser } = await getDbUserByToken(refreshToken);
-    if (!dbUser) {
-      logger.warn('Could not find user with token: %o', refreshToken);
-      res.sendStatus(400);
-      return;
-    }
-
     const { result: playlistId } = await createPlaylistWithTracks({
       refreshToken,
       tracks,
