@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
-import CheckoutForm from './CheckoutForm.js';
 import { Elements, StripeProvider } from 'react-stripe-elements';
+import { Modal } from 'react-bootstrap';
+
+import CheckoutForm from './CheckoutForm.js';
 
 import './index.css';
 
-const Card = ({ heading, price, bodyItems, footer }) => {
+const Card = ({ heading, price, bodyItems, footer, onClick }) => {
   return (
     <div className="card">
       <div className="card-header">
@@ -24,15 +26,40 @@ const Card = ({ heading, price, bodyItems, footer }) => {
           </div>
         ))}
       </div>
-      <div className="card-footer">{footer}</div>
+      <div className="card-footer" onClick={onClick}>
+        {footer}
+      </div>
     </div>
   );
 };
+
 class Premium extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      shouldShowModal: false,
+    };
+  }
+  showModal = () => {
+    this.setState({ shouldShowModal: true });
+  };
+  hideModal = () => {
+    this.setState({ shouldShowModal: false });
+  };
+
+  onCheckout = () => {
+    this.hideModal();
+  }
+
   render() {
     return (
       <StripeProvider apiKey="pk_test_TYooMQauvdEDq54NiTphI7jx">
         <div className="premium-container">
+          <Modal show={this.state.shouldShowModal} onHide={this.hideModal}>
+            <Elements>
+              <CheckoutForm onCheckout={this.onCheckout}/>
+            </Elements>
+          </Modal>
           <Card
             heading={'Songbird Free'}
             price={'$0'}
@@ -57,6 +84,7 @@ class Premium extends Component {
               'Max 200 Tracks /playlist (TBC)',
               'Helps solve world hunger',
             ]}
+            onClick={this.showModal}
           />
         </div>
       </StripeProvider>
