@@ -17,8 +17,8 @@ const Card = ({ heading, price, bodyItems, footer }) => {
       <div className="card-body">
         {bodyItems.map((e, idx) => (
           <div key={idx}>
-            <span class="fa-li">
-              <i class="fas fa-check" />
+            <span className="fa-li">
+              <i className="fas fa-check" />
             </span>
             {e}
           </div>

@@ -27,15 +27,14 @@
   border-top-right-radius: 7px;
   background-color: #297343;
   padding: 15px 0px;
-  color: #eee;
+  color: #ddd;
 }
 
 .card-body {
-  flex-grow: 7;
   background-color: white;
   font-size: 16px;
   letter-spacing: 0.5px;
-  padding: 30px 0px;
+  padding: 20px 0px 30px;
 }
 .card-body > div {
   padding: 10px 0px;
@@ -49,6 +48,7 @@
 
 .price-tag {
   font-weight: bold;
+  color: white;
   font-size: 44px;
 }
 .price-tag-sub {
@@ -61,12 +61,11 @@
   flex-direction: column;
   justify-content: center;
   align-content: center;
-  letter-spacing: 1.1px;
-  font-size: 18px;
+  letter-spacing: 2px;
+  font-size: 20px;
   color: white;
   font-weight: bold;
   text-transform: uppercase;
-  /* background-color: #1db954; */
   background-color: #297343;
   border-bottom-left-radius: 7px;
   border-bottom-right-radius: 7px;
