@@ -47,8 +47,8 @@ class Premium extends Component {
     this.setState({ shouldShowModal: false });
   };
 
-  onCheckout = () => {
-    this.hideModal();
+  onCheckout = (success) => {
+    /* this.hideModal(); */
   }
 
   render() {
