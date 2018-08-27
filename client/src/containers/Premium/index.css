@@ -25,13 +25,16 @@
   font-family: 'Roboto', sans-serif;
   border-top-left-radius: 7px;
   border-top-right-radius: 7px;
-  background-color: #297343;
+  /* background-color: #297343; */
+  /* background-image: linear-gradient(#297343, #23a04f, #297343); */
+  background-image: linear-gradient(#23a04f, #297343);
   padding: 15px 0px;
   color: #ddd;
 }
 
 .card-body {
-  background-color: white;
+  /* background-color: white; */
+  background-image: linear-gradient(#bbb, white);
   font-size: 16px;
   letter-spacing: 0.5px;
   padding: 20px 0px 30px;
