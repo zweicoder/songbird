@@ -12,4 +12,5 @@ async function isSubscriptionActive(subId) {
 
 module.exports = {
   stripe,
+  isSubscriptionActive,
 };

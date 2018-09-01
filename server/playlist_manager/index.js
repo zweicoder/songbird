@@ -148,7 +148,7 @@ async function main() {
       // Sync based on limits
       await syncSubscriptions(accessToken, subsToSync);
       logger.info('Updating playlist last synced...');
-      await updatePlaylistLastSynced(spotify_username, accessToken, subsToSync.map(e => e.spotify_playlist_id));
+      await Promise.all(subsToSync.map(e=> updatePlaylistLastSynced(spotify_username, accessToken, e.spotify_playlist_id)));
       logger.info('Successfully updated all subscriptions for %o', spotify_username);
     } catch (err) {
       logger.error('Error while syncing for %o', group);
