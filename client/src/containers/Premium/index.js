@@ -53,7 +53,7 @@ class Premium extends Component {
 
   render() {
     return (
-      <StripeProvider apiKey="pk_test_TYooMQauvdEDq54NiTphI7jx">
+      <StripeProvider apiKey="pk_test_XTF9O5WYLUcjveThzxjuor6a">
         <div className="premium-container">
           <Modal show={this.state.shouldShowModal} onHide={this.hideModal}>
             <Elements>

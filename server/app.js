@@ -9,6 +9,7 @@ const bodyParser = require('body-parser');
 
 const loginRouter = require('./routes/login.js');
 const playlistRouter = require('./routes/playlist.js');
+const chargeRouter = require('./routes/charge.js');
 
 const logger = require('./lib/logger.js')('app.js');
 
@@ -19,7 +20,7 @@ app.use(cookieParser());
 app.use(morgan('common'));
 app.use(cors());
 
-app.use(loginRouter, playlistRouter);
+app.use(loginRouter, playlistRouter, chargeRouter);
 
 // process.on('unhandledRejection', function(reason, p) {
 //   logger.error("Unhandled Rejection: %o", reason.stack);
