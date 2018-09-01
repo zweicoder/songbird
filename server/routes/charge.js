@@ -24,7 +24,7 @@ router.post('/charge', async (req, res) => {
   let sub;
   const { tokenId, email, refreshToken } = req.body;
   try {
-    sub = createStripeSubscription(tokenId, email);
+    sub = await createStripeSubscription(tokenId, email);
     res.sendStatus(200);
   } catch (err) {
     logger.error(err);
@@ -32,7 +32,11 @@ router.post('/charge', async (req, res) => {
     return;
   }
 
-  console.log(sub.status);
+  if (sub.status !== 'active') {
+    logger.info('Could not charge subscription?');
+    res.sendStatus(500);
+    return;
+  }
   logger.info(`Created subscription: ${sub.id}`);
   try {
     makeUserPremiumByToken(refreshToken, sub.id);
