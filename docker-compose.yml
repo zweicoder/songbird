@@ -19,6 +19,8 @@ services:
     # so we can run psql stuff on 5433
     ports:
       - "5433:5432"
+    volumes:
+      - ./postgres_volume/var/lib/postgresql:/var/lib/postgresql
 
   manager:
     build:
