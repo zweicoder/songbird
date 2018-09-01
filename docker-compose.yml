@@ -31,6 +31,8 @@ services:
       - /etc/songbird/secrets.env
     entrypoint:
       - node
+    volumes:
+      - ./docker_logs/playlist_manager/logs:/app/server/playlist_manager/logs
     command:
       - ./playlist_manager/index.js
       - sync
