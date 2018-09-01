@@ -1,4 +1,4 @@
-.checkout-container {
+.checkout-success, .checkout-container {
   border-radius: 4px;
   text-align: center;
   font-size: 14px;
@@ -7,6 +7,16 @@
   padding: 8px 5px 5px 5px;
   border: none;
   margin-top: 23vh;
+}
+.checkout-success {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  padding: 0 20px;
+}
+
+.checkout-success h1 {
 }
 .checkout {
   display: flex;

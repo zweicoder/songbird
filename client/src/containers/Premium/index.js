@@ -47,9 +47,13 @@ class Premium extends Component {
     this.setState({ shouldShowModal: false });
   };
 
-  onCheckout = (success) => {
-    /* this.hideModal(); */
-  }
+  onCheckout = success => {
+    if (success) {
+      setTimeout(() => {
+        this.hideModal();
+      }, 1000);
+    }
+  };
 
   render() {
     return (
@@ -57,7 +61,7 @@ class Premium extends Component {
         <div className="premium-container">
           <Modal show={this.state.shouldShowModal} onHide={this.hideModal}>
             <Elements>
-              <CheckoutForm onCheckout={this.onCheckout}/>
+              <CheckoutForm onCheckout={this.onCheckout} />
             </Elements>
           </Modal>
           <Card

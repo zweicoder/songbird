@@ -3,11 +3,29 @@ import { CardElement, injectStripe } from 'react-stripe-elements';
 import axios from 'axios';
 import validator from 'validator';
 import { FontAwesomeIcon as FaIcon } from '@fortawesome/react-fontawesome';
-import { faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { faSpinner, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 
 import { URL_BACKEND_CHARGE } from '../../constants.js';
 
 import './CheckoutForm.css';
+
+const CheckoutButton = ({ complete, loading, onClick }) => {
+  if (complete) {
+    return (
+      <button>
+        <FaIcon icon={faCheckCircle} />
+      </button>
+    );
+  }
+  if (loading) {
+    return (
+      <button>
+        <FaIcon icon={faSpinner} spin />
+      </button>
+    );
+  }
+  return <button onClick={onClick}>Checkout with Stripe</button>;
+};
 
 class CheckoutForm extends Component {
   constructor(props) {
@@ -45,7 +63,7 @@ class CheckoutForm extends Component {
     }
 
     try {
-      let response = await axios.post(URL_BACKEND_CHARGE, {
+      await axios.post(URL_BACKEND_CHARGE, {
         tokenId: token.id,
         email,
       });
@@ -61,13 +79,6 @@ class CheckoutForm extends Component {
   }
 
   render() {
-    if (this.state.complete) {
-      return (
-        <div className="checkout-container">
-          <h1>Thank you for your support!!!</h1>;
-        </div>
-      );
-    }
     return (
       <div className="checkout-container">
         <p>Pay with Credit Card</p>
@@ -101,13 +112,11 @@ class CheckoutForm extends Component {
           {this.state.errorMsg && (
             <span className="errors">{this.state.errorMsg}</span>
           )}
-          {this.state.loading ? (
-            <button>
-              <FaIcon icon={faSpinner} spin />
-            </button>
-          ) : (
-            <button onClick={this.submit}>Checkout with Stripe</button>
-          )}
+          <CheckoutButton
+            loading={this.state.loading}
+            complete={this.state.complete}
+            onClick={this.submit}
+          />
         </div>
       </div>
     );
