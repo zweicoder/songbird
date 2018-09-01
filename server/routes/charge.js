@@ -23,6 +23,11 @@ async function createStripeSubscription(tokenId, email) {
 router.post('/charge', async (req, res) => {
   let sub;
   const { tokenId, email, refreshToken } = req.body;
+  if (![tokenId, email, refreshToken].every(e => !!e)) {
+    logger.info('Request body missing parameters!');
+    res.sendStatus(400);
+    return;
+  }
   try {
     sub = await createStripeSubscription(tokenId, email);
     res.sendStatus(200);
