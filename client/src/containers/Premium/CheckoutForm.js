@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import { CardElement, injectStripe } from 'react-stripe-elements';
 import axios from 'axios';
 import validator from 'validator';
-import Input from 'react-validation/build/input';
+import { FontAwesomeIcon as FaIcon } from '@fortawesome/react-fontawesome';
+import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 import { URL_BACKEND_CHARGE } from '../../constants.js';
 
@@ -17,20 +18,23 @@ class CheckoutForm extends Component {
 
   async submit(ev) {
     // User clicked submit
+    this.setState({ loading: true });
     const { stripe, onCheckout } = this.props;
     const email = document.querySelector('input[type="email"]').value.trim();
     if (email.length === 0) {
-      this.setState({ errorMsg: `Email is required!` });
+      this.setState({ errorMsg: `Email is required!`, loading: false });
       return;
     }
     if (!validator.isEmail(email)) {
-      this.setState({ errorMsg: `${email} is not a valid email!` });
+      this.setState({
+        errorMsg: `${email} is not a valid email!`,
+        loading: false,
+      });
       return;
     }
 
-    let { token, error } = await stripe.createToken({ email: 'bla' });
-    console.log('Checking out...');
-    console.log(token, error);
+    // TODO maybe get name and address
+    let { token, error } = await stripe.createToken();
     if (error) {
       if (error.message) {
         this.setState({ errorMsg: error.message });
@@ -40,13 +44,19 @@ class CheckoutForm extends Component {
       throw error;
     }
 
-    let response = await axios.post(URL_BACKEND_CHARGE, {
-      tokenId: token.id,
-    });
-
-    if (response.status === 200) {
+    try {
+      let response = await axios.post(URL_BACKEND_CHARGE, {
+        tokenId: token.id,
+        email,
+      });
       this.setState({ complete: true });
       onCheckout(true);
+    } catch (err) {
+      this.setState({
+        errorMsg:
+          'Something went wrong! Please try again later & alert the developer!',
+        loading: false,
+      });
     }
   }
 
@@ -82,7 +92,6 @@ class CheckoutForm extends Component {
               },
               invalid: {
                 color: '#E25950',
-
                 '::placeholder': {
                   color: '#FFCCA5',
                 },
@@ -92,7 +101,13 @@ class CheckoutForm extends Component {
           {this.state.errorMsg && (
             <span className="errors">{this.state.errorMsg}</span>
           )}
-          <button onClick={this.submit}>Checkout with Stripe</button>
+          {this.state.loading ? (
+            <button>
+              <FaIcon icon={faSpinner} spin />
+            </button>
+          ) : (
+            <button onClick={this.submit}>Checkout with Stripe</button>
+          )}
         </div>
       </div>
     );
