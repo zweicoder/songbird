@@ -14,7 +14,7 @@ const {
   getStalePlaylists,
 } = require('spotify-service').playlistService;
 
-const { stripe, isSubcriptionActive } = require('../services/stripeService.js');
+const { stripe, isSubscriptionActive } = require('../services/stripeService.js');
 const {
   PLAYLIST_LIMIT_HARD_CAP,
   PLAYLIST_LIMIT_BASIC,
@@ -138,7 +138,7 @@ async function main() {
 
         // Check with stripe to see if subscription still pseudo-active
         const { result: dbUser } = await getUserByToken(refreshToken);
-        const stillAlive = await isSubcriptionActive(dbUser.stripe_sub_id);
+        const stillAlive = await isSubscriptionActive(dbUser.stripe_sub_id);
         if (!stillAlive) {
           logger.info('User is not premium!');
           subsToSync = subsToSync.slice(0, PLAYLIST_LIMIT_BASIC);
