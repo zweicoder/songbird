@@ -65,7 +65,7 @@
     "build": "node scripts/build.js",
     "test": "node scripts/test.js --env=jsdom"
   },
-  "homepage": "https://zweicoder.gitlab.io/songbird",
+  "homepage": "https://getsongbird.io",
   "jest": {
     "collectCoverageFrom": [
       "src/**/*.{js,jsx,mjs}"

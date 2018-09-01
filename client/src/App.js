@@ -17,7 +17,7 @@ import './App.css';
 class App extends Component {
   render() {
     return (
-      <Router basename="/songbird">
+      <Router>
         <div className="App">
           <Header />
           <div className="container">
