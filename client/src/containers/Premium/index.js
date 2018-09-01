@@ -56,8 +56,12 @@ class Premium extends Component {
   };
 
   render() {
+    const apiKey =
+      process.env.NODE_ENV === 'production'
+        ? 'pk_live_6QviCai7CLcJot35YRGGBTBn'
+        : 'pk_test_XTF9O5WYLUcjveThzxjuor6a';
     return (
-      <StripeProvider apiKey="pk_test_XTF9O5WYLUcjveThzxjuor6a">
+      <StripeProvider apiKey={apiKey}>
         <div className="premium-container">
           <Modal show={this.state.shouldShowModal} onHide={this.hideModal}>
             <Elements>

@@ -1,5 +1,5 @@
-const STRIPE_KEY = process.env.STRIPE_KEY || 'sk_test_5H2syFmrwKcDYwa7QxCPW1mP';
-const stripe = require('stripe')(STRIPE_KEY);
+const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || 'sk_test_5H2syFmrwKcDYwa7QxCPW1mP';
+const stripe = require('stripe')(STRIPE_SECRET_KEY);
 
 async function isSubscriptionActive(subId) {
   if (!subId) {
