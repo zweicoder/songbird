@@ -79,3 +79,8 @@ input:focus,
 .modal-content {
   display: contents;
 }
+
+span.errors {
+  font-size: 13px;
+  color: #bf3333;
+}

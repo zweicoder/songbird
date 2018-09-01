@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
-import {
-  CardElement,
-  PostalCodeElement,
-  injectStripe,
-} from 'react-stripe-elements';
+import { CardElement, injectStripe } from 'react-stripe-elements';
 import axios from 'axios';
+import validator from 'validator';
+import Input from 'react-validation/build/input';
+
 import { URL_BACKEND_CHARGE } from '../../constants.js';
 
 import './CheckoutForm.css';
@@ -19,17 +18,30 @@ class CheckoutForm extends Component {
   async submit(ev) {
     // User clicked submit
     const { stripe, onCheckout } = this.props;
-    const name = 'Test User plz ignore';
-    let { token, error } = await stripe.createToken({ name });
+    const email = document.querySelector('input[type="email"]').value.trim();
+    if (email.length === 0) {
+      this.setState({ errorMsg: `Email is required!` });
+      return;
+    }
+    if (!validator.isEmail(email)) {
+      this.setState({ errorMsg: `${email} is not a valid email!` });
+      return;
+    }
+
+    let { token, error } = await stripe.createToken({ email: 'bla' });
+    console.log('Checking out...');
+    console.log(token, error);
     if (error) {
+      if (error.message) {
+        this.setState({ errorMsg: error.message });
+        return;
+      }
       console.log('Failed to checkout with stripe!');
       throw error;
     }
 
     let response = await axios.post(URL_BACKEND_CHARGE, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: { tokenId: token.id },
+      tokenId: token.id,
     });
 
     if (response.status === 200) {
@@ -40,19 +52,16 @@ class CheckoutForm extends Component {
 
   render() {
     if (this.state.complete) {
-      return <h1>Thank you for your support!!!</h1>;
+      return (
+        <div className="checkout-container">
+          <h1>Thank you for your support!!!</h1>;
+        </div>
+      );
     }
     return (
       <div className="checkout-container">
         <p>Pay with Credit Card</p>
         <div className="checkout">
-          <input
-            autoComplete="false"
-            name="name"
-            type="text"
-            placeholder="Name"
-            required
-          />
           <input
             autoComplete="false"
             name="email"
@@ -80,6 +89,9 @@ class CheckoutForm extends Component {
               },
             }}
           />
+          {this.state.errorMsg && (
+            <span className="errors">{this.state.errorMsg}</span>
+          )}
           <button onClick={this.submit}>Checkout with Stripe</button>
         </div>
       </div>

@@ -1,27 +1,34 @@
 const express = require('express');
 const logger = require('../lib/logger.js')('routes/charge.js');
-const stripe = require('stripe')('sk_test_9hqOcJ7PVeUl2UHSMXmbZ6Sq');
+const stripe = require('stripe')('sk_test_5H2syFmrwKcDYwa7QxCPW1mP');
 
 const router = express.Router();
 
 router.post('/charge', async (req, res) => {
   try {
     const { tokenId } = req.body;
-    logger.info('Creating charge...');
-    let { status } = await stripe.charges.create({
-      amount: 1,
-      currency: 'usd',
-      description: 'Songbird Premium Monthly',
+    logger.info('Creating charge for %o...', tokenId);
+    const customer = await stripe.customers.create({
       source: tokenId,
+      email: 'asd@gmail.com',
     });
+    logger.info('Created customer');
+    logger.info(customer)
 
-    res.json({ status });
-    logger.info(`Charge status: ${status}`);
+    const sub = await stripe.subscriptions.create({
+      customer: customer.id,
+      items: [{ plan: 'plan_DVACAMwAejoc4k' }],
+    });
+    logger.info('Created subscription');
+    logger.info(sub)
+
+    res.status(200);
+    logger.info(`Created subscription: ${sub.id}`);
   } catch (err) {
     logger.error(err);
-    res.status(500).end();
+    res.sendStatus(500);
+    return;
   }
-  res.sendStatus(200);
 });
 
 module.exports = router;
