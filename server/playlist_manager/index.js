@@ -152,7 +152,13 @@ async function main() {
       await Promise.all(subsToSync.map(e=> updatePlaylistLastSynced(spotify_username, accessToken, e.spotify_playlist_id)));
       logger.info('Successfully updated all subscriptions for %o', spotify_username);
     } catch (err) {
-      logger.error('Error while syncing for %o', group);
+      const [userId, _subscriptions] = group;
+      if (err.response && err.response.status === 429) {
+        // TODO rate limited exceeded
+        logger.warn('API Rate limit exceeded while syncing for user: %o', userId);
+        continue;
+      }
+      logger.error('Uncaught error while syncing for %o', userId);
       logger.error(err.stack);
       continue;
     }

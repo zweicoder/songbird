@@ -30,9 +30,10 @@ async function getDetailsByWindow(accessToken, endpoint, ids) {
       .get(`${endpoint}/?${queryParams}`, options)
       .then(res => res.data)
       .catch(err => {
-        console.log('Error getting details of: ', err.message);
+        console.log('Error getting details of tracks: ', err.message);
         console.error(err.response.status);
         console.error(err.response.data);
+        throw err;
       });
   }
   // Window by 20 (max for Spotify API), request to endpoint
