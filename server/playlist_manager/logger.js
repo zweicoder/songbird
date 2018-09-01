@@ -18,10 +18,9 @@ const logger = winston.createLogger({
   format: customFormat,
   transports: [
     new winston.transports.Console(),
-    new winston.transports.File({ filename: 'logs/playlist_manager.log' }),
-    new winston.transports.File({ filename: 'logs/errors.log', level: 'error' }),
+    new winston.transports.File({ filename: 'playlist_manager/logs/all.log' }),
+    new winston.transports.File({ filename: 'playlist_manager/logs/errors.log', level: 'error' }),
   ],
 });
-
 
 module.exports = logger;

@@ -26,13 +26,14 @@ services:
     build:
       context: .
       dockerfile: server.Dockerfile
+    # network_mode: host
     env_file:
       - ./env/dev.env
       - /etc/songbird/secrets.env
     entrypoint:
       - node
     volumes:
-      - ./docker_logs/playlist_manager/logs:/app/server/playlist_manager/logs
+      - ./docker_logs/playlist_manager/logs/:/app/server/playlist_manager/logs/
     command:
       - ./playlist_manager/index.js
       - sync
