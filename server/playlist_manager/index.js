@@ -90,6 +90,7 @@ async function syncSubscriptions(accessToken, subscriptions) {
   }
 }
 
+// TODO send to another queue if 429
 async function main() {
   const { result: subscriptions } = await getActiveSubscriptions();
   const groupSubscriptionByUsers = R.pipe(
