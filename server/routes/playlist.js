@@ -1,6 +1,7 @@
 const express = require('express');
 const jsonParser = require('body-parser').json();
 const moment = require('moment');
+const { stripe, isSubcriptionActive } = require('../services/stripeService.js');
 
 const {
   getPlaylistTracks,
@@ -114,10 +115,8 @@ router.post(
     const {
       result: { active, stale },
     } = await getStalePlaylists(accessToken, subscriptions);
-    // Check if user's premium subscription has expired (7 days grace period)
-    const userIsPremium = dbUser.premium_date
-      ? moment() <= moment(dbUser.premium_date).add(7, 'days')
-      : false;
+
+    const userIsPremium = await isSubcriptionActive(dbUser.stripe_sub_id);
 
     const limit = userIsPremium
       ? PLAYLIST_LIMIT_HARD_CAP

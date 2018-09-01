@@ -1,29 +1,35 @@
 const express = require('express');
 const logger = require('../lib/logger.js')('routes/charge.js');
-const stripe = require('stripe')('sk_test_5H2syFmrwKcDYwa7QxCPW1mP');
+const { stripe } = require('../services/stripeService.js');
+const { makeUserPremiumByToken } = require('../services/dbService.js');
 
 const router = express.Router();
 
+const ONE_DOLLAR_PLAN = 'plan_DVACAMwAejoc4k';
 router.post('/charge', async (req, res) => {
   try {
-    const { tokenId } = req.body;
+    const { tokenId, email, refreshToken } = req.body;
     logger.info('Creating charge for %o...', tokenId);
     const customer = await stripe.customers.create({
       source: tokenId,
-      email: 'asd@gmail.com',
+      email,
     });
-    logger.info('Created customer');
-    logger.info(customer)
+    logger.info(`Created customer: ${customer.email} - ${customer.id}`);
 
     const sub = await stripe.subscriptions.create({
       customer: customer.id,
-      items: [{ plan: 'plan_DVACAMwAejoc4k' }],
+      items: [{ plan: ONE_DOLLAR_PLAN }],
     });
-    logger.info('Created subscription');
-    logger.info(sub)
-
-    res.status(200);
+    if (!sub.active) {
+      logger.warn('Unable to charge card?');
+      logger.warn('%o', sub.id);
+      res.sendStatus(500);
+      return;
+    }
     logger.info(`Created subscription: ${sub.id}`);
+
+    res.sendStatus(200);
+    makeUserPremiumByToken(refreshToken, customer.id);
   } catch (err) {
     logger.error(err);
     res.sendStatus(500);

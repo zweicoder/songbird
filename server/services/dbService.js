@@ -16,6 +16,22 @@ pool.on('error', (err, client) => {
   process.exit(-1);
 });
 
+async function makeUserPremiumByToken(token, stripeUserId) {
+  const client = await pool.connect();
+  try {
+    const res = await client.query(
+      'UPDATE users WHERE token = $1 SET stripe_user_id= $2, premium_date = NOW()',
+      [token, stripeUserId]
+    );
+    return { result: res.rows[0] };
+  } catch (err) {
+    console.error('Unable to makeUserPremiumByToken: ', err);
+    throw new Error(err);
+  } finally {
+    client.release();
+  }
+}
+
 async function getUserByToken(token) {
   const client = await pool.connect();
   try {
