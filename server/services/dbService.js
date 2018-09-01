@@ -16,12 +16,12 @@ pool.on('error', (err, client) => {
   process.exit(-1);
 });
 
-async function makeUserPremiumByToken(token, stripeUserId) {
+async function makeUserPremiumByToken(token, stripeSubId) {
   const client = await pool.connect();
   try {
     const res = await client.query(
-      'UPDATE users WHERE token = $1 SET stripe_user_id= $2, premium_date = NOW()',
-      [token, stripeUserId]
+      'UPDATE users SET stripe_sub_id= $1 WHERE token = $2 ',
+      [stripeSubId, token]
     );
     return { result: res.rows[0] };
   } catch (err) {
@@ -216,4 +216,5 @@ module.exports = {
   deleteSubscriptionsById,
   deleteSubscriptionByUserId,
   updateSyncTime,
+  makeUserPremiumByToken,
 };

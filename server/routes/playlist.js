@@ -116,23 +116,27 @@ router.post(
       result: { active, stale },
     } = await getStalePlaylists(accessToken, subscriptions);
 
-    const userIsPremium = await isSubcriptionActive(dbUser.stripe_sub_id);
-
-    const limit = userIsPremium
-      ? PLAYLIST_LIMIT_HARD_CAP
-      : PLAYLIST_LIMIT_BASIC;
-    logger.info(
-      `User: ${
-        dbUser.spotify_username
-      } | isPremium: ${userIsPremium} | active: ${active.length}`
-    );
-    if (active.length >= limit) {
+    function handleLimitExceeded() {
       logger.info(`User: ${dbUser.spotify_username} limit exceeded`);
       res.status(400).send({
         error: 'ERROR_PLAYLIST_LIMIT_REACHED',
         message: 'User has reached limit of playlists',
       });
-      return;
+    }
+
+    logger.info(`User: ${dbUser.spotify_username} | active: ${active.length}`);
+    // User exceeded basic user's limit
+    if (active.length >= PLAYLIST_LIMIT_BASIC) {
+      if (active.length >= PLAYLIST_LIMIT_HARD_CAP) {
+        handleLimitExceeded();
+        return;
+      }
+      // Check with stripe to see if subscription still pseudo-active
+      const stillAlive = await isSubcriptionActive(dbUser.stripe_sub_id);
+      if (!stillAlive) {
+        handleLimitExceeded();
+        return;
+      }
     }
 
     const playlistOpts = Object.assign(

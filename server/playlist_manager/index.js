@@ -13,12 +13,19 @@ const {
   makePlaylistBuilder,
   getStalePlaylists,
 } = require('spotify-service').playlistService;
+
+const { stripe, isSubcriptionActive } = require('../services/stripeService.js');
+const {
+  PLAYLIST_LIMIT_HARD_CAP,
+  PLAYLIST_LIMIT_BASIC,
+} = require('../constants.global.js');
 const { refreshAccessToken } = require('../lib/oauthClient.js');
 const {
   getActiveSubscriptions,
   deleteSubscriptionById,
   deleteSubscriptionsById,
   deleteSubscriptionByUserId,
+  getUserByToken,
 } = require('../services/dbService.js');
 const logger = require('./logger.js');
 
@@ -119,8 +126,27 @@ async function main() {
         deleteSubscriptionsById(stale.map(e => e.id));
       }
 
-      logger.info('Found %o active subscriptions', active.length);
-      await syncSubscriptions(accessToken, active);
+      // Check if premium user if too many playlists
+      let subsToSync = active;
+      logger.info(`User: ${spotify_username} | active: ${active.length}`);
+      // User exceeded basic user's limit
+      if (active.length >= PLAYLIST_LIMIT_BASIC) {
+        if (active.length >= PLAYLIST_LIMIT_HARD_CAP) {
+          logger.info('User exceeded hard cap!!!');
+          subsToSync = subsToSync.slice(0, PLAYLIST_LIMIT_HARD_CAP);
+        }
+
+        // Check with stripe to see if subscription still pseudo-active
+        const { result: dbUser } = await getUserByToken(refreshToken);
+        const stillAlive = await isSubcriptionActive(dbUser.stripe_sub_id);
+        if (!stillAlive) {
+          logger.info('User is not premium!');
+          subsToSync = subsToSync.slice(0, PLAYLIST_LIMIT_BASIC);
+        }
+      }
+
+      // Sync based on limits
+      await syncSubscriptions(accessToken, subsToSync);
     } catch (err) {
       logger.error('Error while syncing for %o', group);
       logger.error(err.stack);
