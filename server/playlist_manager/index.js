@@ -39,13 +39,15 @@ async function syncSubscriptions(accessToken, subscriptions) {
   async function getTracks(subscription) {
     const { id, playlist_config: playlistConfig } = subscription;
     if (playlistConfig.preset) {
+      logger.info('Getting tracks for %o', playlistConfig.preset);
       const builder = makePlaylistBuilder({
         config: playlistConfig,
         accessToken,
       });
       return await builder.build();
     } else {
-      logger.info('Handling non-preset playlist...');
+      logger.info('Getting tracks for non-preset playlist:');
+      logger.info('%o', playlistConfig);
       // Cache tracks cause it takes a lot more effort to get them
       // Cache is only scoped in parent function. Use global LRU cache if need to share across other instances.
       if (!userLibrary) {
@@ -78,14 +80,13 @@ async function syncSubscriptions(accessToken, subscriptions) {
     );
   }
   async function doSyncSubscription(subscription) {
-    logger.info('Getting tracks...');
     const tracks = await getTracks(subscription);
     logger.info('Updating songs in playlist...');
     await updateTracks(subscription, tracks);
   }
   for (let subscription of subscriptions) {
+    logger.info('==========================');
     logger.info('Syncing subscription %o...', subscription.id);
-    logger.info('Config: %o', subscription.playlist_config);
     try {
       await handleRetryAfter(() => doSyncSubscription(subscription));
       logger.info('Successfully updated subscription: %o', subscription.id);
@@ -120,8 +121,8 @@ async function syncUserSubscriptions({
   let subsToSync = active;
   logger.info(`User: ${spotifyUsername} | active: ${active.length}`);
   // User exceeded basic user's limit
-  if (active.length >= PLAYLIST_LIMIT_BASIC) {
-    if (active.length >= PLAYLIST_LIMIT_HARD_CAP) {
+  if (active.length > PLAYLIST_LIMIT_BASIC) {
+    if (active.length > PLAYLIST_LIMIT_HARD_CAP) {
       logger.info('User exceeded hard cap!!!');
       subsToSync = subsToSync.slice(0, PLAYLIST_LIMIT_HARD_CAP);
     }
