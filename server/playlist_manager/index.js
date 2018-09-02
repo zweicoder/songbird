@@ -131,7 +131,7 @@ async function syncUserSubscriptions({
     const { result: dbUser } = await getUserByToken(refreshToken);
     // TODO handle super users like myself
     const stillAlive = await isSubscriptionActive(dbUser.stripe_sub_id);
-    if (!stillAlive) {
+    if (!stillAlive && spotifyUsername !== 'heinekenchong') {
       logger.info('User is not premium!');
       subsToSync = subsToSync.slice(0, PLAYLIST_LIMIT_BASIC);
     }
