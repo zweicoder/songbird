@@ -64,19 +64,12 @@ async function putPlaylistSongs(
     console.error('Bad track uris: ', requestBody.uris);
     return { err: 'Bad track uris: ' + requestBody.uris };
   }
-  try {
-    const res = await axios.put(
-      `https://api.spotify.com/v1/users/${userId}/playlists/${playlistId}/tracks`,
-      requestBody,
-      opts
-    );
-    return {};
-  } catch (err) {
-    console.error('Error while syncing playlist for user: ');
-    console.error(err.config);
-    console.error(err.response.data);
-    throw err;
-  }
+  const res = await axios.put(
+    `https://api.spotify.com/v1/users/${userId}/playlists/${playlistId}/tracks`,
+    requestBody,
+    opts
+  );
+  return {};
 }
 
 // https://developer.spotify.com/documentation/web-api/reference/playlists/change-playlist-details/
@@ -123,10 +116,7 @@ async function _getUserPlaylists(accessToken, { offset = 0, limit = 50 }) {
   const opts = {
     headers: getOAuthHeader(accessToken),
   };
-  const res = await axios.get(
-    'https://api.spotify.com/v1/me/playlists',
-    opts
-  );
+  const res = await axios.get('https://api.spotify.com/v1/me/playlists', opts);
   const { next, items: playlists, total } = res.data;
   return { result: { next, playlists, total } };
 }
