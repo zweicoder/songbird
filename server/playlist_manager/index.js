@@ -85,7 +85,7 @@ async function syncSubscriptions(accessToken, subscriptions) {
     await updateTracks(subscription, tracks);
   }
   for (let subscription of subscriptions) {
-    logger.info('==========================');
+    logger.info('\n');
     logger.info('Syncing subscription %o...', subscription.id);
     try {
       await handleRetryAfter(() => doSyncSubscription(subscription));
