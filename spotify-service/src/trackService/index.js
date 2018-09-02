@@ -63,28 +63,24 @@ async function getPagedUserTracks(accessToken, { offset = 0, limit = 50 }) {
     headers: getOAuthHeader(accessToken),
   };
 
-  try {
-    const res = await axios.get(
-      `${SPOTIFY_ENDPOINT_TRACKS}?${queryParams}`,
-      options
-    );
-    const savedTrackObjs = res.data.items;
-    // Merge added_at into track obj
-    const tracks = savedTrackObjs.map(({ added_at, track }) =>
-      Object.assign({}, track, { added_at })
-    );
-    // Filter away tracks that are basically empty (e.g. redacted content / japnese songs)
-    const filteredTracks = tracks.filter(e => e.name !== '');
-    return {
-      result: {
-        next: res.data.next,
-        tracks: filteredTracks,
-        total: res.data.total,
-      },
-    };
-  } catch (error) {
-    return { error };
-  }
+  const res = await axios.get(
+    `${SPOTIFY_ENDPOINT_TRACKS}?${queryParams}`,
+    options
+  );
+  const savedTrackObjs = res.data.items;
+  // Merge added_at into track obj
+  const tracks = savedTrackObjs.map(({ added_at, track }) =>
+    Object.assign({}, track, { added_at })
+  );
+  // Filter away tracks that are basically empty (e.g. redacted content / japnese songs)
+  const filteredTracks = tracks.filter(e => e.name !== '');
+  return {
+    result: {
+      next: res.data.next,
+      tracks: filteredTracks,
+      total: res.data.total,
+    },
+  };
 }
 
 // Gets all user tracks. Tracks returned here are 'saved track objects' with a `created_at` field
@@ -137,16 +133,12 @@ async function getTopTracks(
     ),
   };
 
-  try {
-    const res = await axios.get(
-      `${SPOTIFY_ENDPOINT_TOP}?${queryParams}`,
-      options
-    );
-    const tracks = res.data.items;
-    return { result: tracks };
-  } catch (error) {
-    return { error };
-  }
+  const res = await axios.get(
+    `${SPOTIFY_ENDPOINT_TOP}?${queryParams}`,
+    options
+  );
+  const tracks = res.data.items;
+  return { result: tracks };
 }
 
 // Get Most Recently Added tracks

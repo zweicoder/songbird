@@ -28,13 +28,7 @@ async function getDetailsByWindow(accessToken, endpoint, ids) {
     };
     return axios
       .get(`${endpoint}/?${queryParams}`, options)
-      .then(res => res.data)
-      .catch(err => {
-        console.log('Error getting details of tracks: ', err.message);
-        console.error(err.response.status);
-        console.error(err.response.data);
-        throw err;
-      });
+      .then(res => res.data);
   }
   // Window by 20 (max for Spotify API), request to endpoint
   const idSet = new Set(ids);

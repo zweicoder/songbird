@@ -89,20 +89,11 @@ async function putPlaylistDetails(
   const opts = {
     headers: getOAuthHeader(accessToken),
   };
-  try {
-    const res = await axios.put(
-      `https://api.spotify.com/v1/users/${userId}/playlists/${playlistId}`,
-      playlistDetails,
-      opts
-    );
-    return {};
-  } catch (err) {
-    console.error(`Error while updating playlist details for ${playlistId}: `);
-    console.error(err.config);
-    console.error(err.response.status);
-    console.error(err.response.data);
-    throw err;
-  }
+  const res = await axios.put(
+    `https://api.spotify.com/v1/users/${userId}/playlists/${playlistId}`,
+    playlistDetails,
+    opts
+  );
 }
 
 async function updatePlaylistLastSynced(userId, accessToken, playlistId) {
@@ -119,18 +110,11 @@ async function getPlaylist(userId, accessToken, playlistId) {
   const opts = {
     headers: getOAuthHeader(accessToken),
   };
-  try {
-    const res = await axios.get(
-      `https://api.spotify.com/v1/users/${userId}/playlists/${playlistId}`,
-      opts
-    );
-    return res.data;
-  } catch (err) {
-    console.error('Error while getting playlist for user: ');
-    console.error(err.config);
-    console.error(err.response.data);
-    throw err;
-  }
+  const res = await axios.get(
+    `https://api.spotify.com/v1/users/${userId}/playlists/${playlistId}`,
+    opts
+  );
+  return res.data;
 }
 
 // Retrieves a list of user's playlists. Gets a paged object
@@ -139,19 +123,12 @@ async function _getUserPlaylists(accessToken, { offset = 0, limit = 50 }) {
   const opts = {
     headers: getOAuthHeader(accessToken),
   };
-  try {
-    const res = await axios.get(
-      'https://api.spotify.com/v1/me/playlists',
-      opts
-    );
-    const { next, items: playlists, total } = res.data;
-    return { result: { next, playlists, total } };
-  } catch (err) {
-    console.error('Error while getting user playlist: ');
-    console.error(err.config);
-    console.error(err.response.data);
-    throw err;
-  }
+  const res = await axios.get(
+    'https://api.spotify.com/v1/me/playlists',
+    opts
+  );
+  const { next, items: playlists, total } = res.data;
+  return { result: { next, playlists, total } };
 }
 
 async function getAllUserPlaylists(accessToken, maxLimit = 1000) {
