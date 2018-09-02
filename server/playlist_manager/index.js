@@ -178,14 +178,14 @@ async function main() {
       }
 
       // Retry following the rate limits, and still timeout if it takes > few minutes
-      await handleRetryAfter(() => {
+      await handleRetryAfter(() =>
         syncUserSubscriptions({
           refreshToken,
           accessToken,
           subscriptions,
           spotifyUsername: spotify_username,
-        });
-      });
+        })
+      );
     } catch (err) {
       const [userId, _subscriptions] = group;
       logger.error('Uncaught error while syncing for %o', userId);

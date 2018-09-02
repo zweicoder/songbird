@@ -1,3 +1,8 @@
+const logger = require('./logger.js');
+
+// Max time limit for all retries combined
+const MAX_TIME_LIMIT = 5 * 60 * 1000;
+
 function delayExecution(fn, delay) {
   return new Promise(resolve => {
     setTimeout(() => {
@@ -9,18 +14,17 @@ function delayExecution(fn, delay) {
 async function timeout(fn, timeLimit) {
   const resultPromise = fn();
   const timeoutPromise = delayExecution(() => {
+    logger.info('TIMED OUT!');
     throw new Error('Function timed out!');
   }, timeLimit);
-  return Promise.race([resultPromise, timeoutPromise]);
+  return await Promise.race([resultPromise, timeoutPromise]);
 }
 
-// Max time limit for execution
-const MAX_TIME_LIMIT = 5 * 60 * 1000;
 async function handleRetryAfter(promiseFactory) {
   async function doRetries() {
-    while (True) {
+    while (true) {
       try {
-        await promiseFactory();
+        return await promiseFactory();
       } catch (err) {
         if (
           err.response &&
@@ -35,8 +39,7 @@ async function handleRetryAfter(promiseFactory) {
 
         logger.error('No Retry-After header found!');
         logger.error('%o', err.response.headers);
-        logger.error('%o', err.stack);
-        return;
+        throw err;
       }
     }
   }
