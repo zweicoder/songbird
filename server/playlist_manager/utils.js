@@ -13,11 +13,19 @@ function delayExecution(fn, delay) {
 
 async function timeout(fn, timeLimit) {
   const resultPromise = fn();
-  const timeoutPromise = delayExecution(() => {
-    logger.info('TIMED OUT!');
-    throw new Error('Function timed out!');
-  }, timeLimit);
-  return await Promise.race([resultPromise, timeoutPromise]);
+  let t;
+  const timeoutPromise = new Promise((resolve, reject) => {
+    t = setTimeout(() => {
+      // This still continues to execute after its timeout, so don't log here or it's misleading
+      // not sure if this _might_ cause problems in the future /shrugs
+      reject('Execution timed out!');
+    }, timeLimit);
+  });
+  return await Promise.race([resultPromise, timeoutPromise]).then(res => {
+    // Clear timeout to prevent weird stuff happening / waiting after finishing everything
+    clearTimeout(t);
+    return res;
+  });
 }
 
 async function handleRetryAfter(promiseFactory) {
@@ -48,4 +56,6 @@ async function handleRetryAfter(promiseFactory) {
 
 module.exports = {
   handleRetryAfter,
+  delayExecution,
+  timeout,
 };
