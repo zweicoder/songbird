@@ -156,6 +156,7 @@ async function main() {
       if (err.response && err.response.status === 429) {
         // TODO rate limited exceeded
         logger.warn('API Rate limit exceeded while syncing for user: %o', userId);
+        logger.warn('Retry-After: %o', err.response.headers['Retry-After']);
         continue;
       }
       logger.error('Uncaught error while syncing for %o', userId);
