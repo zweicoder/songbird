@@ -82,6 +82,13 @@ async function syncSubscriptions(accessToken, subscriptions) {
     try {
       await doSyncSubscription(subscription);
     } catch (err) {
+      if (err.response && err.response.status === 429) {
+        // TODO rate limited exceeded
+        logger.warn('API Rate limit exceeded while syncing');
+        logger.warn('Headers: %o', err.response.headers);
+        logger.warn('Retry-After: %o', err.response.headers['Retry-After']);
+        continue;
+      }
       logger.error('Error while syncing subscription %o:', subscription);
       logger.error(err.stack);
       logger.error('Aborting!');
@@ -156,6 +163,7 @@ async function main() {
       if (err.response && err.response.status === 429) {
         // TODO rate limited exceeded
         logger.warn('API Rate limit exceeded while syncing for user: %o', userId);
+        logger.warn('Headers: %o', err.response.headers);
         logger.warn('Retry-After: %o', err.response.headers['Retry-After']);
         continue;
       }
