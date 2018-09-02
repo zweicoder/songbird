@@ -14,7 +14,10 @@ const {
   getStalePlaylists,
 } = require('spotify-service').playlistService;
 
-const { stripe, isSubscriptionActive } = require('../services/stripeService.js');
+const {
+  stripe,
+  isSubscriptionActive,
+} = require('../services/stripeService.js');
 const {
   PLAYLIST_LIMIT_HARD_CAP,
   PLAYLIST_LIMIT_BASIC,
@@ -28,27 +31,21 @@ const {
   getUserByToken,
 } = require('../services/dbService.js');
 const logger = require('./logger.js');
+const { handleRetryAfter } = require('./utils.js');
 
 // Assumes subscriptions are grouped by user. Otherwise use global LRU cache.
 async function syncSubscriptions(accessToken, subscriptions) {
   let userLibrary;
-  async function doSyncSubscription(subscription) {
-    logger.info('Syncing subscription %o...', subscription.id);
-    logger.info('Config: %o', subscription.playlist_config);
-    const {
-      playlist_config: playlistConfig,
-      spotify_playlist_id: spotifyPlaylistId,
-      spotify_username: spotifyUserId,
-      token: refreshToken,
-    } = subscription;
-    let playlistTracks;
+  async function getTracks(subscription) {
+    const { id, playlist_config: playlistConfig } = subscription;
     if (playlistConfig.preset) {
       const builder = makePlaylistBuilder({
         config: playlistConfig,
         accessToken,
       });
-      playlistTracks = await builder.build();
+      return await builder.build();
     } else {
+      logger.info('Handling non-preset playlist...');
       // Cache tracks cause it takes a lot more effort to get them
       // Cache is only scoped in parent function. Use global LRU cache if need to share across other instances.
       if (!userLibrary) {
@@ -65,30 +62,34 @@ async function syncSubscriptions(accessToken, subscriptions) {
         config: playlistConfig,
         accessToken,
       });
-      playlistTracks = await builder.build(userLibrary);
+      return await builder.build(userLibrary);
     }
-
-    logger.info('Updating songs in playlist...');
+  }
+  async function updateTracks(subscription, tracks) {
+    const {
+      spotify_playlist_id: spotifyPlaylistId,
+      spotify_username: spotifyUserId,
+    } = subscription;
     await putPlaylistSongs(
       spotifyUserId,
       accessToken,
       spotifyPlaylistId,
-      playlistTracks
+      tracks
     );
-    logger.info('Successfully updated subscription: %o', subscription.id);
   }
-
+  async function doSyncSubscription(subscription) {
+    logger.info('Getting tracks...');
+    const tracks = await getTracks(subscription);
+    logger.info('Updating songs in playlist...');
+    await updateTracks(subscription, tracks);
+  }
   for (let subscription of subscriptions) {
+    logger.info('Syncing subscription %o...', subscription.id);
+    logger.info('Config: %o', subscription.playlist_config);
     try {
-      await doSyncSubscription(subscription);
+      await handleRetryAfter(() => doSyncSubscription(subscription));
+      logger.info('Successfully updated subscription: %o', subscription.id);
     } catch (err) {
-      if (err.response && err.response.status === 429) {
-        // TODO rate limited exceeded
-        logger.warn('API Rate limit exceeded while syncing');
-        logger.warn('Headers: %o', err.response.headers);
-        logger.warn('Retry-After: %o', err.response.headers['Retry-After']);
-        continue;
-      }
       logger.error('Error while syncing subscription %o:', subscription);
       logger.error(err.stack);
       logger.error('Aborting!');
@@ -97,7 +98,61 @@ async function syncSubscriptions(accessToken, subscriptions) {
   }
 }
 
-// TODO send to another queue if 429
+// Syncs all subscriptions for a user, with retry logic
+async function syncUserSubscriptions({
+  refreshToken,
+  accessToken,
+  subscriptions,
+  spotifyUsername,
+}) {
+  // Check if playlists are already deleted
+  const {
+    result: { active, stale },
+  } = await getStalePlaylists(accessToken, subscriptions);
+
+  // Delete any stale subscriptions
+  if (stale.length) {
+    logger.info('Deleting %o stale subscriptions', stale.length);
+    deleteSubscriptionsById(stale.map(e => e.id));
+  }
+
+  // Check if premium user if too many playlists
+  let subsToSync = active;
+  logger.info(`User: ${spotifyUsername} | active: ${active.length}`);
+  // User exceeded basic user's limit
+  if (active.length >= PLAYLIST_LIMIT_BASIC) {
+    if (active.length >= PLAYLIST_LIMIT_HARD_CAP) {
+      logger.info('User exceeded hard cap!!!');
+      subsToSync = subsToSync.slice(0, PLAYLIST_LIMIT_HARD_CAP);
+    }
+
+    // Check with stripe to see if subscription still pseudo-active
+    const { result: dbUser } = await getUserByToken(refreshToken);
+    // TODO handle super users like myself
+    const stillAlive = await isSubscriptionActive(dbUser.stripe_sub_id);
+    if (!stillAlive) {
+      logger.info('User is not premium!');
+      subsToSync = subsToSync.slice(0, PLAYLIST_LIMIT_BASIC);
+    }
+  }
+
+  // Sync based on limits
+  await syncSubscriptions(accessToken, subsToSync);
+  logger.info('Updating playlist last synced...');
+  await Promise.all(
+    subsToSync.map(e => {
+      handleRetryAfter(() =>
+        updatePlaylistLastSynced(
+          spotifyUsername,
+          accessToken,
+          e.spotify_playlist_id
+        )
+      );
+    })
+  );
+  logger.info('Successfully updated all subscriptions for %o', spotifyUsername);
+}
+
 async function main() {
   const { result: subscriptions } = await getActiveSubscriptions();
   const groupSubscriptionByUsers = R.pipe(
@@ -122,51 +177,17 @@ async function main() {
         continue;
       }
 
-      // Token is still active
-      // Check if playlists are already deleted
-      const {
-        result: { active, stale },
-      } = await getStalePlaylists(accessToken, subscriptions);
-
-      // Delete any stale subscriptions
-      if (stale.length) {
-        logger.info('Deleting %o stale subscriptions', stale.length);
-        deleteSubscriptionsById(stale.map(e => e.id));
-      }
-
-      // Check if premium user if too many playlists
-      let subsToSync = active;
-      logger.info(`User: ${spotify_username} | active: ${active.length}`);
-      // User exceeded basic user's limit
-      if (active.length >= PLAYLIST_LIMIT_BASIC) {
-        if (active.length >= PLAYLIST_LIMIT_HARD_CAP) {
-          logger.info('User exceeded hard cap!!!');
-          subsToSync = subsToSync.slice(0, PLAYLIST_LIMIT_HARD_CAP);
-        }
-
-        // Check with stripe to see if subscription still pseudo-active
-        const { result: dbUser } = await getUserByToken(refreshToken);
-        const stillAlive = await isSubscriptionActive(dbUser.stripe_sub_id);
-        if (!stillAlive) {
-          logger.info('User is not premium!');
-          subsToSync = subsToSync.slice(0, PLAYLIST_LIMIT_BASIC);
-        }
-      }
-
-      // Sync based on limits
-      await syncSubscriptions(accessToken, subsToSync);
-      logger.info('Updating playlist last synced...');
-      await Promise.all(subsToSync.map(e=> updatePlaylistLastSynced(spotify_username, accessToken, e.spotify_playlist_id)));
-      logger.info('Successfully updated all subscriptions for %o', spotify_username);
+      // Retry following the rate limits, and still timeout if it takes > few minutes
+      await handleRetryAfter(() => {
+        syncUserSubscriptions({
+          refreshToken,
+          accessToken,
+          subscriptions,
+          spotifyUsername: spotify_username,
+        });
+      });
     } catch (err) {
       const [userId, _subscriptions] = group;
-      if (err.response && err.response.status === 429) {
-        // TODO rate limited exceeded
-        logger.warn('API Rate limit exceeded while syncing for user: %o', userId);
-        logger.warn('Headers: %o', err.response.headers);
-        logger.warn('Retry-After: %o', err.response.headers['Retry-After']);
-        continue;
-      }
       logger.error('Uncaught error while syncing for %o', userId);
       logger.error(err.stack);
       continue;
