@@ -32,8 +32,12 @@ router.post('/charge', async (req, res) => {
     sub = await createStripeSubscription(tokenId, email);
     res.sendStatus(200);
   } catch (err) {
-    logger.error(err);
-    res.sendStatus(500);
+    if (err.message) {
+      res.status(400).json(err);
+      return;
+    }
+    logger.error('Unexpected error while creating stripe subscription: %o', err);
+    res.status(500).json(err);
     return;
   }
 

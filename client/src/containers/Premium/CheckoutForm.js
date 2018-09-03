@@ -72,9 +72,16 @@ class CheckoutForm extends Component {
       this.setState({ complete: true });
       onCheckout(true);
     } catch (err) {
+      if (err.response && err.response.data && err.response.data.message) {
+        this.setState({
+          errorMsg: err.response.data.message,
+          loading: false,
+        });
+        return;
+      }
       this.setState({
         errorMsg:
-          'Something went wrong! Please try again later & alert the developer!',
+          'Something went wrong! Please try again later and/or alert the developer!',
         loading: false,
       });
     }
