@@ -9,4 +9,4 @@ WORKDIR /app
 WORKDIR /app/server
 COPY server/ .
 RUN npm i
-ENTRYPOINT ["yarn", "start"]
+ENTRYPOINT ["yarn", "run" ,"start:prod"]
