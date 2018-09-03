@@ -5,6 +5,7 @@ import validator from 'validator';
 import { FontAwesomeIcon as FaIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 
+import { getRefreshToken } from '../../services/authService.js';
 import { URL_BACKEND_CHARGE } from '../../constants.js';
 
 import './CheckoutForm.css';
@@ -66,6 +67,7 @@ class CheckoutForm extends Component {
       await axios.post(URL_BACKEND_CHARGE, {
         tokenId: token.id,
         email,
+        refreshToken: getRefreshToken(),
       });
       this.setState({ complete: true });
       onCheckout(true);
