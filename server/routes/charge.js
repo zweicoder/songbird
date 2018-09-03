@@ -5,7 +5,7 @@ const { makeUserPremiumByToken } = require('../services/dbService.js');
 
 const router = express.Router();
 
-const ONE_DOLLAR_PLAN = 'plan_DVACAMwAejoc4k';
+const ONE_DOLLAR_PLAN = process.env.NODE_ENV === 'production' ? 'prod_DXG3WEpIltnydc' : 'plan_DVACAMwAejoc4k';
 async function createStripeSubscription(tokenId, email) {
   const customer = await stripe.customers.create({
     source: tokenId,
