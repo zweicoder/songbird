@@ -3,8 +3,12 @@ import logo from './songbird-clean-logo.png';
 import './index.css';
 import Button from '../Button.js';
 import { isAuthenticated } from '../../services/authService.js';
+import {withRouter} from 'react-router-dom';
 
 const LogoutButton = () => {
+  if (!isAuthenticated()) {
+    return null;
+  }
   return (
     <div className="pull-right vertical-center">
       <Button className="btn action-button" href="/logout">
@@ -13,16 +17,31 @@ const LogoutButton = () => {
     </div>
   );
 };
-const Header = () => {
+
+const PremiumButton = ({location}) => {
+  if (!isAuthenticated() || location.pathname === '/premium') {
+    return null;
+  }
+  return (
+    <div className="pull-right vertical-center">
+      <Button className="btn action-button" href="/premium">
+        Premium
+      </Button>
+    </div>
+  );
+};
+
+const Header = ({location}) => {
   return (
     <header className="header">
       <div className="vertical-center pull-left">
         <img src={logo} className="logo pull-left" alt="logo" />
         <h2 className="title">Songbird</h2>
       </div>
-      {isAuthenticated() && <LogoutButton />}
+      <LogoutButton />
+      <PremiumButton location={location}/>
     </header>
   );
 };
 
-export default Header;
+export default withRouter(Header);
