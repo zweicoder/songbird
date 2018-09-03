@@ -3,7 +3,7 @@ import logo from './songbird-clean-logo.png';
 import './index.css';
 import Button from '../Button.js';
 import { isAuthenticated } from '../../services/authService.js';
-import {withRouter} from 'react-router-dom';
+import { withRouter } from 'react-router-dom';
 
 const LogoutButton = () => {
   if (!isAuthenticated()) {
@@ -18,7 +18,7 @@ const LogoutButton = () => {
   );
 };
 
-const PremiumButton = ({location}) => {
+const PremiumButton = ({ location }) => {
   if (!isAuthenticated() || location.pathname === '/premium') {
     return null;
   }
@@ -31,7 +31,7 @@ const PremiumButton = ({location}) => {
   );
 };
 
-const Header = ({location}) => {
+const Header = ({ location }) => {
   return (
     <header className="header">
       <div className="vertical-center pull-left">
@@ -39,7 +39,7 @@ const Header = ({location}) => {
         <h2 className="title">Songbird</h2>
       </div>
       <LogoutButton />
-      <PremiumButton location={location}/>
+      <PremiumButton location={location} />
     </header>
   );
 };
