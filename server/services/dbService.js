@@ -16,16 +16,19 @@ pool.on('error', (err, client) => {
   process.exit(-1);
 });
 
-async function makeUserPremiumByToken(token, stripeSubId) {
+async function registerPremiumUserByToken(
+  token,
+  stripeSubId,
+  stripeCustomerId
+) {
   const client = await pool.connect();
   try {
-    const res = await client.query(
-      'UPDATE users SET stripe_sub_id= $1 WHERE token = $2 ',
-      [stripeSubId, token]
+    await client.query(
+      'UPDATE users SET stripe_sub_id= $1, stripe_customer_id=$2 WHERE token = $3',
+      [stripeSubId, stripeCustomerId, token]
     );
-    return { result: res.rows[0] };
   } catch (err) {
-    console.error('Unable to makeUserPremiumByToken: ', err);
+    console.error('Unable to registerPremiumUserByToken: ', err);
     throw new Error(err);
   } finally {
     client.release();
@@ -216,5 +219,5 @@ module.exports = {
   deleteSubscriptionsById,
   deleteSubscriptionByUserId,
   updateSyncTime,
-  makeUserPremiumByToken,
+  registerPremiumUserByToken,
 };
