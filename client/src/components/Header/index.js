@@ -31,10 +31,11 @@ const PremiumButton = ({ location }) => {
   );
 };
 
-const Header = ({ location }) => {
+const Header = ({ location, history }) => {
+
   return (
     <header className="header">
-      <div className="vertical-center pull-left">
+      <div className="vertical-center pull-left logo-container" onClick={() => history.push('/')}>
         <img src={logo} className="logo pull-left" alt="logo" />
         <h2 className="title">Songbird</h2>
       </div>
