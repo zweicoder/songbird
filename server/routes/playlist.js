@@ -79,6 +79,26 @@ router.post(
   })
 );
 
+async function isPlaylistLimitExceeded(dbUser, accessToken, subscriptions) {
+  logger.info('Checking for existing subscriptions...');
+  const {
+    result: { active, stale },
+  } = await getStalePlaylists(accessToken, subscriptions);
+
+  logger.info(`User: ${dbUser.spotify_username} | active: ${active.length}`);
+  // User exceeded basic user's limit
+  if (active.length >= PLAYLIST_LIMIT_BASIC) {
+    if (active.length >= PLAYLIST_LIMIT_HARD_CAP) {
+      return true;
+    }
+    // Check with stripe to see if subscription still pseudo-active
+    const stillAlive = await isSubcriptionActive(dbUser.stripe_sub_id);
+    if (!stillAlive) {
+      return true;
+    }
+  }
+}
+
 router.post(
   '/playlist/subscribe',
   jsonParser,
@@ -111,35 +131,19 @@ router.post(
       refreshAccessToken(refreshToken),
       getSubscriptionsByUserId(dbUser.id),
     ]);
-    if (dbUser.spotify_username !== 'heinekenchong') {
-      // Not god user
-      logger.info('Checking for existing subscriptions...');
-      const {
-        result: { active, stale },
-      } = await getStalePlaylists(accessToken, subscriptions);
 
-      function handleLimitExceeded() {
-        logger.info(`User: ${dbUser.spotify_username} limit exceeded`);
-        res.status(400).send({
-          error: 'ERROR_PLAYLIST_LIMIT_REACHED',
-          message: 'User has reached limit of playlists',
-        });
-      }
-
-      logger.info(`User: ${dbUser.spotify_username} | active: ${active.length}`);
-      // User exceeded basic user's limit
-      if (active.length >= PLAYLIST_LIMIT_BASIC) {
-        if (active.length >= PLAYLIST_LIMIT_HARD_CAP) {
-          handleLimitExceeded();
-          return;
-        }
-        // Check with stripe to see if subscription still pseudo-active
-        const stillAlive = await isSubcriptionActive(dbUser.stripe_sub_id);
-        if (!stillAlive) {
-          handleLimitExceeded();
-          return;
-        }
-      }
+    const limitExceeded = await isPlaylistLimitExceeded(
+      dbUser,
+      accessToken,
+      subscriptions
+    );
+    if (limitExceeded) {
+      logger.info(`User: ${dbUser.spotify_username} limit exceeded`);
+      res.status(400).send({
+        error: 'ERROR_PLAYLIST_LIMIT_REACHED',
+        message: 'User has reached limit of playlists',
+      });
+      return;
     }
 
     const playlistOpts = Object.assign(
