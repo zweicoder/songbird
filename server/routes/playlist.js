@@ -97,7 +97,7 @@ async function isPlaylistLimitExceeded(dbUser, accessToken, subscriptions) {
       return true;
     }
   }
-}
+};
 
 router.post(
   '/playlist/subscribe',
@@ -126,25 +126,26 @@ router.post(
     }
     const [
       { result: accessToken },
-      { result: subscriptions },
+      // { result: subscriptions },
     ] = await Promise.all([
       refreshAccessToken(refreshToken),
-      getSubscriptionsByUserId(dbUser.id),
+      // getSubscriptionsByUserId(dbUser.id),
     ]);
 
-    const limitExceeded = await isPlaylistLimitExceeded(
-      dbUser,
-      accessToken,
-      subscriptions
-    );
-    if (limitExceeded) {
-      logger.info(`User: ${dbUser.spotify_username} limit exceeded`);
-      res.status(400).send({
-        error: 'ERROR_PLAYLIST_LIMIT_REACHED',
-        message: 'User has reached limit of playlists',
-      });
-      return;
-    }
+    // Disable since we can't charge with stripe anyway
+    // const limitExceeded = await isPlaylistLimitExceeded(
+    //   dbUser,
+    //   accessToken,
+    //   subscriptions
+    // );
+    // if (limitExceeded) {
+    //   logger.info(`User: ${dbUser.spotify_username} limit exceeded`);
+    //   res.status(400).send({
+    //     error: 'ERROR_PLAYLIST_LIMIT_REACHED',
+    //     message: 'User has reached limit of playlists',
+    //   });
+    //   return;
+    // }
 
     const playlistOpts = Object.assign(
       {

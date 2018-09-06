@@ -25,7 +25,6 @@ class App extends Component {
             <Switch>
               <Route path="/logout" component={Logout} />
               <Route path="/login" component={Login} />
-              <PrivateRoute path="/premium" component={Premium}/>
               <PrivateRoute path="/" component={Home} />
             </Switch>
           </div>

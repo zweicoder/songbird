@@ -40,7 +40,6 @@ const Header = ({ location, history }) => {
         <h2 className="title">Songbird</h2>
       </div>
       <LogoutButton />
-      <PremiumButton location={location} />
     </header>
   );
 };
