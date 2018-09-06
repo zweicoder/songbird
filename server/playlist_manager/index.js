@@ -121,21 +121,22 @@ async function syncUserSubscriptions({
   let subsToSync = active;
   logger.info(`User: ${spotifyUsername} | active: ${active.length}`);
   // User exceeded basic user's limit
-  if (active.length > PLAYLIST_LIMIT_BASIC) {
-    if (active.length > PLAYLIST_LIMIT_HARD_CAP) {
-      logger.info('User exceeded hard cap!!!');
-      subsToSync = subsToSync.slice(0, PLAYLIST_LIMIT_HARD_CAP);
-    }
+  // TEMP TEMPORARILY DISABLED TO BE NICE. RE-ENABLE IF PEOPLE ABUSE THIS
+  // if (active.length > PLAYLIST_LIMIT_BASIC) {
+  //   if (active.length > PLAYLIST_LIMIT_HARD_CAP) {
+  //     logger.info('User exceeded hard cap!!!');
+  //     subsToSync = subsToSync.slice(0, PLAYLIST_LIMIT_HARD_CAP);
+  //   }
 
-    // Check with stripe to see if subscription still pseudo-active
-    const { result: dbUser } = await getUserByToken(refreshToken);
-    // TODO handle super users like myself
-    const stillAlive = await isSubscriptionActive(dbUser.stripe_sub_id);
-    if (!stillAlive && spotifyUsername !== 'heinekenchong') {
-      logger.info('User is not premium!');
-      subsToSync = subsToSync.slice(0, PLAYLIST_LIMIT_BASIC);
-    }
-  }
+  //   // Check with stripe to see if subscription still pseudo-active
+  //   const { result: dbUser } = await getUserByToken(refreshToken);
+  //   // TODO handle super users like myself
+  //   const stillAlive = await isSubscriptionActive(dbUser.stripe_sub_id);
+  //   if (!stillAlive && spotifyUsername !== 'heinekenchong') {
+  //     logger.info('User is not premium!');
+  //     subsToSync = subsToSync.slice(0, PLAYLIST_LIMIT_BASIC);
+  //   }
+  // }
 
   // Sync based on limits
   await syncSubscriptions(accessToken, subsToSync);
