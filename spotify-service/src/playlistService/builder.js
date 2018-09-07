@@ -120,7 +120,7 @@ const makePlaylistBuilder = ({
 
     // This is a list to prevent any unnecessary migrations but we only care about the first item now.
     // In the future we _might_ want to allow multiple age ranges, but they might intersect
-    const ageRange = this.config.ageRanges[0];
+    const ageRange = this.config.ageRanges && this.config.ageRanges[0];
     if (!!ageRange) {
       const { low, high } = ageRange;
       playlistTracks = playlistTracks.filter(
@@ -129,7 +129,7 @@ const makePlaylistBuilder = ({
     }
 
     // Same story as ageRange here
-    const yearRange = this.config.yearRanges[0];
+    const yearRange = this.config.yearRanges && this.config.yearRanges[0];
     if (!!yearRange) {
       const { low, high } = yearRange;
       playlistTracks = playlistTracks.filter(
