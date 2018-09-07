@@ -15,7 +15,8 @@ const logger = require('./lib/logger.js')('app.js');
 
 const app = express();
 
-app.use(bodyParser.json());
+// yolo
+app.use(bodyParser.json({limit: '50mb'}));
 app.use(cookieParser());
 app.use(morgan('common'));
 app.use(cors());
