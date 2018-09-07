@@ -137,9 +137,10 @@ const makePlaylistBuilder = ({
       );
     }
 
-    // Limit by 25. Change if we have premium features
-    const limit = Math.min(this.config.limit, DEFAULT_PLAYLIST_SIZE_LIMIT);
-    playlistTracks = playlistTracks.slice(0, limit);
+    // TEMP disable limit for custom playlists
+    // // Limit by 25. Change if we have premium features
+    // const limit = Math.min(this.config.limit, DEFAULT_PLAYLIST_SIZE_LIMIT);
+    // playlistTracks = playlistTracks.slice(0, limit);
     return playlistTracks;
   },
 });
