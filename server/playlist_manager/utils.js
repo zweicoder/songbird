@@ -46,7 +46,7 @@ async function handleRetryAfter(promiseFactory) {
         }
 
         logger.error('No Retry-After header found!');
-        logger.error('%o', err.response.headers);
+        logger.error('%o', err.response);
         throw err;
       }
     }
