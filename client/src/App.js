@@ -10,7 +10,6 @@ import Login from './containers/Login/';
 import Logout from './containers/Logout.js';
 import Header from './components/Header';
 import Footer from './components/Footer';
-import Premium from './containers/Premium';
 
 import './App.css';
 
