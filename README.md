@@ -1,7 +1,25 @@
 # Songbird
+Donate [here](https://paypal.me/getsongbird)
 
-## Installation
-Install Docker and docker-compose
+Songbird is a tool that allows users to create smart playlists in Spotify. Smart playlists will automatically update themselves according to certain presets / configurations / listening habits. 
+
+Some examples of smart playlists:
+- Top Tracks for a time window
+- Tracks from the 90s
+- Tracks from a certain artist
+- Tracks belonging to a certain genre
+
+Songbird was initially hosted at getsongbird.io, but I took it down because it required some maintenance and costed ~$10 monthly for hosting, but couldn't become self-sustaining.
+
+Unfortunately for me, the constant stream of emails from users guilt tripped me enough to extract out the important parts into this standalone version.
+
+## Prerequisites
+1. Clone this awesome repo
+```
+git@github.com:zweicoder/songbird.git
+```
+
+2. Install [Docker](https://docs.docker.com/install/) and [docker-compose](https://docs.docker.com/compose/install/)
 
 ## Usage
 ### Start all services
@@ -40,6 +58,7 @@ will sync every day on 10:00pm. Make sure your computer is on at that time!
 
 
 # Development
+Contributions are very welcome and will make this tool more awesome for everyone!
 ## Modules
 This project contains of mainly these modules:
 - Spotify Service
@@ -86,3 +105,17 @@ Frontend is pretty standard.
 ```
 npm start
 ```
+
+
+## Donations
+### Milestones
+Donations are very welcome and will incentivize me to actually work on improving this project. Here are some milestones I temporarily set as goals for this project. Send an email to getsongbird@gmail.com with a proof of donation and I'll include your logo / name / whatever.
+
+- [X] $2 - Create standalone version of songbird and open source it
+- [ ] $50 - Make me regain faith in humanity and working on side projects
+- [ ] $100 - Guilt trip me enough to work on fixing bugs more frequently / adding some features (e.g. new filters)
+- [ ] $500 - $500 is enough to cover the server costs for a few years. If we come to this I will polish the code enough and host it again
+- [ ] $1000 - The servers will go online for at least 5 years! By then I probably already forgot about its existence and how it's eating into my bank account every month
+
+## Feedback
+Email your feedback to getsongbird@gmail.com :)
