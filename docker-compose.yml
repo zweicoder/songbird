@@ -24,21 +24,24 @@ services:
       - "5432"
     ports:
       - "5444:5432"
+    # Due to a recent change this causes weird permission issues
     volumes:
-      - ./postgres_volume/var/lib/postgresql:/var/lib/postgresql
+      - ./postgres_volume/var/lib/postgresql/data:/var/lib/postgresql/data
+
+  initdb:
+    build:
+      context: .
+      dockerfile: initdb.Dockerfile
 
   manager:
     build:
       context: .
       dockerfile: server.Dockerfile
-    # network_mode: host
     env_file:
       - ./env/dev.env
       - /etc/songbird/secrets.env
     entrypoint:
       - node
-    # volumes:
-      # - ./docker_logs/playlist_manager/logs/:/app/server/playlist_manager/logs/
     command:
       - ./playlist_manager/index.js
       - sync

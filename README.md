@@ -10,6 +10,11 @@ This creates:
 - api server at localhost:8888
 - postgres db at localhost:5444
 
+The database has to be initialized with:
+```
+
+```
+
 After starting these services, go to http://localhost:3000 and save your smart playlists.
 
 ### Sync playlists
