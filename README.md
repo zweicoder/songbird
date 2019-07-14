@@ -12,7 +12,7 @@ Songbird was initially hosted at getsongbird.io, but I took it down because it r
 Unfortunately for me, the constant stream of emails from users guilt tripped me enough to extract out the important parts into this standalone version.
 
 ## Donations
-**Donate [here](https://paypal.me/getsongbird)**
+### Donate [here](https://paypal.me/getsongbird)
 
 Donations are very welcome and will incentivize me to actually work on improving this project. Here are some milestones I temporarily set as goals for this project. Send an email to getsongbird@gmail.com with a proof of donation and I'll include your logo / name / whatever.
 
@@ -35,13 +35,20 @@ git clone git@github.com:zweicoder/songbird.git
 
 3. Go to https://developer.spotify.com/dashboard/login, sign up and create a project
 
-4. Copy the client ID and client secret from the dashboard
+4. In Spotify's dashboard page, click on `Edit Settings` and add `localhost:8888/callback` to `Redirect URIs`
+![redirect uris](images/redirect_uris.png)
 
-5. Paste it into `/etc/songbird/secrets.env`, it should look like this:
+5. Copy the client ID and client secret from the dashboard
+
+![Dashboard](images/dashboard.png)
+
+6. Paste the above into `/etc/songbird/secrets.env`, it should look like this:
 ```
 CLIENT_ID=<copy this from the dashboard>
 CLIENT_SECRET=<copy this from the dashboard>
 ```
+
+7. Pat yourself on the back, you're all set! (and if not, I suggest you complain loudly!)
 
 ## Usage
 ### Start all services
