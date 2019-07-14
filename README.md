@@ -1,31 +1,43 @@
 # Songbird
 
+## Installation
+Install Docker and docker-compose
+
 ## Usage
 ### Start all services
 ```
-docker-compose up -d web api postgres
+./scripts/start_webserver.sh
 ```
+
 This creates:
 - web server at localhost:3000
 - api server at localhost:8888
 - postgres db at localhost:5444
-
-The database has to be initialized with:
-```
-
-```
+- binds postgres_volume as a Docker volume for postgres db
 
 After starting these services, go to http://localhost:3000 and save your smart playlists.
 
 ### Sync playlists
-Once you have smart playlists in the database, you can sync it with:
+Once you have smart playlists in the database, you can sync it manually any time with:
 ```
-docker-compose run manager
+./scripts/sync.sh
 ```
 
-cronjob
+### Sync periodically with a Cron
+Since we're all lazy people, we can create a cronjob that keeps running `./scripts/cron_entrypoint.sh`.
 
-migrate -path ./migrations -database 'postgres://postgres:postgres@localhost:5444?sslmode=disable'
+Edit crontab with:
+```
+crontab -e
+```
+
+For example, a crontab with:
+```
+# m h  dom mon dow   command
+0 22 * * * (cd <path/to/songbird> && ./scripts/cron_entrypoint.sh)
+```
+will sync every day on 10:00pm. Make sure your computer is on at that time!
+
 
 # Development
 ## Modules
@@ -56,7 +68,7 @@ npm i
 npm start
 ```
 
-Migrations is currently done via `migrate`, with additional data migration logic in `.js` files (e.g. inflate columns that need default values based on another column).
+Migrations is currently done via [migrate](https://github.com/golang-migrate/migrate), with additional data migration logic in `.js` files (e.g. inflate columns that need default values based on another column).
 
 ### Creating migrations
 ```
@@ -64,11 +76,11 @@ migrate create -ext sql -dir migrations/ <migration_name>
 ```
 ### Running migrations
 ```
-migrate -path ./migrations -database 'postgres://postgres:postgres@localhost/songbird?sslmode=disable' up 1
+migrate -path ./migrations -database 'postgres://postgres:postgres@localhost?sslmode=disable' up 1
 ```
 
 ## Frontend 
-Frontend is pretty standard. CD is setup on `pages` branch.
+Frontend is pretty standard. 
 
 ### Development
 ```
