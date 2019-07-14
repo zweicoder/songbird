@@ -71,7 +71,7 @@ Once you have smart playlists in the database, you can sync it manually any time
 ./scripts/sync.sh
 ```
 
-### Sync periodically with a Cron
+### Sync periodically with Cron
 Since we're all lazy people, we can create a cronjob that keeps running `./scripts/cron_entrypoint.sh`.
 
 Edit crontab with:
