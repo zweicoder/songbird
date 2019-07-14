@@ -1,8 +1,8 @@
 # Songbird
-Songbird is a tool that allows users to create smart playlists in Spotify. Smart playlists will automatically update themselves according to certain presets / configurations / listening habits. 
+Songbird is a tool that allows users to create smart playlists in Spotify. Smart playlists will automatically update themselves according to certain presets / configurations / listening habits, just continue adding new songs into your library and they'll be automatically synced to your playlists when Songbird runs.
 
 Some examples of smart playlists:
-- Top Tracks for a time window
+- Top Tracks (based on what you have been listening recently)
 - Tracks from the 90s
 - Tracks from a certain artist
 - Tracks belonging to a certain genre
