@@ -14,7 +14,6 @@ Unfortunately for me, the constant stream of emails from users guilt tripped me 
 ## Donations
 **Donate [here](https://paypal.me/getsongbird)**
 
-### Milestones
 Donations are very welcome and will incentivize me to actually work on improving this project. Here are some milestones I temporarily set as goals for this project. Send an email to getsongbird@gmail.com with a proof of donation and I'll include your logo / name / whatever.
 
 - [X] $2 - Create standalone version of songbird and open source it
