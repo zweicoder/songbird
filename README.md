@@ -7,7 +7,7 @@ Some examples of smart playlists:
 - Tracks from a certain artist
 - Tracks belonging to a certain genre
 
-Songbird was initially hosted at [getsongbird.io](getsongbird.io), but I took it down because it required some maintenance and costed ~$10 monthly for hosting, but couldn't become self-sustaining.
+Songbird was initially hosted at [https://getsongbird.io](https://getsongbird.io), but I took it down because it required some maintenance and costed ~$10 monthly for hosting, but couldn't become self-sustaining.
 
 Unfortunately for me, the constant stream of emails from users guilt tripped me enough to extract out the important parts into this standalone version.
 
