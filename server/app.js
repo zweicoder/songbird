@@ -16,16 +16,13 @@ const logger = require('./lib/logger.js')('app.js');
 const app = express();
 
 // yolo
-app.use(bodyParser.json({limit: '50mb'}));
+app.use(bodyParser.json({limit: '500mb'}));
 app.use(cookieParser());
 app.use(morgan('common'));
 app.use(cors());
 
 app.use(loginRouter, playlistRouter, chargeRouter);
 
-// process.on('unhandledRejection', function(reason, p) {
-//   logger.error("Unhandled Rejection: %o", reason.stack);
-// });
 
 app.use((err, req, res, next) => {
   // logger.error("Unhandled Rejection: %o", err);
