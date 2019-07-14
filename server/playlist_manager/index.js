@@ -13,15 +13,6 @@ const {
   makePlaylistBuilder,
   getStalePlaylists,
 } = require('spotify-service').playlistService;
-
-const {
-  stripe,
-  isSubscriptionActive,
-} = require('../services/stripeService.js');
-const {
-  PLAYLIST_LIMIT_HARD_CAP,
-  PLAYLIST_LIMIT_BASIC,
-} = require('../constants.global.js');
 const { refreshAccessToken } = require('../lib/oauthClient.js');
 const {
   getActiveSubscriptions,

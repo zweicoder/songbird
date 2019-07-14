@@ -16,25 +16,6 @@ pool.on('error', (err, client) => {
   process.exit(-1);
 });
 
-async function registerPremiumUserByToken(
-  token,
-  stripeSubId,
-  stripeCustomerId
-) {
-  const client = await pool.connect();
-  try {
-    await client.query(
-      'UPDATE users SET stripe_sub_id= $1, stripe_customer_id=$2 WHERE token = $3',
-      [stripeSubId, stripeCustomerId, token]
-    );
-  } catch (err) {
-    console.error('Unable to registerPremiumUserByToken: ', err);
-    throw new Error(err);
-  } finally {
-    client.release();
-  }
-}
-
 async function getUserByToken(token) {
   const client = await pool.connect();
   try {

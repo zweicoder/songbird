@@ -18,19 +18,6 @@ const LogoutButton = () => {
   );
 };
 
-const PremiumButton = ({ location }) => {
-  if (!isAuthenticated() || location.pathname === '/premium') {
-    return null;
-  }
-  return (
-    <div className="pull-right vertical-center">
-      <Button className="btn action-button" href="/premium">
-        Premium
-      </Button>
-    </div>
-  );
-};
-
 const DonateButton = () => {
   return (
     <div className="pull-right vertical-center">
