@@ -63,7 +63,6 @@
   "scripts": {
     "start": "node scripts/start.js",
     "build": "node scripts/build.js",
-    "publish": "npm run build && aws s3 sync --delete build/ s3://getsongbird.io",
     "test": "node scripts/test.js --env=jsdom"
   },
   "homepage": "https://getsongbird.io",

@@ -1,5 +1,16 @@
 # Songbird
 
+## Usage
+Start web server to customize playlist
+TODO
+`docker-compose`
+
+Run manager to update playlist
+
+cronjob
+
+# Development
+## Modules
 This project contains of mainly these modules:
 - Spotify Service
 - Frontend
