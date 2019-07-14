@@ -25,18 +25,31 @@ Donations are very welcome and will incentivize me to actually work on improving
 
 
 ## Prerequisites
+Minimal programming experience is required to run this, just google around if you're having trouble with running this
+
 1. Clone this awesome repo
 ```
-git@github.com:zweicoder/songbird.git
+git clone git@github.com:zweicoder/songbird.git
 ```
 
 2. Install [Docker](https://docs.docker.com/install/) and [docker-compose](https://docs.docker.com/compose/install/)
+
+3. Go to https://developer.spotify.com/dashboard/login, sign up and create a project
+
+4. Copy the client ID and client secret from the dashboard
+
+5. Paste it into `/etc/songbird/secrets.env`, it should look like this:
+```
+CLIENT_ID=<copy this from the dashboard>
+CLIENT_SECRET=<copy this from the dashboard>
+```
 
 ## Usage
 ### Start all services
 ```
 ./scripts/start_webserver.sh
 ```
+_Note: If you get some permission error trying to run this script, run `chmod +x ./scripts/*`__
 
 This creates:
 - web server at localhost:3000
