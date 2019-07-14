@@ -1,13 +1,26 @@
 # Songbird
 
 ## Usage
-Start web server to customize playlist
-TODO
-`docker-compose`
+### Start all services
+```
+docker-compose up -d web api postgres
+```
+This creates:
+- web server at localhost:3000
+- api server at localhost:8888
+- postgres db at localhost:5444
 
-Run manager to update playlist
+After starting these services, go to http://localhost:3000 and save your smart playlists.
+
+### Sync playlists
+Once you have smart playlists in the database, you can sync it with:
+```
+docker-compose run manager
+```
 
 cronjob
+
+migrate -path ./migrations -database 'postgres://postgres:postgres@localhost:5444?sslmode=disable'
 
 # Development
 ## Modules
