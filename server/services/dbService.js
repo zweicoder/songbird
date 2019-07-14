@@ -200,5 +200,4 @@ module.exports = {
   deleteSubscriptionsById,
   deleteSubscriptionByUserId,
   updateSyncTime,
-  registerPremiumUserByToken,
 };
