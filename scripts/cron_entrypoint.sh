@@ -4,4 +4,4 @@ set -euo pipefail
 
 ./scripts/start_webserver.sh
 ./scripts/sync.sh
-docker-compose stop
+/usr/local/bin/docker-compose stop

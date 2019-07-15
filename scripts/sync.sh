@@ -1,4 +1,4 @@
 #!/bin/bash
 set -euo pipefail
 
-docker-compose run manager
+/usr/local/bin/docker-compose run manager
