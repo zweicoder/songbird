@@ -116,8 +116,8 @@ async function syncUserSubscriptions({
   await syncSubscriptions(accessToken, subsToSync);
   logger.info('Updating playlist last synced...');
   await Promise.all(
-    subsToSync.map(e => {
-      handleRetryAfter(() =>
+    subsToSync.map(async e => {
+      await handleRetryAfter(() =>
         updatePlaylistLastSynced(
           spotifyUsername,
           accessToken,

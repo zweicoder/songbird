@@ -65,7 +65,7 @@ async function putPlaylistSongs(
     return { err: 'Bad track uris: ' + requestBody.uris };
   }
   const res = await axios.put(
-    `https://api.spotify.com/v1/users/${userId}/playlists/${playlistId}/tracks`,
+    `https://api.spotify.com/v1/playlists/${playlistId}/tracks`,
     requestBody,
     opts
   );
@@ -83,7 +83,7 @@ async function putPlaylistDetails(
     headers: getOAuthHeader(accessToken),
   };
   const res = await axios.put(
-    `https://api.spotify.com/v1/users/${userId}/playlists/${playlistId}`,
+    `https://api.spotify.com/v1/playlists/${playlistId}`,
     playlistDetails,
     opts
   );
