@@ -17,7 +17,7 @@ Unfortunately for me, the constant stream of emails from users guilt tripped me 
 Donations are very welcome and will incentivize me to actually work on improving this project. Here are some milestones I temporarily set as goals for this project. Send an email to getsongbird@gmail.com with a proof of donation and I'll include your logo / name / whatever.
 
 - [X] $2 - Create standalone version of songbird and open source it
-- [ ] $50 - Make me regain faith in humanity and working on side projects
+- [X] $50 - Make me regain faith in humanity and working on side projects
 - [ ] $100 - Guilt trip me enough to work on fixing bugs more frequently / adding some features (e.g. new filters)
 - [ ] $500 - $500 is enough to cover the server costs for a few years. If we come to this I will polish the code enough and host it again
 - [ ] $1000 - The servers will go online for at least 5 years! By then I probably already forgot about its existence and how it's eating into my bank account every month
